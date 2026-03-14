@@ -1,0 +1,869 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.7px Arial; -webkit-text-stroke: #000000}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000; min-height: 14.0px}
+    span.s1 {font-kerning: none}
+  </style>
+</head>
+<body>
+<p class="p1"><span class="s1">import React, { useState } from 'react';</span></p>
+<p class="p1"><span class="s1">import { </span></p>
+<p class="p1"><span class="s1">  Tent, Lock, ArrowUpRight, Star, MapPin, Mail, Calendar, Phone, </span></p>
+<p class="p1"><span class="s1">  Users, Compass, DollarSign, Award, CheckCircle, Clock, </span></p>
+<p class="p1"><span class="s1">  MessageCircle, ExternalLink, Medal, Flame, Heart, Key, </span></p>
+<p class="p1"><span class="s1">  FileText, Smartphone, CreditCard, ShieldCheck, Download, </span></p>
+<p class="p1"><span class="s1">  LogOut, BookOpen, X, Search, Printer, Snowflake, Mountain, Backpack, Facebook, Sun</span></p>
+<p class="p1"><span class="s1">} from 'lucide-react';</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">export default function App() {</span></p>
+<p class="p1"><span class="s1">  const [currentPage, setCurrentPage] = useState('home');</span></p>
+<p class="p1"><span class="s1">  const [activeProgram, setActiveProgram] = useState(0);</span></p>
+<p class="p1"><span class="s1">  </span></p>
+<p class="p1"><span class="s1">  // PORTAL AUTHENTICATION STATE</span></p>
+<p class="p1"><span class="s1">  const [isLoggedIn, setIsLoggedIn] = useState(false);</span></p>
+<p class="p1"><span class="s1">  const [password, setPassword] = useState('');</span></p>
+<p class="p1"><span class="s1">  const [loginError, setLoginError] = useState(false);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  // REGISTRATION MODAL STATE</span></p>
+<p class="p1"><span class="s1">  const [selectedBadge, setSelectedBadge] = useState(null);</span></p>
+<p class="p1"><span class="s1">  const [registrationSuccess, setRegistrationSuccess] = useState(false);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  // SCOUT DOLLAR SEARCH STATE</span></p>
+<p class="p1"><span class="s1">  const [searchQuery, setSearchQuery] = useState('');</span></p>
+<p class="p1"><span class="s1">  const [activeResult, setActiveResult] = useState(null);</span></p>
+<p class="p1"><span class="s1">  const [hasSearched, setHasSearched] = useState(false);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  // JOIN FORM STATE</span></p>
+<p class="p1"><span class="s1">  const [joinSuccess, setJoinSuccess] = useState(false);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  const troopNavy = "#1D3A6C";</span></p>
+<p class="p1"><span class="s1">  const troopRed = "#BE1E2D";</span></p>
+<p class="p1"><span class="s1">  const darkBg = "#0B0F19";</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  const programsList = [</span></p>
+<p class="p1"><span class="s1">    { id: 0, title: "Scout Rank Advancement", desc: "Progress through the scouting ranks at your own pace with the guidance of experienced mentors and youth leaders.", img: "https://images.unsplash.com/photo-1516934522927-4404d3e8e775?auto=format&amp;fit=crop&amp;w=1000&amp;q=80" },</span></p>
+<p class="p1"><span class="s1">    { id: 1, title: "Merit Badge Program", desc: "Explore over 140 different subjects from Robotics to First Aid in our active, year-round educational program.", img: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&amp;fit=crop&amp;w=1000&amp;q=80" },</span></p>
+<p class="p1"><span class="s1">    { id: 2, title: "Monthly Campouts", desc: "Develop outdoor survival skills, patrol camaraderie, and self-reliance during our regular weekend camping trips.", img: "https://images.unsplash.com/photo-1525382455947-f319bc05fb35?auto=format&amp;fit=crop&amp;w=1000&amp;q=80" },</span></p>
+<p class="p1"><span class="s1">    { id: 3, title: "Community Service", desc: "Giving back to Farmington and Unionville through local conservation, food drives, and extensive Eagle Scout projects.", img: "https://images.unsplash.com/photo-1593113514676-5915d3e0db7e?auto=format&amp;fit=crop&amp;w=1000&amp;q=80" },</span></p>
+<p class="p1"><span class="s1">    { id: 4, title: "Summer Camp", desc: "A week of intensive advancement, unparalleled fun, and outdoor bonding at our annual summer camp.", img: "https://images.unsplash.com/photo-1533615416035-15bf2865df54?auto=format&amp;fit=crop&amp;w=1000&amp;q=80" },</span></p>
+<p class="p1"><span class="s1">    { id: 5, title: "High Adventure Trekking", desc: "Epic outdoor trips including backpacking, wilderness survival, and annual high-adventure treks across the country.", img: "https://images.unsplash.com/photo-1504280390467-f4958448f381?auto=format&amp;fit=crop&amp;w=1000&amp;q=80" }</span></p>
+<p class="p1"><span class="s1">  ];</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  const upcomingBadges = [</span></p>
+<p class="p1"><span class="s1">    { id: 101, name: "First Aid", date: "Saturday, Oct 14", time: "9:00 AM - 1:00 PM", counselor: "Dr. Smith", status: "Open", img: "https://images.unsplash.com/photo-1583324113626-70df0f4deaab?auto=format&amp;fit=crop&amp;w=800&amp;q=80" },</span></p>
+<p class="p1"><span class="s1">    { id: 102, name: "Citizenship in the Nation", date: "Monday, Oct 23", time: "6:00 PM - 7:00 PM", counselor: "Mr. Johnson", status: "Open", img: "https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&amp;fit=crop&amp;w=800&amp;q=80" },</span></p>
+<p class="p1"><span class="s1">    { id: 103, name: "Personal Management", date: "Monday, Nov 6", time: "6:00 PM - 7:00 PM", counselor: "Mrs. Davis", status: "Waitlist", img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&amp;fit=crop&amp;w=800&amp;q=80" },</span></p>
+<p class="p1"><span class="s1">    { id: 104, name: "Environmental Science", date: "Saturday, Nov 11", time: "10:00 AM - 3:00 PM", counselor: "Mr. Thompson", status: "Full", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&amp;fit=crop&amp;w=800&amp;q=80" }</span></p>
+<p class="p1"><span class="s1">  ];</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  const scoutAccounts = [</span></p>
+<p class="p1"><span class="s1">    { id: 1, name: "Alexander T.", balance: 145.50, lastTransaction: "Holiday Wreath Sales (+ $120.00)", date: "Dec 15, 2025" },</span></p>
+<p class="p1"><span class="s1">    { id: 2, name: "Benjamin C.", balance: 85.00, lastTransaction: "Spring Can Drive (+ $85.00)", date: "Mar 02, 2026" },</span></p>
+<p class="p1"><span class="s1">    { id: 3, name: "Carter H.", balance: 320.25, lastTransaction: "Summer Camp Deposit (- $150.00)", date: "Feb 20, 2026" },</span></p>
+<p class="p1"><span class="s1">    { id: 4, name: "Daniel W.", balance: 12.00, lastTransaction: "Weekend Campout Fee (- $25.00)", date: "Jan 10, 2026" },</span></p>
+<p class="p1"><span class="s1">  ];</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  const gearListsData = [</span></p>
+<p class="p1"><span class="s1">    { </span></p>
+<p class="p1"><span class="s1">      id: 1, title: "The 10 Essentials", desc: "The absolute required items for every Scout's daypack, regardless of trip duration.", icon: &lt;Compass size={28} /&gt;,</span></p>
+<p class="p1"><span class="s1">      type: "document",</span></p>
+<p class="p1"><span class="s1">      content: "&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;&lt;strong&gt;Pocketknife&lt;/strong&gt; (Totin' Chip required)&lt;/li&gt;&lt;li&gt;&lt;strong&gt;First-Aid Kit&lt;/strong&gt; (personal size)&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Extra Clothing&lt;/strong&gt; (layers)&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Rain Gear&lt;/strong&gt; (jacket &amp; pants)&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Water Bottle&lt;/strong&gt; (full)&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Flashlight or Headlamp&lt;/strong&gt; (fresh batteries)&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Trail Food&lt;/strong&gt; (high energy)&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Matches &amp; Fire Starter&lt;/strong&gt;&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Sun Protection&lt;/strong&gt; (SPF 30+)&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Map and Compass&lt;/strong&gt;&lt;/li&gt;&lt;/ul&gt;",</span></p>
+<p class="p1"><span class="s1">      plainText: "- Pocketknife\n- First-Aid Kit\n- Extra Clothing\n- Rain Gear\n- Water Bottle\n- Flashlight or Headlamp\n- Trail Food\n- Fire Starter\n- Sun Protection\n- Map and Compass"</span></p>
+<p class="p1"><span class="s1">    },</span></p>
+<p class="p1"><span class="s1">    { </span></p>
+<p class="p1"><span class="s1">      id: 2, title: "Warm Weather Camping", desc: "Lightweight, moisture-wicking packing list for Spring and Summer overnight trips.", icon: &lt;Sun size={28} /&gt;,</span></p>
+<p class="p1"><span class="s1">      type: "document",</span></p>
+<p class="p1"><span class="s1">      content: "&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;Clothing&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;T-shirt or short-sleeved shirt&lt;/li&gt;&lt;li&gt;Hiking shorts&lt;/li&gt;&lt;li&gt;Underwear &amp; Extra underwear&lt;/li&gt;&lt;li&gt;Socks (synthetic or wool blend)&lt;/li&gt;&lt;li&gt;Long-sleeved shirt&lt;/li&gt;&lt;li&gt;Brimmed hat&lt;/li&gt;&lt;li&gt;Bandana&lt;/li&gt;&lt;li&gt;Long pants (lightweight)&lt;/li&gt;&lt;li&gt;Sweater or warm jacket&lt;/li&gt;&lt;/ul&gt;&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;Cooking &amp; Eating&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;Large plastic bowl&lt;/li&gt;&lt;li&gt;Spoon (lexan/metal)&lt;/li&gt;&lt;li&gt;Insulated mug&lt;/li&gt;&lt;li&gt;Water treatment system&lt;/li&gt;&lt;li&gt;Stove &amp; Fuel&lt;/li&gt;&lt;li&gt;Cookset (Pots &amp; Frying pan)&lt;/li&gt;&lt;li&gt;Hot-pot tongs&lt;/li&gt;&lt;/ul&gt;&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;Hygiene&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;Toothbrush &amp; Toothpaste&lt;/li&gt;&lt;li&gt;Dental floss&lt;/li&gt;&lt;li&gt;Biodegradable soap&lt;/li&gt;&lt;li&gt;Comb&lt;/li&gt;&lt;li&gt;Hand cleaner&lt;/li&gt;&lt;li&gt;Small towel&lt;/li&gt;&lt;li&gt;Toilet paper (in Ziploc)&lt;/li&gt;&lt;li&gt;Trowel&lt;/li&gt;&lt;/ul&gt;&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;Expert Pro Tips&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;Rain suit (breathable)&lt;/li&gt;&lt;li&gt;Hiking boots (broken in)&lt;/li&gt;&lt;li&gt;Backpack that fits correctly&lt;/li&gt;&lt;li&gt;Personal blister kit (Moleskin)&lt;/li&gt;&lt;li&gt;Parachute cord (20 feet)&lt;/li&gt;&lt;/ul&gt;",</span></p>
+<p class="p1"><span class="s1">      plainText: "CLOTHING:\n- T-shirt or short-sleeved shirt\n- Hiking shorts\n- Underwear &amp; Extra underwear\n- Socks (synthetic or wool blend)\n- Long-sleeved shirt\n- Brimmed hat\n- Bandana\n- Long pants (lightweight)\n- Sweater or warm jacket\n\nCOOKING &amp; EATING:\n- Large plastic bowl\n- Spoon (lexan/metal)\n- Insulated mug\n- Water treatment system\n- Stove &amp; Fuel\n- Cookset (Pots &amp; Frying pan)\n- Hot-pot tongs\n\nHYGIENE:\n- Toothbrush &amp; Toothpaste\n- Dental floss\n- Biodegradable soap\n- Comb\n- Hand cleaner\n- Small towel\n- Toilet paper (in Ziploc)\n- Trowel\n\nEXPERT PRO TIPS:\n- Rain suit (breathable)\n- Hiking boots (broken in)\n- Backpack that fits correctly\n- Personal blister kit (Moleskin)\n- Parachute cord (20 feet)"</span></p>
+<p class="p1"><span class="s1">    },</span></p>
+<p class="p1"><span class="s1">    { </span></p>
+<p class="p1"><span class="s1">      id: 3, title: "Cold-Weather Camping", desc: "Sub-freezing packing guide focusing on the 'No Cotton' rule and thermal layers.", icon: &lt;Snowflake size={28} /&gt;, </span></p>
+<p class="p1"><span class="s1">      type: "document",</span></p>
+<p class="p1"><span class="s1">      content: "&lt;p style='font-style:italic; font-weight:bold; color:#BE1E2D;'&gt;RULE: NO COTTON!&lt;/p&gt;&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;Clothing &amp; Layers&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;Long-sleeved shirt (synthetic/wool)&lt;/li&gt;&lt;li&gt;Long pants (fleece or wool)&lt;/li&gt;&lt;li&gt;Sweater or Jacket (fleece or wool)&lt;/li&gt;&lt;li&gt;Base layer (polypropylene)&lt;/li&gt;&lt;li&gt;Hiking boots (waterproofed)&lt;/li&gt;&lt;li&gt;Wool socks (multiple pairs)&lt;/li&gt;&lt;li&gt;Warm parka with hood&lt;/li&gt;&lt;li&gt;Stocking hat (covers ears)&lt;/li&gt;&lt;li&gt;Mittens or Gloves (warm)&lt;/li&gt;&lt;li&gt;Wool scarf&lt;/li&gt;&lt;li&gt;Extra dry underwear&lt;/li&gt;&lt;/ul&gt;&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;Expert Gear&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;Bandana&lt;/li&gt;&lt;li&gt;Insulated Sorel-style boots&lt;/li&gt;&lt;li&gt;Wind parka with hood&lt;/li&gt;&lt;li&gt;Side-attaching suspenders&lt;/li&gt;&lt;li&gt;Rubberized gloves (for wet snow)&lt;/li&gt;&lt;/ul&gt;&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;Eating &amp; Cooking&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;Large storage bowl &amp; Spoon&lt;/li&gt;&lt;li&gt;Insulated mug&lt;/li&gt;&lt;li&gt;Water treatment &amp; Stove&lt;/li&gt;&lt;li&gt;Cookset &amp; Snow Melting Pot&lt;/li&gt;&lt;li&gt;Hot-pot tongs&lt;/li&gt;&lt;/ul&gt;", </span></p>
+<p class="p1"><span class="s1">      plainText: "RULE: NO COTTON!\n\nCLOTHING &amp; LAYERS:\n- Long-sleeved shirt (synthetic/wool)\n- Long pants (fleece or wool)\n- Sweater or Jacket (fleece or wool)\n- Base layer (polypropylene)\n- Hiking boots (waterproofed)\n- Wool socks (multiple pairs)\n- Warm parka with hood\n- Stocking hat (covers ears)\n- Mittens or Gloves (warm)\n- Wool scarf\n- Extra dry underwear\n\nEXPERT GEAR:\n- Bandana\n- Insulated boots\n- Wind parka with hood\n- Side-attaching suspenders\n- Rubberized gloves (for wet snow)\n\nEATING &amp; COOKING:\n- Large storage bowl &amp; Spoon\n- Insulated mug\n- Water treatment &amp; Stove\n- Cookset &amp; Snow Melting Pot\n- Hot-pot tongs" </span></p>
+<p class="p1"><span class="s1">    },</span></p>
+<p class="p1"><span class="s1">    { </span></p>
+<p class="p1"><span class="s1">      id: 4, title: "Klondike Derby", desc: "Day-trip gear list for our active, high-energy winter competition in the snow.", icon: &lt;Flame size={28} /&gt;, </span></p>
+<p class="p1"><span class="s1">      type: "document",</span></p>
+<p class="p1"><span class="s1">      content: "&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;Health &amp; Safety&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;Waterproof Boots (Sneakers not allowed!)&lt;/li&gt;&lt;li&gt;1-2 Liters drinking water per scout&lt;/li&gt;&lt;li&gt;Proper Winter Attire (No cotton/shorts)&lt;/li&gt;&lt;li&gt;Trail Lunch&lt;/li&gt;&lt;li&gt;Cup for hot water&lt;/li&gt;&lt;li&gt;Mobile Phone (Charged, in ziplock)&lt;/li&gt;&lt;/ul&gt;&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;First Aid&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;Patrol First Aid Kit&lt;/li&gt;&lt;li&gt;Reflective Emergency Space Blanket&lt;/li&gt;&lt;li&gt;Multiple cravat/triangular bandages&lt;/li&gt;&lt;/ul&gt;&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;Tools &amp; Navigation&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;Pocket or lock-back knife&lt;/li&gt;&lt;li&gt;Mallet or hammer&lt;/li&gt;&lt;li&gt;Duct tape&lt;/li&gt;&lt;li&gt;TWO compasses&lt;/li&gt;&lt;li&gt;Small notebook and pen&lt;/li&gt;&lt;li&gt;Hand saw / Hatchet (with sheaths)&lt;/li&gt;&lt;/ul&gt;&lt;h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'&gt;Firebuilding &amp; Sled&lt;/h3&gt;&lt;ul style='line-height:1.8;'&gt;&lt;li&gt;Wooden matches &amp; Ferro Rod&lt;/li&gt;&lt;li&gt;Char Cloth &amp; Birds Nest firestarters&lt;/li&gt;&lt;li&gt;6 Firewood Tolls&lt;/li&gt;&lt;li&gt;8 Precut 6ft ropes&lt;/li&gt;&lt;li&gt;4 Six-foot staves &amp; 4 Three-foot poles&lt;/li&gt;&lt;li&gt;Emergency Shelter/Tarp&lt;/li&gt;&lt;/ul&gt;", </span></p>
+<p class="p1"><span class="s1">      plainText: "HEALTH &amp; SAFETY:\n- Waterproof Boots\n- 1-2L water\n- Winter Attire\n- Trail Lunch\n- Cup\n- Mobile Phone\n\nFIRST AID:\n- Patrol First Aid Kit\n- Space Blanket\n- Cravats\n\nTOOLS &amp; NAVIGATION:\n- Knife\n- Mallet/hammer\n- Duct tape\n- 2 Compasses\n- Notebook/pen\n- Saw/Hatchet\n\nFIREBUILDING &amp; SLED:\n- Matches &amp; Ferro Rod\n- Char Cloth &amp; Firestarters\n- Firewood\n- Ropes &amp; Staves/Poles\n- Emergency Shelter/Tarp" </span></p>
+<p class="p1"><span class="s1">    },</span></p>
+<p class="p1"><span class="s1">    { </span></p>
+<p class="p1"><span class="s1">      id: 5, title: "High Adventure", desc: "Official outfitter guides and gear lists for our premier national treks.", icon: &lt;Mountain size={28} /&gt;, </span></p>
+<p class="p1"><span class="s1">      type: "external_links",</span></p>
+<p class="p1"><span class="s1">      links: [</span></p>
+<p class="p1"><span class="s1">        { name: "Philmont Packing", url: "https://www.philmontscoutranch.org/resources/what-to-bring/" },</span></p>
+<p class="p1"><span class="s1">        { name: "Sea Base Guides", url: "https://seabaseha.org/scouts/resources/participant-guides/" },</span></p>
+<p class="p1"><span class="s1">        { name: "Maine High Adv.", url: "https://www.mainehighadventure.org/pricing" }</span></p>
+<p class="p1"><span class="s1">      ]</span></p>
+<p class="p1"><span class="s1">    },</span></p>
+<p class="p1"><span class="s1">  ];</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  const handlePrint = (list) =&gt; {</span></p>
+<p class="p1"><span class="s1">    const printWindow = window.open('', '_blank');</span></p>
+<p class="p1"><span class="s1">    printWindow.document.write(`</span></p>
+<p class="p1"><span class="s1">      &lt;html&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;head&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;title&gt;Troop 170 - ${list.title}&lt;/title&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;style&gt;</span></p>
+<p class="p1"><span class="s1">            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 40px; max-w: 800px; margin: auto; color: #111; } </span></p>
+<p class="p1"><span class="s1">            h1 { color: #1D3A6C; border-bottom: 3px solid #BE1E2D; padding-bottom: 10px; text-transform: uppercase; font-weight: 900; letter-spacing: -0.05em; margin-bottom: 5px; }</span></p>
+<p class="p1"><span class="s1">            p.desc { color: #666; font-size: 14px; margin-bottom: 30px; font-style: italic; }</span></p>
+<p class="p1"><span class="s1">            .footer { margin-top: 50px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; font-weight: bold; letter-spacing: 0.05em; }</span></p>
+<p class="p1"><span class="s1">          &lt;/style&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;/head&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;body&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;h1&gt;${list.title}&lt;/h1&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;p class="desc"&gt;${list.desc}&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">          ${list.content}</span></p>
+<p class="p1"><span class="s1">          &lt;div class="footer"&gt;SCOUTING AMERICA TROOP 170 • FARMINGTON / UNIONVILLE, CT&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;script&gt;window.onload = () =&gt; { window.print(); }&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;/body&gt;</span></p>
+<p class="p1"><span class="s1">      &lt;/html&gt;</span></p>
+<p class="p1"><span class="s1">    `);</span></p>
+<p class="p1"><span class="s1">    printWindow.document.close();</span></p>
+<p class="p1"><span class="s1">  };</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  const handleDownload = (list) =&gt; {</span></p>
+<p class="p1"><span class="s1">    const fileContent = `TROOP 170: ${list.title.toUpperCase()}\n${list.desc}\n\n${list.plainText}\n\n---\nScouting America Troop 170 • Farmington, CT`;</span></p>
+<p class="p1"><span class="s1">    const blob = new Blob([fileContent], { type: "text/plain" });</span></p>
+<p class="p1"><span class="s1">    const url = URL.createObjectURL(blob);</span></p>
+<p class="p1"><span class="s1">    const link = document.createElement('a');</span></p>
+<p class="p1"><span class="s1">    link.href = url;</span></p>
+<p class="p1"><span class="s1">    link.download = `Troop170_${list.title.replace(/\s+/g, '_')}.txt`;</span></p>
+<p class="p1"><span class="s1">    document.body.appendChild(link);</span></p>
+<p class="p1"><span class="s1">    link.click();</span></p>
+<p class="p1"><span class="s1">    document.body.removeChild(link);</span></p>
+<p class="p1"><span class="s1">  };</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  const navLinks = [</span></p>
+<p class="p1"><span class="s1">    { id: 'home', label: 'Home' },</span></p>
+<p class="p1"><span class="s1">    { id: 'about', label: 'About' },</span></p>
+<p class="p1"><span class="s1">    { id: 'join', label: 'Join' }</span></p>
+<p class="p1"><span class="s1">  ];</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">  return (</span></p>
+<p class="p1"><span class="s1">    &lt;div className="min-h-screen flex flex-col font-sans bg-white text-gray-900 selection:bg-[#BE1E2D] selection:text-white"&gt;</span></p>
+<p class="p1"><span class="s1">      </span></p>
+<p class="p1"><span class="s1">      {/* --- AGENCY NAVIGATION --- */}</span></p>
+<p class="p1"><span class="s1">      &lt;nav className="text-white relative z-50 border-b border-white/10" style={{ backgroundColor: darkBg }}&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12"&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;div className="flex justify-between h-24 items-center"&gt;</span></p>
+<p class="p1"><span class="s1">            </span></p>
+<p class="p1"><span class="s1">            &lt;div className="flex items-center space-x-4 cursor-pointer group" onClick={() =&gt; setCurrentPage('home')}&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;div className="w-12 h-12 bg-white rounded-none flex items-center justify-center p-1 shadow-lg group-hover:scale-105 transition-transform duration-300"&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;img src="https://ui-avatars.com/api/?name=T+170&amp;background=1D3A6C&amp;color=fff&amp;rounded=false&amp;bold=true" className="w-full h-full object-contain" alt="Logo" /&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;h1 className="text-2xl font-black tracking-tighter uppercase leading-none"&gt;Troop 170&lt;/h1&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;p className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mt-1"&gt;Farmington, CT&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">            &lt;div className="hidden md:flex space-x-10 items-center text-base font-bold uppercase tracking-wider text-gray-300"&gt;</span></p>
+<p class="p1"><span class="s1">              {navLinks.map(page =&gt; (</span></p>
+<p class="p1"><span class="s1">                &lt;button </span></p>
+<p class="p1"><span class="s1">                  key={page.id} </span></p>
+<p class="p1"><span class="s1">                  onClick={() =&gt; setCurrentPage(page.id)} </span></p>
+<p class="p1"><span class="s1">                  className={`hover:text-white transition-colors ${currentPage === page.id ? 'text-white' : ''}`}</span></p>
+<p class="p1"><span class="s1">                &gt;</span></p>
+<p class="p1"><span class="s1">                  {page.label}</span></p>
+<p class="p1"><span class="s1">                &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">              ))}</span></p>
+<p class="p1"><span class="s1">              &lt;a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:text-blue-400 transition-colors flex items-center space-x-2"&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;Heart size={16}/&gt;&lt;span&gt;Donate&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/a&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;button onClick={() =&gt; setCurrentPage('portal')} className="flex items-center space-x-2 px-6 py-2.5 bg-white text-gray-900 hover:bg-[#BE1E2D] hover:text-white transition-all duration-300 shadow-md rounded-none font-black text-sm tracking-widest"&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;Lock size={16}/&gt;&lt;span&gt;Member Login&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">      &lt;/nav&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">      &lt;main className="flex-grow"&gt;</span></p>
+<p class="p1"><span class="s1">        </span></p>
+<p class="p1"><span class="s1">        {/* --- HOME PAGE --- */}</span></p>
+<p class="p1"><span class="s1">        {currentPage === 'home' &amp;&amp; (</span></p>
+<p class="p1"><span class="s1">          &lt;div className="animate-in fade-in duration-700"&gt;</span></p>
+<p class="p1"><span class="s1">            </span></p>
+<p class="p1"><span class="s1">            {/* Cinematic Hero */}</span></p>
+<p class="p1"><span class="s1">            &lt;div className="relative pt-32 pb-40 lg:pt-48 lg:pb-56 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;div className="absolute inset-0 z-0"&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;img src="https://images.unsplash.com/photo-1537225228614-56cc3556d7ed?auto=format&amp;fit=crop&amp;w=1920&amp;q=80" alt="Scouts" className="w-full h-full object-cover object-[center_20%] opacity-40" /&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-[#0B0F19]/80 to-transparent"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-transparent"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;div className="relative z-10 max-w-7xl mx-auto flex flex-col items-start"&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-none mb-8 shadow-inner border border-white/5"&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;Compass size={14} className="text-[#BE1E2D]" /&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;span className="text-[10px] font-black tracking-[0.3em] uppercase text-white"&gt;Established 1956&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;h2 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-8 uppercase max-w-4xl"&gt;</span></p>
+<p class="p1"><span class="s1">                  Transform Youth &lt;br/&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500"&gt;Into Leaders&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;p className="text-lg sm:text-xl text-gray-400 font-light max-w-2xl leading-relaxed mb-12"&gt;</span></p>
+<p class="p1"><span class="s1">                  Drive character development, boost outdoor skills, and maximize personal growth. We craft engaging, year-round scouting strategies that deliver measurable results.</span></p>
+<p class="p1"><span class="s1">                &lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;button onClick={() =&gt; setCurrentPage('join')} className="px-10 py-5 bg-[#BE1E2D] text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(190,30,45,0.4)] group flex items-center space-x-4 rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;span&gt;Schedule Visit&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">            {/* Impact Strip */}</span></p>
+<p class="p1"><span class="s1">            &lt;div className="bg-white border-b border-gray-100 relative z-20 shadow-xl"&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-16"&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;div className="grid grid-cols-2 md:grid-cols-4 gap-10"&gt;</span></p>
+<p class="p1"><span class="s1">                   {[</span></p>
+<p class="p1"><span class="s1">                     { val: "60+", label: "Years Serving Farmington" },</span></p>
+<p class="p1"><span class="s1">                     { val: "120+", label: "Eagle Scout Legacy" },</span></p>
+<p class="p1"><span class="s1">                     { val: "140+", label: "Merit Badges Offered" },</span></p>
+<p class="p1"><span class="s1">                     { val: "12+", label: "Annual Outdoor Trips" }</span></p>
+<p class="p1"><span class="s1">                   ].map((stat, idx) =&gt; (</span></p>
+<p class="p1"><span class="s1">                     &lt;div key={idx} className="group border-l-4 border-gray-100 pl-6 hover:border-[#1D3A6C] transition-colors duration-300"&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;div className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter group-hover:text-[#BE1E2D] transition-colors"&gt;{stat.val}&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mt-2"&gt;{stat.label}&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                     &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                   ))}</span></p>
+<p class="p1"><span class="s1">                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">            {/* Program Grid (Asymmetrical Agency Layout) */}</span></p>
+<p class="p1"><span class="s1">            &lt;div className="bg-gray-50 py-32"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12"&gt;</span></p>
+<p class="p1"><span class="s1">                 </span></p>
+<p class="p1"><span class="s1">                 &lt;div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8"&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;h3 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] text-gray-900"&gt;</span></p>
+<p class="p1"><span class="s1">                      Driven By &lt;br/&gt; &lt;span className="text-[#1D3A6C]"&gt;Adventure&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;p className="text-gray-500 text-lg font-light leading-relaxed max-w-md"&gt;</span></p>
+<p class="p1"><span class="s1">                      Select a focus area to explore how we transform young scouts into confident community leaders.</span></p>
+<p class="p1"><span class="s1">                    &lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">                 &lt;div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20"&gt;</span></p>
+<p class="p1"><span class="s1">                    {/* Visual Anchor */}</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="lg:col-span-7"&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;div className="relative h-[500px] lg:h-[700px] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] rounded-none group"&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;img src={programsList[activeProgram].img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={programsList[activeProgram].title} /&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19]/90 via-[#0B0F19]/20 to-transparent flex flex-col justify-end p-10 lg:p-16"&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;span className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]"&gt;Focus Area 0{activeProgram + 1}&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;h4 className="text-3xl lg:text-5xl font-black uppercase tracking-tighter mb-4 text-white leading-none"&gt;{programsList[activeProgram].title}&lt;/h4&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;p className="text-lg font-light text-gray-300 max-w-lg leading-relaxed"&gt;{programsList[activeProgram].desc}&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    </span></p>
+<p class="p1"><span class="s1">                    {/* Interactive Index */}</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="lg:col-span-5 flex flex-col justify-center space-y-2"&gt;</span></p>
+<p class="p1"><span class="s1">                       {programsList.map((program, index) =&gt; {</span></p>
+<p class="p1"><span class="s1">                         const isActive = activeProgram === index;</span></p>
+<p class="p1"><span class="s1">                         return (</span></p>
+<p class="p1"><span class="s1">                           &lt;button </span></p>
+<p class="p1"><span class="s1">                             key={program.id} </span></p>
+<p class="p1"><span class="s1">                             onClick={() =&gt; setActiveProgram(index)} </span></p>
+<p class="p1"><span class="s1">                             className={`w-full text-left p-8 transition-all duration-300 rounded-none border-l-4 ${isActive ? 'bg-white border-[#BE1E2D] shadow-xl translate-x-2' : 'bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-300'}`}</span></p>
+<p class="p1"><span class="s1">                           &gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;div className="flex justify-between items-center"&gt;</span></p>
+<p class="p1"><span class="s1">                                &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                                  &lt;h5 className={`text-xl lg:text-2xl font-black uppercase tracking-tighter ${isActive ? 'text-gray-900' : 'text-gray-500'}`}&gt;{program.title}&lt;/h5&gt;</span></p>
+<p class="p1"><span class="s1">                                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                                &lt;span className={`font-black text-lg ${isActive ? 'text-[#1D3A6C]' : 'text-gray-300'}`}&gt;0{index+1}&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                         );</span></p>
+<p class="p1"><span class="s1">                       })}</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">               &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">        )}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">        {/* --- ABOUT PAGE --- */}</span></p>
+<p class="p1"><span class="s1">        {currentPage === 'about' &amp;&amp; (</span></p>
+<p class="p1"><span class="s1">          &lt;div className="bg-white animate-in fade-in duration-700"&gt;</span></p>
+<p class="p1"><span class="s1">            </span></p>
+<p class="p1"><span class="s1">            {/* Mission Statement Hero */}</span></p>
+<p class="p1"><span class="s1">            &lt;div className="relative py-40 lg:py-56 px-6 text-center overflow-hidden" style={{ backgroundColor: darkBg }}&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#1D3A6C] rounded-full blur-[180px] opacity-20 animate-pulse pointer-events-none"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;div className="relative z-10 max-w-4xl mx-auto"&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;div className="inline-flex items-center space-x-2 bg-white/5 px-4 py-1.5 mb-8 shadow-inner border border-white/10 rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;Compass size={14} className="text-[#BE1E2D]" /&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;span className="font-black tracking-[0.3em] uppercase text-[10px] text-white"&gt;Our Mission&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;h2 className="text-3xl md:text-5xl font-light italic font-serif leading-[1.3] text-white drop-shadow-xl"&gt;</span></p>
+<p class="p1"><span class="s1">                    "To enhance character, promote self-discovery, and challenge Scouts to grow in leadership, fitness, and service through exceptional outdoor experiences."</span></p>
+<p class="p1"><span class="s1">                  &lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">            {/* Legacy Section */}</span></p>
+<p class="p1"><span class="s1">            &lt;div className="py-32 px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center"&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;div className="lg:col-span-5"&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;h3 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase mb-6 leading-none text-gray-900"&gt;A Legacy of &lt;br/&gt;&lt;span className="text-[#1D3A6C]"&gt;Excellence&lt;/span&gt;&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="w-16 h-2 bg-[#BE1E2D] mb-8"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;p className="text-lg text-gray-500 font-light leading-relaxed mb-10"&gt;</span></p>
+<p class="p1"><span class="s1">                      Founded in 1956 and rechartered in 1962, Troop 170 has been the standard for youth leadership in Farmington for decades. We are a scout-led organization where the youth plan the adventure and adults provide the mentorship.</span></p>
+<p class="p1"><span class="s1">                    &lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="space-y-6"&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;div className="bg-gray-50 p-6 shadow-sm border-l-4 border-yellow-500 hover:shadow-md transition-shadow"&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1"&gt;The Road to Eagle&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="text-gray-500 text-sm"&gt;A strong legacy of guiding scouts to the prestigious Eagle Scout rank through mentorship and service.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow"&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1"&gt;Philmont High Adventure&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="text-gray-500 text-sm"&gt;Rugged backcountry trekking in the mountains of New Mexico.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow"&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1"&gt;Sea Base Florida&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="text-gray-500 text-sm"&gt;Deep-sea sailing and tropical island survival in the Florida Keys.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow"&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1"&gt;Maine High Adventure&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="text-gray-500 text-sm"&gt;Canoeing and wilderness survival in the rugged backcountry of Maine.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;div className="lg:col-span-7 relative h-[500px] lg:h-[650px] mt-10 lg:mt-0"&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;img src="https://images.unsplash.com/photo-1533615416035-15bf2865df54?auto=format&amp;fit=crop&amp;w=800" className="absolute top-0 right-0 w-4/5 h-3/4 object-cover shadow-[0_20px_50px_-10px_rgba(0,0,0,0.3)] z-10 rounded-none" alt="Hiking" /&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="absolute bottom-0 left-0 w-2/3 h-3/5 bg-white p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.4)] z-20 rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&amp;fit=crop&amp;w=800" className="w-full h-full object-cover" alt="Sailing" /&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">            {/* Donation Funnel */}</span></p>
+<p class="p1"><span class="s1">            &lt;div className="bg-[#050B14] py-32 px-6 text-center border-t border-gray-800"&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;div className="max-w-3xl mx-auto relative z-10"&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;div className="w-16 h-16 mx-auto bg-[#BE1E2D] flex items-center justify-center text-white mb-8 shadow-xl rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;Heart size={28} /&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase mb-6 leading-none"&gt;Support Us&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;p className="text-lg text-gray-400 mb-12 font-light leading-relaxed"&gt;</span></p>
+<p class="p1"><span class="s1">                  Help sustain our 60-year legacy. Your contributions directly fund critical equipment upkeep and high-adventure scholarships for scouts in need.</span></p>
+<p class="p1"><span class="s1">                &lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                </span></p>
+<p class="p1"><span class="s1">                &lt;a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col sm:flex-row items-center sm:space-x-6 bg-[#008CFF] hover:bg-blue-600 px-10 py-6 font-black text-white text-xl transition-all shadow-xl group rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;span&gt;DONATE VIA VENMO&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;span className="bg-white/20 px-4 py-1 mt-2 sm:mt-0 text-[10px] tracking-[0.2em] uppercase rounded-none"&gt;@Troop170Unionville&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/a&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">                {/* The "Grandma Funnel" */}</span></p>
+<p class="p1"><span class="s1">                &lt;div className="mt-16 pt-10 border-t border-white/10 text-gray-500"&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;p className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]"&gt;Prefer to mail a check?&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;p className="text-md font-light italic leading-relaxed"&gt;</span></p>
+<p class="p1"><span class="s1">                    First Church of Christ&lt;br/&gt;</span></p>
+<p class="p1"><span class="s1">                    ATTN: Troop 170 Treasurer&lt;br/&gt;</span></p>
+<p class="p1"><span class="s1">                    61 Main St, Unionville, CT 06085</span></p>
+<p class="p1"><span class="s1">                  &lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">        )}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">        {/* --- JOIN PAGE --- */}</span></p>
+<p class="p1"><span class="s1">        {currentPage === 'join' &amp;&amp; (</span></p>
+<p class="p1"><span class="s1">          &lt;div className="bg-gray-50 pb-32 animate-in fade-in duration-700"&gt;</span></p>
+<p class="p1"><span class="s1">            </span></p>
+<p class="p1"><span class="s1">            {/* Header */}</span></p>
+<p class="p1"><span class="s1">            &lt;div className="bg-[#0B0F19] text-white py-32 lg:py-40 px-6 text-center relative overflow-hidden"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;div className="absolute inset-0 opacity-30"&gt;&lt;img src="https://images.unsplash.com/photo-1525382455947-f319bc05fb35?auto=format&amp;fit=crop&amp;w=1920" className="w-full h-full object-cover" alt="Campfire" /&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0B0F19]"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;h2 className="relative z-10 text-5xl lg:text-7xl font-black uppercase tracking-tighter mb-4 leading-none"&gt;Start The Trail&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;p className="relative z-10 text-lg font-light text-gray-300 max-w-2xl mx-auto"&gt;Boys and girls ages 11-17 are welcome to join year-round.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">            {/* Inquiry Form Block */}</span></p>
+<p class="p1"><span class="s1">            &lt;div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-16 relative z-20 mb-24"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;div className="bg-white grid grid-cols-1 lg:grid-cols-5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                 </span></p>
+<p class="p1"><span class="s1">                 {/* Info Side */}</span></p>
+<p class="p1"><span class="s1">                 &lt;div className="lg:col-span-2 bg-[#050B14] text-white p-10 lg:p-14 flex flex-col justify-between"&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;h3 className="text-3xl font-black uppercase tracking-tight mb-10 leading-none"&gt;Visit A Meeting&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;div className="space-y-8"&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;div className="flex items-start space-x-5"&gt;</span></p>
+<p class="p1"><span class="s1">                            &lt;Clock className="text-[#BE1E2D] shrink-0" size={32}/&gt; </span></p>
+<p class="p1"><span class="s1">                            &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                              &lt;p className="font-black text-lg uppercase tracking-tight mb-1"&gt;Monday Evenings&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                              &lt;p className="text-gray-400 text-sm"&gt;During the school year (Sept-May)&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;div className="flex items-start space-x-5"&gt;</span></p>
+<p class="p1"><span class="s1">                            &lt;MapPin className="text-[#BE1E2D] shrink-0" size={32}/&gt; </span></p>
+<p class="p1"><span class="s1">                            &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                              &lt;p className="font-black text-lg uppercase tracking-tight mb-1"&gt;Unionville, CT&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                              &lt;p className="text-gray-400 text-sm italic opacity-80"&gt;Exact location shared upon inquiry for youth protection.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">                 {/* Form Side */}</span></p>
+<p class="p1"><span class="s1">                 &lt;div className="lg:col-span-3 p-10 lg:p-14 flex flex-col justify-center bg-white"&gt;</span></p>
+<p class="p1"><span class="s1">                    {joinSuccess ? (</span></p>
+<p class="p1"><span class="s1">                      &lt;div className="text-center py-10 animate-in zoom-in duration-500"&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;div className="w-16 h-16 bg-green-50 flex items-center justify-center mx-auto mb-6 rounded-none"&gt;&lt;CheckCircle size={40} className="text-green-500" /&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;h3 className="text-3xl font-black uppercase tracking-tighter text-gray-900 mb-2"&gt;Request Received&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="text-gray-500 text-md font-light"&gt;The Scoutmaster will contact you shortly.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    ) : (</span></p>
+<p class="p1"><span class="s1">                      &lt;form className="space-y-6" onSubmit={(e) =&gt; { e.preventDefault(); setJoinSuccess(true); }}&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;h3 className="text-2xl font-black uppercase tracking-tighter text-gray-900 mb-6"&gt;Secure Inquiry&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;div className="grid grid-cols-1 md:grid-cols-2 gap-6"&gt;</span></p>
+<p class="p1"><span class="s1">                            &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                              &lt;label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2"&gt;Parent Name&lt;/label&gt;</span></p>
+<p class="p1"><span class="s1">                              &lt;input required className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="e.g. Jane Doe" /&gt;</span></p>
+<p class="p1"><span class="s1">                            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                            &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                              &lt;label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2"&gt;Email Address&lt;/label&gt;</span></p>
+<p class="p1"><span class="s1">                              &lt;input required type="email" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="jane@example.com" /&gt;</span></p>
+<p class="p1"><span class="s1">                            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                            &lt;div className="md:col-span-2"&gt;</span></p>
+<p class="p1"><span class="s1">                              &lt;label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2"&gt;Phone Number&lt;/label&gt;</span></p>
+<p class="p1"><span class="s1">                              &lt;input required type="tel" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="(555) 555-5555" /&gt;</span></p>
+<p class="p1"><span class="s1">                            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;div className="pt-2"&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;button type="submit" className="w-full p-5 bg-[#BE1E2D] text-white font-black uppercase tracking-[0.2em] text-sm shadow-md hover:bg-gray-900 transition-colors rounded-none flex justify-center items-center space-x-2"&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;span&gt;Request Info / Schedule Visit&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;ArrowUpRight size={16} /&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/form&gt;</span></p>
+<p class="p1"><span class="s1">                    )}</span></p>
+<p class="p1"><span class="s1">                 &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">               &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">            {/* Registration Flow - Full Width Centered */}</span></p>
+<p class="p1"><span class="s1">            &lt;div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;div className="bg-white p-10 lg:p-14 shadow-[0_20px_50px_-10px_rgba(29,58,108,0.1)] hover:-translate-y-1 transition-transform flex flex-col justify-between group rounded-none border-t-4 border-[#1D3A6C]"&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="flex items-center space-x-4 mb-10"&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;div className="bg-blue-50 p-4 text-[#1D3A6C] rounded-none"&gt;&lt;CheckCircle size={32} /&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;h4 className="text-2xl font-black tracking-tighter uppercase text-gray-900"&gt;Onboarding Process&lt;/h4&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="space-y-8"&gt;</span></p>
+<p class="p1"><span class="s1">                       {[</span></p>
+<p class="p1"><span class="s1">                         ["1", "Observe", "Visit a meeting to see the Patrol Method."], </span></p>
+<p class="p1"><span class="s1">                         ["2", "Apply", "Submit the official online application."], </span></p>
+<p class="p1"><span class="s1">                         ["3", "Outfit", "Obtain your tan uniform and handbook."]</span></p>
+<p class="p1"><span class="s1">                       ].map(([num, title, desc]) =&gt; (</span></p>
+<p class="p1"><span class="s1">                         &lt;div key={num} className="flex items-start space-x-5"&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;div className="w-10 h-10 bg-[#1D3A6C] text-white flex items-center justify-center font-black shadow-md shrink-0 text-xl rounded-none"&gt;{num}&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;p className="font-black text-lg uppercase tracking-tight mb-1 text-gray-900 leading-none"&gt;{title}&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;p className="text-gray-500 text-sm font-light leading-snug"&gt;{desc}&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       ))}</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;a </span></p>
+<p class="p1"><span class="s1">                   href="https://my.scouting.org/VES/OnlineReg/1.0.0/?tu=UF-MB-066taa0170" </span></p>
+<p class="p1"><span class="s1">                   target="_blank" </span></p>
+<p class="p1"><span class="s1">                   rel="noopener noreferrer"</span></p>
+<p class="p1"><span class="s1">                   className="mt-10 w-full flex items-center justify-center space-x-3 p-5 bg-[#BE1E2D] text-white font-black text-sm uppercase tracking-[0.2em] shadow-lg hover:bg-red-800 transition-colors rounded-none"</span></p>
+<p class="p1"><span class="s1">                 &gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;span&gt;Official Application&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;ExternalLink size={16} /&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;/a&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">        )}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">        {/* --- MEMBER PORTAL (The Vault) --- */}</span></p>
+<p class="p1"><span class="s1">        {currentPage === 'portal' &amp;&amp; (</span></p>
+<p class="p1"><span class="s1">          &lt;div className="min-h-screen bg-gray-50 animate-in fade-in duration-500"&gt;</span></p>
+<p class="p1"><span class="s1">            </span></p>
+<p class="p1"><span class="s1">            {/* Locked State */}</span></p>
+<p class="p1"><span class="s1">            {!isLoggedIn ? (</span></p>
+<p class="p1"><span class="s1">              &lt;div className="relative flex flex-col items-center justify-center min-h-screen px-6 overflow-hidden" style={{ backgroundColor: darkBg }}&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#1D3A6C] rounded-full blur-[150px] opacity-30 animate-pulse pointer-events-none"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                </span></p>
+<p class="p1"><span class="s1">                &lt;div className="relative z-10 bg-white/10 backdrop-blur-2xl p-12 lg:p-16 shadow-2xl max-w-md w-full border border-white/10 rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="w-20 h-20 bg-white/5 flex items-center justify-center mx-auto mb-8 shadow-inner rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;ShieldCheck size={40} className="text-white" /&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;h2 className="text-3xl font-black text-white mb-2 tracking-tighter uppercase text-center"&gt;Member Login&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;p className="text-gray-400 mb-10 text-sm font-light text-center"&gt;Protected resources and ledgers.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                    </span></p>
+<p class="p1"><span class="s1">                    &lt;form onSubmit={(e) =&gt; { e.preventDefault(); if (password.toUpperCase() === 'TROOP170') setIsLoggedIn(true); else setLoginError(true); }}&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;div className="relative mb-6"&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;Key size={16} className={loginError ? "text-red-400" : "text-gray-400"} /&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;input </span></p>
+<p class="p1"><span class="s1">                          type="password" </span></p>
+<p class="p1"><span class="s1">                          value={password} </span></p>
+<p class="p1"><span class="s1">                          onChange={(e) =&gt; {setPassword(e.target.value); setLoginError(false);}} </span></p>
+<p class="p1"><span class="s1">                          className="w-full pl-12 pr-4 py-4 bg-black/40 text-white text-lg border-0 shadow-inner outline-none focus:ring-2 focus:ring-white/30 rounded-none" </span></p>
+<p class="p1"><span class="s1">                          placeholder="Gate Code" </span></p>
+<p class="p1"><span class="s1">                        /&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                      {loginError &amp;&amp; &lt;p className="text-[#ff6b6b] mb-6 font-black animate-bounce uppercase text-[10px] tracking-widest text-center"&gt;Access Denied&lt;/p&gt;}</span></p>
+<p class="p1"><span class="s1">                      &lt;button type="submit" className="w-full py-4 bg-white text-[#1D3A6C] font-black text-sm uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors rounded-none flex justify-center items-center space-x-2"&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;span&gt;Unlock&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;ArrowUpRight size={16} /&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/form&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            ) : (</span></p>
+<p class="p1"><span class="s1">              </span></p>
+<p class="p1"><span class="s1">              /* Unlocked Dashboard */</span></p>
+<p class="p1"><span class="s1">              &lt;div className="pb-32"&gt;</span></p>
+<p class="p1"><span class="s1">                </span></p>
+<p class="p1"><span class="s1">                {/* Secure Header */}</span></p>
+<p class="p1"><span class="s1">                &lt;div className="bg-[#050B14] py-20 px-6 sm:px-8 lg:px-12 relative overflow-hidden shadow-xl mb-16"&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;div className="absolute right-0 top-0 w-[500px] h-[500px] bg-[#1D3A6C] rounded-full blur-[150px] opacity-30 pointer-events-none"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row justify-between items-center"&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="text-center md:text-left mb-8 md:mb-0"&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-none mb-4 shadow-inner border border-white/5"&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;Lock size={12} className="text-green-400" /&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;span className="text-[9px] font-black tracking-[0.2em] uppercase text-green-400"&gt;Secure Protocol Active&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-2 leading-none"&gt;Dashboard&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;p className="text-gray-400 text-lg font-light"&gt;Internal Command Center&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;button onClick={() =&gt; setIsLoggedIn(false)} className="px-6 py-3 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black border border-white/10 transition-colors rounded-none flex items-center space-x-2"&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;span&gt;Log Out&lt;/span&gt;&lt;LogOut size={14}/&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                </span></p>
+<p class="p1"><span class="s1">                {/* 5-Card Action Grid */}</span></p>
+<p class="p1"><span class="s1">                &lt;div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"&gt;</span></p>
+<p class="p1"><span class="s1">                   </span></p>
+<p class="p1"><span class="s1">                   {/* Card 1: BAND APP */}</span></p>
+<p class="p1"><span class="s1">                   &lt;div className="bg-gradient-to-br from-white to-green-50 border border-green-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;div className="w-12 h-12 bg-white flex items-center justify-center text-green-600 mb-6 shadow-sm"&gt;&lt;Smartphone size={24}/&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2"&gt;Band App&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="text-gray-500 text-sm leading-relaxed mb-8"&gt;Calendar updates, photos, and announcements.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;a href="https://band.us/n/acabb5kcAfa10" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-green-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform"&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;span&gt;Launch App&lt;/span&gt;&lt;ExternalLink size={14}/&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/a&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">                   {/* Card 2: MEDICAL */}</span></p>
+<p class="p1"><span class="s1">                   &lt;div className="bg-gradient-to-br from-white to-red-50 border border-red-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;div className="w-12 h-12 bg-white flex items-center justify-center text-[#BE1E2D] mb-6 shadow-sm"&gt;&lt;FileText size={24}/&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2"&gt;Health Forms&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="text-gray-500 text-sm leading-relaxed mb-8"&gt;AHMR Parts A, B, and C required for all outings.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;a href="https://www.scouting.org/health-and-safety/ahmr/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-[#BE1E2D] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform"&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;span&gt;Download PDF&lt;/span&gt;&lt;Download size={14}/&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/a&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">                   {/* Card 3: GEAR */}</span></p>
+<p class="p1"><span class="s1">                   &lt;div className="bg-gradient-to-br from-white to-amber-50 border border-amber-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;div className="w-12 h-12 bg-white flex items-center justify-center text-amber-600 mb-6 shadow-sm"&gt;&lt;Tent size={24}/&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2"&gt;Gear Hub&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="text-gray-500 text-sm leading-relaxed mb-8"&gt;Print packing checklists for troop adventures.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;button onClick={() =&gt; setCurrentPage('gearLists')} className="flex items-center space-x-2 text-amber-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left"&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;span&gt;Open Hub&lt;/span&gt;&lt;ArrowUpRight size={14}/&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">                   {/* Card 4: CLINICS */}</span></p>
+<p class="p1"><span class="s1">                   &lt;div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;div className="w-12 h-12 bg-white flex items-center justify-center text-purple-600 mb-6 shadow-sm"&gt;&lt;Medal size={24}/&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2"&gt;Clinics&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="text-gray-500 text-sm leading-relaxed mb-8"&gt;Schedule and registration for merit badges.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;button onClick={() =&gt; setCurrentPage('meritBadges')} className="flex items-center space-x-2 text-purple-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left"&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;span&gt;View Schedule&lt;/span&gt;&lt;ArrowUpRight size={14}/&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">                   {/* Card 5: LEDGER */}</span></p>
+<p class="p1"><span class="s1">                   &lt;div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;div className="w-12 h-12 bg-white flex items-center justify-center text-[#1D3A6C] mb-6 shadow-sm"&gt;&lt;CreditCard size={24}/&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2"&gt;Scout Dollars&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;p className="text-gray-500 text-sm leading-relaxed mb-8"&gt;Securely check individual fundraising balances.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;button onClick={() =&gt; { setCurrentPage('scoutDollars'); setHasSearched(false); setSearchQuery(''); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left"&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;span&gt;Access Ledger&lt;/span&gt;&lt;Search size={14}/&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            )}</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">        )}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">        {/* --- DYNAMIC ROOM: GEAR HUB --- */}</span></p>
+<p class="p1"><span class="s1">        {currentPage === 'gearLists' &amp;&amp; (</span></p>
+<p class="p1"><span class="s1">          &lt;div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300"&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase"&gt;Gear Hub&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;button onClick={() =&gt; setCurrentPage('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors"&gt;← Return to Vault&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            </span></p>
+<p class="p1"><span class="s1">            &lt;div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20"&gt;</span></p>
+<p class="p1"><span class="s1">               {gearListsData.map(list =&gt; (</span></p>
+<p class="p1"><span class="s1">                 &lt;div key={list.id} className="bg-white p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] flex flex-col justify-between border-t-4 border-[#1D3A6C] rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;div className="w-12 h-12 bg-gray-50 flex items-center justify-center text-[#1D3A6C] mb-6 shadow-inner"&gt;{list.icon}&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;h3 className="text-xl font-black uppercase tracking-tight mb-2 text-gray-900"&gt;{list.title}&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                      &lt;p className="text-gray-500 text-sm leading-relaxed mb-8"&gt;{list.desc}&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="flex space-x-2"&gt;</span></p>
+<p class="p1"><span class="s1">                       {list.type === "document" ? (</span></p>
+<p class="p1"><span class="s1">                         &lt;&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;button onClick={() =&gt; handlePrint(list)} className="flex-1 py-3 bg-gray-100 text-gray-700 font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center space-x-2 hover:bg-gray-200 transition-colors rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;Printer size={14}/&gt; &lt;span&gt;Print&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;button onClick={() =&gt; handleDownload(list)} className="flex-1 py-3 bg-[#1D3A6C] text-white font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center space-x-2 hover:bg-gray-900 transition-colors rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;Download size={14}/&gt; &lt;span&gt;Save&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                         &lt;/&gt;</span></p>
+<p class="p1"><span class="s1">                       ) : (</span></p>
+<p class="p1"><span class="s1">                         &lt;div className="flex flex-col space-y-2 w-full"&gt;</span></p>
+<p class="p1"><span class="s1">                           {list.links?.map(link =&gt; (</span></p>
+<p class="p1"><span class="s1">                             &lt;a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-gray-100 text-[#1D3A6C] font-black uppercase tracking-[0.1em] text-[10px] flex items-center justify-between px-4 hover:bg-gray-200 transition-colors rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                               &lt;span&gt;{link.name}&lt;/span&gt; &lt;ExternalLink size={12}/&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;/a&gt;</span></p>
+<p class="p1"><span class="s1">                           ))}</span></p>
+<p class="p1"><span class="s1">                         &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       )}</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">               ))}</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">        )}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">        {/* --- DYNAMIC ROOM: LEDGER (Exact Match) --- */}</span></p>
+<p class="p1"><span class="s1">        {currentPage === 'scoutDollars' &amp;&amp; (</span></p>
+<p class="p1"><span class="s1">          &lt;div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300"&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase"&gt;Ledger&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;button onClick={() =&gt; setCurrentPage('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors"&gt;← Return to Vault&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            </span></p>
+<p class="p1"><span class="s1">            &lt;div className="max-w-3xl mx-auto px-6 -mt-10 relative z-20"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;form className="flex shadow-lg bg-white rounded-none border border-gray-100" onSubmit={(e) =&gt; { e.preventDefault(); const res = scoutAccounts.find(s =&gt; s.name.toLowerCase() === searchQuery.trim().toLowerCase()); setActiveResult(res || null); setHasSearched(true); }}&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;div className="flex items-center pl-6 text-gray-400"&gt;&lt;Search size={24}/&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;input className="flex-grow p-6 text-xl font-light outline-none text-gray-900" placeholder="Exact Registered Name..." value={searchQuery} onChange={(e) =&gt; {setSearchQuery(e.target.value); setHasSearched(false);}} /&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;button type="submit" className="bg-[#1D3A6C] text-white px-8 font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors"&gt;Search&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;/form&gt;</span></p>
+<p class="p1"><span class="s1">               </span></p>
+<p class="p1"><span class="s1">               {hasSearched &amp;&amp; (</span></p>
+<p class="p1"><span class="s1">                 &lt;div className="mt-12 animate-in slide-in-from-bottom duration-500"&gt;</span></p>
+<p class="p1"><span class="s1">                   {activeResult ? (</span></p>
+<p class="p1"><span class="s1">                     &lt;div className="bg-white p-10 shadow-xl border-l-[12px] border-green-500 flex flex-col sm:flex-row justify-between items-center rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;div className="text-center sm:text-left mb-8 sm:mb-0"&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;h3 className="text-3xl font-black tracking-tight uppercase mb-4 text-gray-900"&gt;{activeResult.name}&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;p className="inline-flex items-center space-x-2 bg-gray-50 px-3 py-1.5 text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-4 border border-gray-100"&gt;</span></p>
+<p class="p1"><span class="s1">                             &lt;Clock size={12}/&gt; &lt;span&gt;Updated: {activeResult.date}&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;p className="text-gray-600 text-sm italic"&gt;"{activeResult.lastTransaction}"&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;div className="text-center sm:text-right bg-green-50 p-8 border border-green-100 min-w-[200px] rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;span className="block text-green-800 font-black uppercase tracking-widest text-[10px] mb-2"&gt;Available Balance&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                           &lt;span className="text-5xl font-black text-green-600 tracking-tighter"&gt;${activeResult.balance.toFixed(2)}&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                        &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                     &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                   ) : (</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="bg-white p-16 text-center shadow-xl border-t-[12px] border-[#BE1E2D] rounded-none"&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;div className="w-16 h-16 bg-red-50 flex items-center justify-center mx-auto mb-6 rounded-full"&gt;&lt;Lock size={24} className="text-[#BE1E2D]"/&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-gray-900"&gt;Record Locked&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;p className="text-gray-500 text-sm max-w-sm mx-auto"&gt;For privacy, you must search the exact spelling of the registered name (e.g. "Alexander T.").&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                   )}</span></p>
+<p class="p1"><span class="s1">                 &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">               )}</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">        )}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">        {/* --- DYNAMIC ROOM: CLINICS --- */}</span></p>
+<p class="p1"><span class="s1">        {currentPage === 'meritBadges' &amp;&amp; (</span></p>
+<p class="p1"><span class="s1">          &lt;div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300"&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase"&gt;Clinics&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;button onClick={() =&gt; setCurrentPage('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors"&gt;← Return to Vault&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            </span></p>
+<p class="p1"><span class="s1">            &lt;div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20"&gt;</span></p>
+<p class="p1"><span class="s1">               {upcomingBadges.map(badge =&gt; (</span></p>
+<p class="p1"><span class="s1">                 &lt;div key={badge.id} className="bg-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] group flex flex-col justify-between rounded-none border-b-4 border-purple-800 hover:-translate-y-1 transition-transform"&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="relative h-48 overflow-hidden"&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;img src={badge.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={badge.name} /&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;div className="absolute top-4 right-4 bg-[#BE1E2D] text-white px-3 py-1 font-black uppercase tracking-widest text-[9px] shadow-md"&gt;{badge.status}&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;div className="p-8"&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;h3 className="text-xl font-black uppercase tracking-tight mb-6 text-gray-900 leading-tight"&gt;{badge.name}&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;div className="space-y-3 mb-8 text-gray-600 font-bold uppercase tracking-wider text-[10px]"&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;div className="flex items-center space-x-3"&gt;&lt;Calendar size={14} className="text-[#1D3A6C]"/&gt; &lt;span&gt;{badge.date}&lt;/span&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;div className="flex items-center space-x-3"&gt;&lt;Clock size={14} className="text-[#1D3A6C]"/&gt; &lt;span&gt;{badge.time}&lt;/span&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                          &lt;div className="flex items-center space-x-3"&gt;&lt;Users size={14} className="text-[#1D3A6C]"/&gt; &lt;span&gt;{badge.counselor}&lt;/span&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                       &lt;button onClick={() =&gt; { setSelectedBadge(badge); setRegistrationSuccess(false); }} className="w-full p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-[10px] hover:bg-gray-900 transition-colors rounded-none"&gt;Register Scout&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">               ))}</span></p>
+<p class="p1"><span class="s1">            &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">        )}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">      &lt;/main&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">      {/* --- FOOTER (Clean 4-Column Agency Style) --- */}</span></p>
+<p class="p1"><span class="s1">      &lt;footer className="bg-[#050B14] text-white pt-24 pb-12 px-6 sm:px-8 lg:px-12 border-t border-white/10"&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20"&gt;</span></p>
+<p class="p1"><span class="s1">          </span></p>
+<p class="p1"><span class="s1">          {/* Brand Col */}</span></p>
+<p class="p1"><span class="s1">          &lt;div className="lg:col-span-1"&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;div className="flex items-center space-x-4 mb-6 cursor-pointer" onClick={() =&gt; setCurrentPage('home')}&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;div className="w-10 h-10 bg-white rounded-none flex items-center justify-center p-0.5"&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;img src="https://ui-avatars.com/api/?name=T+170&amp;background=1D3A6C&amp;color=fff&amp;rounded=false&amp;bold=true" className="w-full h-full object-contain" alt="Logo" /&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;h2 className="text-2xl font-black tracking-tighter uppercase"&gt;Troop 170&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;p className="text-gray-400 text-sm font-light leading-relaxed mb-6 pr-4"&gt;Building Farmington's leaders through outdoor adventure since 1956.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;div className="flex space-x-4"&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;a href="https://www.facebook.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 flex items-center justify-center rounded-none hover:bg-[#008CFF] transition-colors"&gt;&lt;Facebook size={16}/&gt;&lt;/a&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;a href="mailto:bsatroop170unionville@gmail.com" className="w-10 h-10 bg-white/5 flex items-center justify-center rounded-none hover:bg-[#BE1E2D] transition-colors"&gt;&lt;Mail size={16}/&gt;&lt;/a&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">          {/* Links Col */}</span></p>
+<p class="p1"><span class="s1">          &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]"&gt;Navigation&lt;/h4&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;ul className="space-y-4"&gt;</span></p>
+<p class="p1"><span class="s1">               {navLinks.map(page =&gt; (</span></p>
+<p class="p1"><span class="s1">                 &lt;li key={page.id} className="hover:text-white text-gray-400 cursor-pointer transition-colors uppercase font-bold tracking-wider text-xs" onClick={() =&gt; { setCurrentPage(page.id); window.scrollTo(0,0); }}&gt;{page.label}&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">               ))}</span></p>
+<p class="p1"><span class="s1">               &lt;li&gt;&lt;a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:underline uppercase font-bold tracking-wider text-xs"&gt;Sustaining Fund&lt;/a&gt;&lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;/ul&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">          {/* Contact Col */}</span></p>
+<p class="p1"><span class="s1">          &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]"&gt;Contact&lt;/h4&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;ul className="space-y-5 text-sm text-gray-400"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;li className="flex items-start space-x-3"&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;MapPin className="text-[#BE1E2D] shrink-0 mt-0.5" size={16}/&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;p className="leading-tight"&gt;First Church of Christ&lt;br/&gt;61 Main St, Unionville, CT 06085&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;li className="flex items-start space-x-3"&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;Phone className="text-[#BE1E2D] shrink-0 mt-0.5" size={16}/&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;p className="leading-tight"&gt;860.352.5471&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;li className="flex items-start space-x-3"&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;Mail className="text-[#BE1E2D] shrink-0 mt-0.5" size={16}/&gt;</span></p>
+<p class="p1"><span class="s1">                 &lt;p className="break-all leading-tight"&gt;bsatroop170unionville&lt;br/&gt;@gmail.com&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;/li&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;/ul&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">          {/* Portal Col */}</span></p>
+<p class="p1"><span class="s1">          &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]"&gt;Command Hub&lt;/h4&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;p className="text-gray-400 mb-6 text-sm font-light leading-relaxed"&gt;Access secure documents and ledgers.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;button onClick={() =&gt; { setCurrentPage('portal'); window.scrollTo(0,0); }} className="w-full p-4 bg-white/5 hover:bg-white hover:text-black font-black uppercase tracking-[0.2em] text-[10px] transition-colors rounded-none flex items-center justify-center space-x-2"&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;Lock size={12}/&gt;</span></p>
+<p class="p1"><span class="s1">               &lt;span&gt;Member Login&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">             &lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">        &lt;div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-gray-600 text-[10px] font-black uppercase tracking-[0.2em]"&gt;</span></p>
+<p class="p1"><span class="s1">           &lt;p className="mb-4 md:mb-0"&gt;© 2026 Scouting America Troop 170&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">           &lt;p&gt;Farmington, Connecticut&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">      &lt;/footer&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">      {/* REGISTRATION MODAL */}</span></p>
+<p class="p1"><span class="s1">      {selectedBadge &amp;&amp; (</span></p>
+<p class="p1"><span class="s1">        &lt;div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6"&gt;</span></p>
+<p class="p1"><span class="s1">          {/* Backdrop */}</span></p>
+<p class="p1"><span class="s1">          &lt;div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() =&gt; setSelectedBadge(null)}&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">          </span></p>
+<p class="p1"><span class="s1">          {/* Modal Container */}</span></p>
+<p class="p1"><span class="s1">          &lt;div className="relative bg-white w-full max-w-lg p-10 shadow-2xl rounded-none border-t-8 border-[#1D3A6C] animate-in zoom-in duration-200"&gt;</span></p>
+<p class="p1"><span class="s1">            &lt;button onClick={() =&gt; setSelectedBadge(null)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors"&gt;&lt;X size={24}/&gt;&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">            </span></p>
+<p class="p1"><span class="s1">            {registrationSuccess ? (</span></p>
+<p class="p1"><span class="s1">              &lt;div className="text-center py-8"&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6"&gt;&lt;CheckCircle size={32} className="text-green-500" /&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;h3 className="text-3xl font-black tracking-tighter uppercase mb-4 text-gray-900"&gt;Confirmed&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;p className="text-gray-500 text-md mb-8 leading-relaxed"&gt;Seat reserved for {selectedBadge.name}.&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;button onClick={() =&gt; setSelectedBadge(null)} className="w-full p-4 bg-gray-900 text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors rounded-none"&gt;Close&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">            ) : (</span></p>
+<p class="p1"><span class="s1">              &lt;form onSubmit={(e) =&gt; { e.preventDefault(); setRegistrationSuccess(true); }}&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;span className="text-[#BE1E2D] font-black uppercase tracking-[0.2em] text-[10px] mb-3 block"&gt;Secure Registration&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;h3 className="text-3xl font-black tracking-tight uppercase mb-8 leading-tight text-gray-900"&gt;{selectedBadge.name}&lt;/h3&gt;</span></p>
+<p class="p1"><span class="s1">                </span></p>
+<p class="p1"><span class="s1">                &lt;div className="space-y-6"&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                     &lt;label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2"&gt;Scout Name&lt;/label&gt;</span></p>
+<p class="p1"><span class="s1">                     &lt;input required className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors" placeholder="Full Legal Name" /&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;div&gt;</span></p>
+<p class="p1"><span class="s1">                     &lt;label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2"&gt;Parent Email&lt;/label&gt;</span></p>
+<p class="p1"><span class="s1">                     &lt;input required type="email" className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors" placeholder="For confirmation" /&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;div className="p-4 bg-blue-50 border-l-4 border-[#1D3A6C]"&gt;</span></p>
+<p class="p1"><span class="s1">                     &lt;p className="text-[#1D3A6C] font-bold text-xs italic leading-relaxed"&gt;"Scouts must obtain a signed Blue Card prior to attending."&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1">                   &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">                </span></p>
+<p class="p1"><span class="s1">                &lt;div className="mt-10 flex space-x-4"&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;button type="button" onClick={() =&gt; setSelectedBadge(null)} className="flex-1 p-4 bg-gray-100 text-gray-600 font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors rounded-none"&gt;Cancel&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                  &lt;button type="submit" className="flex-[2] p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors rounded-none shadow-lg"&gt;Confirm Seat&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">                &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">              &lt;/form&gt;</span></p>
+<p class="p1"><span class="s1">            )}</span></p>
+<p class="p1"><span class="s1">          &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">      )}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">      {/* FLOAT CHAT */}</span></p>
+<p class="p1"><span class="s1">      &lt;a href="https://www.facebook.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 w-14 h-14 bg-[#008CFF] rounded-none flex items-center justify-center text-white shadow-lg hover:-translate-y-1 transition-transform z-50 group"&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;MessageCircle size={24} /&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;span className="absolute -top-1 -right-1 flex h-4 w-4"&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"&gt;&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">          &lt;span className="relative inline-flex rounded-full h-4 w-4 bg-[#BE1E2D] border-2 border-white"&gt;&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">        &lt;/span&gt;</span></p>
+<p class="p1"><span class="s1">      &lt;/a&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">    &lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">  );</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+</body>
+</html>
