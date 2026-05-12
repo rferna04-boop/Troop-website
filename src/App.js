@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { 
   Tent, Lock, ArrowUpRight, Star, MapPin, Mail, Calendar, Phone, 
-  Users, Compass, DollarSign, Award, CheckCircle, Clock, 
+  Users, Compass, CheckCircle, Clock, 
   MessageCircle, ExternalLink, Medal, Flame, Heart, Key, 
   FileText, Smartphone, CreditCard, ShieldCheck, Download, 
   LogOut, BookOpen, X, Search, Printer, Snowflake, Mountain, 
-  Facebook, Sun, Quote, ChevronRight, Image as ImageIcon,
+  Facebook, Sun, Quote, Image as ImageIcon,
   Utensils
 } from 'lucide-react';
 
@@ -34,8 +34,6 @@ export default function App() {
   // JOIN FORM STATE
   const [joinSuccess, setJoinSuccess] = useState(false);
 
-  const troopNavy = "#1D3A6C";
-  const troopRed = "#BE1E2D";
   const darkBg = "#0B0F19";
 
   // --- HISTORIAN CMS DATA (Scout's Trail) ---
