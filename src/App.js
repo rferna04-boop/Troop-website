@@ -468,11 +468,11 @@ export default function App() {
                             
                             <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory hide-scrollbar">
                               {entry.gallery.map((imgSrc, i) => (
-                                <div key={i} className={`h-32 sm:h-48 rounded-lg overflow-hidden snap-center shadow-sm shrink-0 border border-gray-200 ${entry.gallery.length === 1 ? 'w-full' : 'min-w-[140px] sm:min-w-[160px]'}`}>
+                                <div key={i} className={`rounded-lg overflow-hidden snap-center shadow-sm shrink-0 border border-gray-200 bg-gray-50 flex items-center justify-center ${entry.gallery.length === 1 ? 'w-full' : 'h-48 sm:h-64 min-w-[260px] sm:min-w-[340px]'}`}>
                                   <img 
                                     src={imgSrc} 
                                     onError={(e) => { e.target.onerror = null; e.target.src = entry.galleryFallbacks[i]; }}
-                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+                                    className={`w-full ${entry.gallery.length === 1 ? 'h-auto max-h-[500px] object-contain' : 'h-full object-cover'} hover:scale-105 transition-transform duration-500`} 
                                     alt={`Action ${i}`} 
                                   />
                                 </div>
