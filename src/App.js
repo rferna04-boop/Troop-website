@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Tent, Lock, ArrowUpRight, Star, MapPin, Mail, Calendar, Phone, 
-  Users, Compass, DollarSign, Award, CheckCircle, Clock, 
-  MessageCircle, ExternalLink, Medal, Flame, Heart, Key, 
-  FileText, Smartphone, CreditCard, ShieldCheck, Download, 
-  LogOut, BookOpen, X, Search, Printer, Snowflake, Mountain, Backpack, Facebook, Sun,
-  Newspaper, ChevronRight, ChefHat, ShoppingBag
+  Tent, Lock, ArrowUpRight, MapPin, Compass, DollarSign, CheckCircle, Clock, 
+  MessageCircle, ExternalLink, Medal, Smartphone, CreditCard, ShieldCheck, 
+  LogOut, Search, Printer, Snowflake, Mountain, Sun, Newspaper, ChevronRight, 
+  ChefHat, ShoppingBag
 } from 'lucide-react';
 
 export default function App() {
@@ -15,8 +13,6 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
-  const [selectedBadge, setSelectedBadge] = useState(null);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeResult, setActiveResult] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
@@ -29,7 +25,7 @@ export default function App() {
   useEffect(() => {
     const today = new Date().getTime();
     setDaysLeft(Math.floor((seaBaseDate - today) / (1000 * 60 * 60 * 24)));
-  }, []);
+  }, [seaBaseDate]);
 
   // --- BLOG DATA ---
   const blogPosts = [
@@ -361,7 +357,7 @@ export default function App() {
                     <Smartphone size={24} className="text-green-600 mb-6"/>
                     <h3 className="text-xl font-black uppercase mb-2">Band App</h3>
                     <p className="text-gray-500 text-sm mb-8">Calendar and announcements.</p>
-                    <a href="https://band.us/n/acabb5kcAfa10" target="_blank" className="text-green-600 font-black uppercase text-[10px] flex items-center space-x-2 group-hover:translate-x-1 transition-transform"><span>Launch App</span> <ExternalLink size={14}/></a>
+                    <a href="https://band.us/n/acabb5kcAfa10" target="_blank" rel="noopener noreferrer" className="text-green-600 font-black uppercase text-[10px] flex items-center space-x-2 group-hover:translate-x-1 transition-transform"><span>Launch App</span> <ExternalLink size={14}/></a>
                   </div>
 
                   <div className="bg-white p-8 shadow-lg border-t-4 border-[#1D3A6C] group">
@@ -444,7 +440,7 @@ export default function App() {
                     ) : (
                       <div className="space-y-2">
                         {list.links?.map(l => (
-                          <a key={l.name} href={l.url} target="_blank" className="block w-full p-4 bg-gray-100 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] flex items-center justify-between"><span>{l.name}</span> <ExternalLink size={12}/></a>
+                          <a key={l.name} href={l.url} target="_blank" rel="noopener noreferrer" className="block w-full p-4 bg-gray-100 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] flex items-center justify-between"><span>{l.name}</span> <ExternalLink size={12}/></a>
                         ))}
                       </div>
                     )}
@@ -467,7 +463,7 @@ export default function App() {
                     </div>
                     <div className="p-8">
                        <h3 className="text-xl font-black uppercase mb-6">{badge.name}</h3>
-                       <button onClick={() => setSelectedBadge(badge)} className="w-full p-4 bg-[#1D3A6C] text-white font-black uppercase text-[10px] tracking-widest">Register</button>
+                       <button className="w-full p-4 bg-[#1D3A6C] text-white font-black uppercase text-[10px] tracking-widest">Register</button>
                     </div>
                  </div>
                ))}
