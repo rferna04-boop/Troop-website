@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Tent, Lock, ArrowUpRight, MapPin, Compass, DollarSign, CheckCircle, Clock, 
-  MessageCircle, ExternalLink, Medal, Smartphone, CreditCard, ShieldCheck, 
+  MessageCircle, ExternalLink, Medal, Smartphone, ShieldCheck, 
   LogOut, Search, Printer, Snowflake, Mountain, Sun, Newspaper, ChevronRight, 
   ChefHat, ShoppingBag
 } from 'lucide-react';
