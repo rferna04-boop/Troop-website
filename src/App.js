@@ -1,64 +1,116 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Tent, Lock, ArrowUpRight, MapPin, Compass, DollarSign, CheckCircle, Clock, 
-  MessageCircle, ExternalLink, Medal, Smartphone, ShieldCheck, 
-  LogOut, Search, Printer, Snowflake, Mountain, Sun, Newspaper, ChevronRight, 
-  ChefHat, ShoppingBag
+  Tent, Lock, ArrowUpRight, Star, MapPin, Mail, Calendar, Phone, 
+  Users, Compass, CheckCircle, Clock, 
+  MessageCircle, ExternalLink, Medal, Flame, Heart, Key, 
+  FileText, Smartphone, CreditCard, ShieldCheck, Download, 
+  LogOut, BookOpen, X, Search, Printer, Snowflake, Mountain, 
+  Facebook, Sun, Quote, Image as ImageIcon,
+  Utensils, ShoppingBag
 } from 'lucide-react';
 
-export default function App() {
-  // --- BRAIN (STATE) ---
-  const [currentPage, setCurrentPage] = useState('home');
-  const [activeProgram, setActiveProgram] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeResult, setActiveResult] = useState(null);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [joinSuccess, setJoinSuccess] = useState(false);
+const SEA_BASE_DATE = new Date('August 2, 2026').getTime();
 
-  // --- THE CLOCK ---
-  const seaBaseDate = new Date('August 2, 2026').getTime();
+export default function App() {
   const [daysLeft, setDaysLeft] = useState(0);
 
   useEffect(() => {
     const today = new Date().getTime();
-    setDaysLeft(Math.floor((seaBaseDate - today) / (1000 * 60 * 60 * 24)));
-  }, [seaBaseDate]);
+    setDaysLeft(Math.floor((SEA_BASE_DATE - today) / (1000 * 60 * 60 * 24)));
+  }, []);
+  
+  const [currentPage, setCurrentPage] = useState('home');
+  const [activeProgram, setActiveProgram] = useState(0);
+  
+  // PORTAL AUTHENTICATION STATE
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState(false);
 
-  // --- BLOG DATA ---
-  const blogPosts = [
+  // REGISTRATION MODAL STATE
+  const [selectedBadge, setSelectedBadge] = useState(null);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
+  // SCOUT DOLLAR SEARCH STATE
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeResult, setActiveResult] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // JOIN FORM STATE
+  const [joinSuccess, setJoinSuccess] = useState(false);
+
+  const darkBg = "#0B0F19";
+
+  // --- HISTORIAN CMS DATA (Scout's Trail) ---
+  const scoutTrailData = [
     {
-      id: 3,
-      title: "May Adventures & Service",
-      date: "June 01, 2026",
-      author: "Scout Corner",
-      excerpt: "May was an active and meaningful month for the troop, filled with outdoor adventure, service, and preparation...",
-      content: "May was an active and meaningful month for the troop, filled with outdoor adventure, service, and preparation for upcoming celebrations and events. One exciting highlight of the month was the Semi Quinsentennial Fun Campout at Camp Workcoeman, where Scouts spent time enjoying outdoor activities, strengthening patrol teamwork, and celebrating Scouting traditions in a fun environment. The campout gave Scouts the opportunity to connect with one another while participating in engaging activities and building lasting memories together. The troop also participated in a hike during the month, allowing Scouts to continue developing their outdoor skills and appreciation for nature. The hike challenged Scouts to work together, stay prepared, and practice important skills while enjoying time on the trail. Events like these continue to build confidence, leadership, and teamwork within the troop. In addition, Scouts took part in flag placement and preparations for the Memorial Day parade, honoring those who served our country. Placing flags was a meaningful act of respect and remembrance, giving Scouts the opportunity to reflect on the importance of service and patriotism. Throughout the month, troop meetings continued to focus on advancement, skill-building, and preparation for upcoming activities. Scouts worked on merit badges, practiced leadership skills, and prepared for future adventures and troop events. Looking ahead, the troop is also preparing for the upcoming Court of Honor, where Scouts will be recognized for their achievements, hard work, and progress in Scouting. This event will celebrate the dedication and accomplishments of troop members and provide an opportunity for families and leaders to recognize their continued growth. Overall, May was a month filled with adventure, service, and community involvement, highlighting the troop’s dedication to leadership, teamwork, and Scouting values.",
-      category: "Monthly Recap"
+      id: '2026-05',
+      month: 'May',
+      year: '2026',
+      milestones: ['Camp Workcoeman', 'Memorial Day Parade', 'Troop Hike'],
+      heroImg: '/images/scout-corner/2026-05-hero.jpg',
+      heroFallback: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=1200&q=80',
+      summary: "May was an active and meaningful month for the troop, filled with outdoor adventure, service, and preparation for upcoming celebrations and events.\n\nOne exciting highlight of the month was the Semi Quinsentennial Fun Campout at Camp Workcoeman, where Scouts spent time enjoying outdoor activities, strengthening patrol teamwork, and celebrating Scouting traditions in a fun environment. The campout gave Scouts the opportunity to connect with one another while participating in engaging activities and building lasting memories together.\n\nThe troop also participated in a hike during the month, allowing Scouts to continue developing their outdoor skills and appreciation for nature. The hike challenged Scouts to work together, stay prepared, and practice important skills while enjoying time on the trail. Events like these continue to build confidence, leadership, and teamwork within the troop.\n\nIn addition, Scouts took part in flag placement and preparations for the Memorial Day parade, honoring those who served our country. Placing flags was a meaningful act of respect and remembrance, giving Scouts the opportunity to reflect on the importance of service and patriotism.\n\nThroughout the month, troop meetings continued to focus on advancement, skill-building, and preparation for upcoming activities. Scouts worked on merit badges, practiced leadership skills, and prepared for future adventures and troop events.\n\nLooking ahead, the troop is also preparing for the upcoming Court of Honor, where Scouts will be recognized for their achievements, hard work, and progress in Scouting. This event will celebrate the dedication and accomplishments of troop members and provide an opportunity for families and leaders to recognize their continued growth.\n\nOverall, May was a month filled with adventure, service, and community involvement, highlighting the troop’s dedication to leadership, teamwork, and Scouting values.",
+      quote: "Placing flags was a meaningful act of respect and remembrance, giving Scouts the opportunity to reflect on the importance of service and patriotism.",
+      scoutName: "Troop Scribe",
+      scoutRank: "Troop 170",
+      scoutImg: '/images/scout-corner/scribe.jpg',
+      scoutFallback: 'https://images.unsplash.com/photo-1512641406448-6524e5e10bf1?auto=format&fit=crop&w=400&q=80',
+      gallery: [
+        '/images/scout-corner/2026-05-gal1.jpg',
+        '/images/scout-corner/2026-05-gal2.jpg'
+      ],
+      galleryFallbacks: [
+        'https://images.unsplash.com/photo-1533240332313-0cb49f471b75?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80'
+      ]
     },
     {
-      id: 1,
-      title: "Klondike Derby Victory",
-      date: "February 15, 2026",
-      author: "Patrol Leader Sam",
-      excerpt: "Our Polar Bear patrol took first place in the fire-building competition this weekend...",
-      content: "It was 15 degrees at the start, but our training paid off. Using only a ferro rod and natural tinder, we had a waist-high flame in under three minutes. The sled held up perfectly through the snowy trek.",
-      category: "Adventure"
+      id: '2026-04',
+      month: 'April',
+      year: '2026',
+      milestones: ['150 Meals Packed', 'Sea Base Fundraiser', 'Merit Badge Push'],
+      heroImg: '/images/scout-corner/2026-04-gal1.jpeg',
+      heroFallback: 'https://images.unsplash.com/photo-1533240332313-0cb49f471b75?auto=format&fit=crop&w=1200&q=80',
+      summary: "April was a meaningful and engaging month for the troop, combining service, skill-building, and preparation for exciting future adventures.\n\nOne of the most impactful events of the month was the troop’s meal-packing service project, where Scouts came together to prepare meals for those in need. This hands-on effort emphasized the importance of giving back to the community and demonstrated how small actions can make a big difference. Scouts worked efficiently as a team, showing dedication and compassion throughout the event. “Being at the meal packing event not only helped us but it helped many people in need. It saved [and changed] people’s lives. Packing meals felt amazing” said Gabe, a Scout present at the event.\n\nAnother highlight was the University of Cooking campout, which gave Scouts the opportunity to expand their culinary skills in a fun and interactive outdoor setting. Patrols planned menus, prepared meals, and explored new cooking techniques beyond the basics. The campout encouraged creativity and teamwork while helping Scouts build confidence in their abilities. It was both an educational and enjoyable experience for everyone involved.\n\nIn addition, the troop made strong progress in fundraising efforts to support the upcoming Sea Base high adventure trip. “Although it may seem like a boring experience, it was interesting and a great way to interact with the community” said Gabe, a Scout present at the event. Through these fundraisers, Scouts showed initiative and commitment toward reaching their goals, working together to make this exciting opportunity possible.\n\nThroughout the month, troop meetings continued to focus on developing important skills and preparing Scouts for future activities and advancement. Many Scouts also continued working toward merit badges, further broadening their knowledge and experiences.\n\nOverall, April was a well-balanced month filled with service, learning, and forward-looking efforts, highlighting the troop’s dedication to teamwork, growth, and adventure.",
+      quote: "Being at the meal packing event not only helped us but it helped many people in need. It saved [and changed] people’s lives. Packing meals felt amazing.",
+      scoutName: "Gabe",
+      scoutRank: "Scout",
+      scoutImg: '/images/scout-corner/Gabe.jpg',
+      scoutFallback: 'https://images.unsplash.com/photo-1512641406448-6524e5e10bf1?auto=format&fit=crop&w=400&q=80',
+      gallery: [
+        '/images/scout-corner/2026-04-hero.jpg',
+        '/images/scout-corner/2026-04-scout.jpg'
+      ],
+      galleryFallbacks: [
+        'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=600&q=80'
+      ]
     },
     {
-      id: 2,
-      title: "Community Service: Food Drive",
-      date: "January 10, 2026",
-      author: "Eagle Candidate Alex",
-      excerpt: "Troop 170 collected over 500 pounds of non-perishable goods for the local pantry...",
-      content: "A huge thank you to everyone who donated. We spent Saturday morning sorting cans and boxes at the First Church of Christ.",
-      category: "Service"
+      id: '2026-03',
+      month: 'March',
+      year: '2026',
+      milestones: ['42 Nights Camping', 'Wilderness Survival', '12 Miles Hiked'],
+      heroImg: '/images/scout-corner/2026-03-hero.jpg',
+      heroFallback: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80',
+      summary: "March was an active and productive month for the troop with lots of adventures, learning, and achievement recognition.\n\nSome of the most notable events were the Cabin and Lean-to Camping Trip at Camp Sequassen where the Scouts could experience outdoor camping life in late winter. This event gave the opportunity to learn useful camping skills, cooperate within patrols, and enjoy the associated with spending time in nature. “It was a very entertaining and unique camp out and we had a lot of fun and learned many skills!” said one of the Scouts who preferred not to be named.\n\nFurthermore, the Court of Honor took place which celebrated all the work done by the members of the troop throughout this month. Scouts were awarded for earning new ranks, completing merit badges, and other achievements during their Scouting journey.\n\nThe month of March saw a number of meetings take place with an emphasis on developing skills and knowledge among the troop. The meetings involved different subjects that helped the Scouts to develop as leaders and increase their outdoorsmanship and readiness.\n\nMoreover, some of the Scouts made good progress in earning merit badges, thereby improving themselves in various fields.\n\nMarch was indeed a very balanced month that included everything from adventure, development, and education.",
+      quote: "It was a very entertaining and unique camp out and we had a lot of fun and learned many skills!",
+      scoutName: "Anonymous Scout",
+      scoutRank: "Troop 170 Member",
+      scoutImg: '/images/scout-corner/anonymous.jpg',
+      scoutFallback: 'https://images.unsplash.com/photo-1536084005850-984fb12170c2?auto=format&fit=crop&w=400&q=80',
+      gallery: [
+        '/images/scout-corner/2026-03-gal1.jpg',
+        '/images/scout-corner/2026-03-scout.jpg'
+      ],
+      galleryFallbacks: [
+        'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1525253013412-55c1a69a5738?auto=format&fit=crop&w=600&q=80'
+      ]
     }
   ];
 
-  // --- DATA (Restored All Images & Details) ---
   const programsList = [
     { id: 0, title: "Scout Rank Advancement", desc: "Progress through the scouting ranks at your own pace with the guidance of experienced mentors and youth leaders.", img: "/images/rank.jpg" },
     { id: 1, title: "Merit Badge Program", desc: "Explore over 140 different subjects from Robotics to First Aid in our active, year-round educational program.", img: "/images/merit.jpg" },
@@ -84,77 +136,120 @@ export default function App() {
 
   const gearListsData = [
     { 
-      id: 1, title: "The 10 Essentials", desc: "The absolute required items for every Scout's daypack.", icon: <Compass size={28} />,
+      id: 1, title: "The 10 Essentials", desc: "The absolute required items for every Scout's daypack, regardless of trip duration.", icon: <Compass size={28} />,
       type: "document",
-      content: "<ul style='line-height:1.8;'><li>Pocketknife</li><li>First-Aid Kit</li><li>Extra Clothing</li><li>Rain Gear</li><li>Water Bottle</li><li>Flashlight</li><li>Trail Food</li><li>Fire Starter</li><li>Sun Protection</li><li>Map and Compass</li></ul>"
+      content: "<ul style='line-height:1.8;'><li><strong>Pocketknife</strong> (Totin' Chip required)</li><li><strong>First-Aid Kit</strong> (personal size)</li><li><strong>Extra Clothing</strong> (layers)</li><li><strong>Rain Gear</strong> (jacket & pants)</li><li><strong>Water Bottle</strong> (full)</li><li><strong>Flashlight or Headlamp</strong> (fresh batteries)</li><li><strong>Trail Food</strong> (high energy)</li><li><strong>Matches & Fire Starter</strong></li><li><strong>Sun Protection</strong> (SPF 30+)</li><li><strong>Map and Compass</strong></li></ul>",
+      plainText: "- Pocketknife\n- First-Aid Kit\n- Extra Clothing\n- Rain Gear\n- Water Bottle\n- Flashlight or Headlamp\n- Trail Food\n- Fire Starter\n- Sun Protection\n- Map and Compass"
     },
     { 
-      id: 2, title: "Warm Weather", desc: "Lightweight packing list for Spring and Summer overnight trips.", icon: <Sun size={28} />,
+      id: 2, title: "Warm Weather Camping", desc: "Lightweight, moisture-wicking packing list for Spring and Summer overnight trips.", icon: <Sun size={28} />,
       type: "document",
-      content: "<h3>Clothing</h3><ul><li>Hiking shorts</li><li>Moisture-wicking shirts</li><li>Wool blend socks</li><li>Sun hat</li></ul><h3>Gear</h3><ul><li>Eating kit</li><li>Sleep system</li></ul>"
+      content: "<h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Clothing</h3><ul style='line-height:1.8;'><li>T-shirt or short-sleeved shirt</li><li>Hiking shorts</li><li>Underwear & Extra underwear</li><li>Socks (synthetic or wool blend)</li><li>Long-sleeved shirt</li><li>Brimmed hat</li><li>Bandana</li><li>Long pants (lightweight)</li><li>Sweater or warm jacket</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Cooking & Eating</h3><ul style='line-height:1.8;'><li>Large plastic bowl</li><li>Spoon (lexan/metal)</li><li>Insulated mug</li><li>Water treatment system</li><li>Stove & Fuel</li><li>Cookset (Pots & Frying pan)</li><li>Hot-pot tongs</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Hygiene</h3><ul style='line-height:1.8;'><li>Toothbrush & Toothpaste</li><li>Dental floss</li><li>Biodegradable soap</li><li>Comb</li><li>Hand cleaner</li><li>Small towel</li><li>Toilet paper (in Ziploc)</li><li>Trowel</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Expert Pro Tips</h3><ul style='line-height:1.8;'><li>Rain suit (breathable)</li><li>Hiking boots (broken in)</li><li>Backpack that fits correctly</li><li>Personal blister kit (Moleskin)</li><li>Parachute cord (20 feet)</li></ul>",
+      plainText: "CLOTHING:\n- T-shirt or short-sleeved shirt\n- Hiking shorts\n- Underwear & Extra underwear\n- Socks (synthetic or wool blend)\n- Long-sleeved shirt\n- Brimmed hat\n- Bandana\n- Long pants (lightweight)\n- Sweater or warm jacket\n\nCOOKING & EATING:\n- Large plastic bowl\n- Spoon (lexan/metal)\n- Insulated mug\n- Water treatment system\n- Stove & Fuel\n- Cookset (Pots & Frying pan)\n- Hot-pot tongs\n\nHYGIENE:\n- Toothbrush & Toothpaste\n- Dental floss\n- Biodegradable soap\n- Comb\n- Hand cleaner\n- Small towel\n- Toilet paper (in Ziploc)\n- Trowel\n\nEXPERT PRO TIPS:\n- Rain suit (breathable)\n- Hiking boots (broken in)\n- Backpack that fits correctly\n- Personal blister kit (Moleskin)\n- Parachute cord (20 feet)"
     },
     { 
-      id: 3, title: "Cold-Weather", desc: "Sub-freezing packing guide focusing on the 'No Cotton' rule.", icon: <Snowflake size={28} />, 
+      id: 3, title: "Cold-Weather Camping", desc: "Sub-freezing packing guide focusing on the 'No Cotton' rule and thermal layers.", icon: <Snowflake size={28} />, 
       type: "document",
-      content: "<p style='color:#BE1E2D; font-weight:bold;'>RULE: NO COTTON!</p><ul><li>Polypro base layers</li><li>Wool socks</li><li>Fleece jacket</li><li>Waterproof boots</li></ul>" 
+      content: "<p style='font-style:italic; font-weight:bold; color:#BE1E2D;'>RULE: NO COTTON!</p><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Clothing & Layers</h3><ul style='line-height:1.8;'><li>Long-sleeved shirt (synthetic/wool)</li><li>Long pants (fleece or wool)</li><li>Sweater or Jacket (fleece or wool)</li><li>Base layer (polypropylene)</li><li>Hiking boots (waterproofed)</li><li>Wool socks (multiple pairs)</li><li>Warm parka with hood</li><li>Stocking hat (covers ears)</li><li>Mittens or Gloves (warm)</li><li>Wool scarf</li><li>Extra dry underwear</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Expert Gear</h3><ul style='line-height:1.8;'><li>Bandana</li><li>Insulated Sorel-style boots</li><li>Wind parka with hood</li><li>Side-attaching suspenders</li><li>Rubberized gloves (for wet snow)</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Eating & Cooking</h3><ul style='line-height:1.8;'><li>Large storage bowl & Spoon</li><li>Insulated mug</li><li>Water treatment & Stove</li><li>Cookset & Snow Melting Pot</li><li>Hot-pot tongs</li></ul>", 
+      plainText: "RULE: NO COTTON!\n\nCLOTHING & LAYERS:\n- Long-sleeved shirt (synthetic/wool)\n- Long pants (fleece or wool)\n- Sweater or Jacket (fleece or wool)\n- Base layer (polypropylene)\n- Hiking boots (waterproofed)\n- Wool socks (multiple pairs)\n- Warm parka with hood\n- Stocking hat (covers ears)\n- Mittens or Gloves (warm)\n- Wool scarf\n- Extra dry underwear\n\nEXPERT GEAR:\n- Bandana\n- Insulated boots\n- Wind parka with hood\n- Side-attaching suspenders\n- Rubberized gloves (for wet snow)\n\nEATING & COOKING:\n- Large storage bowl & Spoon\n- Insulated mug\n- Water treatment & Stove\n- Cookset & Snow Melting Pot\n- Hot-pot tongs" 
     },
     { 
-      id: 5, title: "High Adventure", desc: "Official outfitter guides and gear lists for national treks.", icon: <Mountain size={28} />, 
+      id: 4, title: "Klondike Derby", desc: "Day-trip gear list for our active, high-energy winter competition in the snow.", icon: <Flame size={28} />, 
+      type: "document",
+      content: "<h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Health & Safety</h3><ul style='line-height:1.8;'><li>Waterproof Boots (Sneakers not allowed!)</li><li>1-2 Liters drinking water per scout</li><li>Proper Winter Attire (No cotton/shorts)</li><li>Trail Lunch</li><li>Cup for hot water</li><li>Mobile Phone (Charged, in ziplock)</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>First Aid</h3><ul style='line-height:1.8;'><li>Patrol First Aid Kit</li><li>Reflective Emergency Space Blanket</li><li>Multiple cravat/triangular bandages</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Tools & Navigation</h3><ul style='line-height:1.8;'><li>Pocket or lock-back knife</li><li>Mallet or hammer</li><li>Duct tape</li><li>TWO compasses</li><li>Small notebook and pen</li><li>Hand saw / Hatchet (with sheaths)</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Firebuilding & Sled</h3><ul style='line-height:1.8;'><li>Wooden matches & Ferro Rod</li><li>Char Cloth & Birds Nest firestarters</li><li>6 Firewood Tolls</li><li>8 Precut 6ft ropes</li><li>4 Six-foot staves & 4 Three-foot poles</li><li>Emergency Shelter/Tarp</li></ul>", 
+      plainText: "HEALTH & SAFETY:\n- Waterproof Boots\n- 1-2L water\n- Winter Attire\n- Trail Lunch\n- Cup\n- Mobile Phone\n\nFIRST AID:\n- Patrol First Aid Kit\n- Space Blanket\n- Cravats\n\nTOOLS & NAVIGATION:\n- Knife\n- Mallet/hammer\n- Duct tape\n- 2 Compasses\n- Notebook/pen\n- Saw/Hatchet\n\nFIREBUILDING & SLED:\n- Matches & Ferro Rod\n- Char Cloth & Firestarters\n- Firewood\n- Ropes & Staves/Poles\n- Emergency Shelter/Tarp" 
+    },
+    { 
+      id: 5, title: "High Adventure", desc: "Official outfitter guides and gear lists for our premier national treks.", icon: <Mountain size={28} />, 
       type: "external_links",
       links: [
         { name: "Philmont Packing", url: "https://www.philmontscoutranch.org/resources/what-to-bring/" },
-        { name: "Sea Base Guides", url: "https://seabaseha.org/scouts/resources/participant-guides/" }
+        { name: "Sea Base Guides", url: "https://seabaseha.org/scouts/resources/participant-guides/" },
+        { name: "Maine High Adv.", url: "https://www.mainehighadventure.org/pricing" }
       ]
     },
   ];
 
-  // --- HELPERS ---
   const handlePrint = (list) => {
     const printWindow = window.open('', '_blank');
-    printWindow.document.write(`<html><head><title>${list.title}</title></head><body><h1>${list.title}</h1>${list.content}</body></html>`);
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Troop 170 - ${list.title}</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 40px; max-w: 800px; margin: auto; color: #111; } 
+            h1 { color: #1D3A6C; border-bottom: 3px solid #BE1E2D; padding-bottom: 10px; text-transform: uppercase; font-weight: 900; letter-spacing: -0.05em; margin-bottom: 5px; }
+            p.desc { color: #666; font-size: 14px; margin-bottom: 30px; font-style: italic; }
+            .footer { margin-top: 50px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; font-weight: bold; letter-spacing: 0.05em; }
+          </style>
+        </head>
+        <body>
+          <h1>${list.title}</h1>
+          <p class="desc">${list.desc}</p>
+          ${list.content}
+          <div class="footer">SCOUTING AMERICA TROOP 170 • FARMINGTON / UNIONVILLE, CT</div>
+          <script>window.onload = () => { window.print(); }</script>
+        </body>
+      </html>
+    `);
     printWindow.document.close();
-    printWindow.print();
+  };
+
+  const handleDownload = (list) => {
+    const fileContent = `TROOP 170: ${list.title.toUpperCase()}\n${list.desc}\n\n${list.plainText}\n\n---\nScouting America Troop 170 • Unionville, CT`;
+    const blob = new Blob([fileContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Troop170_${list.title.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const navLinks = [
     { id: 'home', label: 'Home' },
     { id: 'about', label: 'About' },
+    { id: 'scoutCorner', label: 'Scout Corner' },
     { id: 'join', label: 'Join' }
   ];
-
-  const handleFormSubmit = (e, formName, setSuccess) => {
-    e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
-    fetch("/", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ "form-name": formName, ...Object.fromEntries(formData) }).toString()
-    }).then(() => setSuccess(true)).catch((error) => console.error(error));
-  };
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-white text-gray-900 selection:bg-[#BE1E2D] selection:text-white">
       
-      {/* NAVIGATION */}
-      <nav className="text-white relative z-50 border-b border-white/10 bg-[#0B0F19]">
-        <div className="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center">
-          <div className="flex items-center space-x-4 cursor-pointer" onClick={() => setCurrentPage('home')}>
-            <div className="w-16 h-16 bg-white/5 p-2 border border-white/10 flex items-center justify-center">
-               <img src="/images/logo.png" className="w-full h-full object-contain" alt="Logo" />
+      {/* --- AGENCY NAVIGATION --- */}
+      <nav className="text-white relative z-50 border-b border-white/10" style={{ backgroundColor: darkBg }}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex justify-between h-24 items-center">
+            
+            <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setCurrentPage('home')}>
+              <div className="w-20 h-20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                <img src="/images/logo.png" className="w-full h-full object-contain" alt="Logo" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">Troop 170</h1>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mt-1">Unionville, CT</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-black uppercase tracking-tighter leading-none">Troop 170</h1>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mt-1">Unionville, CT</p>
+
+            <div className="hidden md:flex space-x-10 items-center text-base font-bold uppercase tracking-wider text-gray-300">
+              {navLinks.map(page => (
+                <button 
+                  key={page.id} 
+                  onClick={() => setCurrentPage(page.id)} 
+                  className={`hover:text-white transition-colors ${currentPage === page.id ? 'text-white border-b-2 border-[#BE1E2D] pb-1' : ''}`}
+                >
+                  {page.label}
+                </button>
+              ))}
+              <a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:text-blue-400 transition-colors flex items-center space-x-2">
+                <Heart size={16}/><span>Donate</span>
+              </a>
+              <button onClick={() => setCurrentPage('portal')} className="flex items-center space-x-2 px-6 py-2.5 bg-white text-gray-900 hover:bg-[#BE1E2D] hover:text-white transition-all duration-300 shadow-md rounded-none font-black text-sm tracking-widest">
+                <Lock size={16}/><span>Member Login</span>
+              </button>
             </div>
-          </div>
-          <div className="hidden md:flex space-x-10 items-center text-sm font-black uppercase tracking-widest text-gray-300">
-            {navLinks.map(page => (
-              <button key={page.id} onClick={() => setCurrentPage(page.id)} className={`hover:text-white transition-colors ${currentPage === page.id ? 'text-white' : ''}`}>{page.label}</button>
-            ))}
-            <button onClick={() => setCurrentPage('portal')} className="px-6 py-2.5 bg-white text-gray-900 hover:bg-[#BE1E2D] hover:text-white transition-all shadow-md rounded-none font-black flex items-center space-x-2">
-              <Lock size={14}/><span>Member Login</span>
-            </button>
+
           </div>
         </div>
       </nav>
@@ -164,306 +259,760 @@ export default function App() {
         {/* --- HOME PAGE --- */}
         {currentPage === 'home' && (
           <div className="animate-in fade-in duration-700">
-            <div className="relative pt-32 pb-40 px-6 overflow-hidden bg-[#0B0F19]">
+            
+            {/* Cinematic Hero */}
+            <div className="relative pt-32 pb-40 lg:pt-48 lg:pb-56 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
               <div className="absolute inset-0 z-0">
                 <img src="/images/hero.jpg" alt="Scouts" className="w-full h-full object-cover object-[100%_70%] -scale-x-100 opacity-90" />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-[#0B0F19]/80 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-transparent"></div>
               </div>
-              <div className="relative z-10 max-w-7xl mx-auto">
-                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 border border-white/5 mb-8">
+              <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-start">
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-none mb-8 shadow-inner border border-white/5">
                   <Compass size={14} className="text-[#BE1E2D]" />
                   <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white">Established 1956</span>
                 </div>
-                <h2 className="text-6xl lg:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-8 uppercase max-w-4xl">
+                <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-8 uppercase max-w-4xl">
                   Transform Youth <br/>
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Into Leaders</span>
                 </h2>
-                <button onClick={() => setCurrentPage('join')} className="px-10 py-5 bg-[#BE1E2D] text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all shadow-xl flex items-center space-x-4 rounded-none">
+                <p className="text-lg sm:text-xl text-gray-400 font-light max-w-2xl leading-relaxed mb-12">
+                  Drive character development, boost outdoor skills, and maximize personal growth. We craft engaging, year-round scouting strategies that deliver measurable results.
+                </p>
+                <button onClick={() => setCurrentPage('join')} className="px-10 py-5 bg-[#BE1E2D] text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(190,30,45,0.4)] group flex items-center space-x-4 rounded-none">
                    <span>Schedule Visit</span>
-                   <ArrowUpRight size={20} />
+                   <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </button>
               </div>
             </div>
 
-            <div className="bg-white border-b border-gray-100 shadow-xl relative z-20">
-              <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-10">
-                {[
-                  { val: "60+", label: "Years Serving Unionville" },
-                  { val: "120+", label: "Eagle Scout Legacy" },
-                  { val: "140+", label: "Merit Badges Offered" },
-                  { val: "12+", label: "Annual Outdoor Trips" }
-                ].map((stat, idx) => (
-                  <div key={idx} className="border-l-4 border-gray-100 pl-6 hover:border-[#1D3A6C] transition-colors">
-                    <div className="text-4xl font-black text-gray-900 tracking-tighter">{stat.val}</div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mt-2">{stat.label}</p>
-                  </div>
-                ))}
+            {/* Impact Strip */}
+            <div className="bg-white border-b border-gray-100 relative z-20 shadow-xl">
+              <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-16">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+                   {[
+                     { val: "60+", label: "Years Serving Unionville" },
+                     { val: "120+", label: "Eagle Scout Legacy" },
+                     { val: "140+", label: "Merit Badges Offered" },
+                     { val: "12+", label: "Annual Outdoor Trips" }
+                   ].map((stat, idx) => (
+                     <div key={idx} className="group border-l-4 border-gray-100 pl-6 hover:border-[#1D3A6C] transition-colors duration-300">
+                        <div className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter group-hover:text-[#BE1E2D] transition-colors">{stat.val}</div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mt-2">{stat.label}</p>
+                     </div>
+                   ))}
+                </div>
               </div>
             </div>
 
+            {/* Program Grid (Asymmetrical Agency Layout) */}
             <div className="bg-gray-50 py-32">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
-                  <h3 className="text-5xl font-black tracking-tighter uppercase leading-[0.9] text-gray-900">Driven By <br/><span className="text-[#1D3A6C]">Adventure</span></h3>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                  <div className="lg:col-span-7">
-                    <div className="relative h-[500px] overflow-hidden shadow-2xl group">
-                      <img src={programsList[activeProgram].img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Focus" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19]/90 via-[#0B0F19]/20 to-transparent flex flex-col justify-end p-10">
-                        <span className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]">Focus Area 0{activeProgram + 1}</span>
-                        <h4 className="text-3xl lg:text-5xl font-black uppercase text-white mb-4 leading-none">{programsList[activeProgram].title}</h4>
-                        <p className="text-lg font-light text-gray-300 max-w-lg leading-relaxed">{programsList[activeProgram].desc}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="lg:col-span-5 space-y-2">
-                    {programsList.map((p, i) => (
-                      <button key={p.id} onClick={() => setActiveProgram(i)} className={`w-full text-left p-6 transition-all border-l-4 ${activeProgram === i ? 'bg-white border-[#BE1E2D] shadow-xl translate-x-2 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-900'}`}>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xl font-black uppercase tracking-tight">{p.title}</span>
-                          <span className="font-black opacity-20">0{i+1}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+               <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+                 
+                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+                    <h3 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] text-gray-900">
+                      Driven By <br/> <span className="text-[#1D3A6C]">Adventure</span>
+                    </h3>
+                    <p className="text-gray-500 text-lg font-light leading-relaxed max-w-md">
+                      Select a focus area to explore how we transform young scouts into confident community leaders.
+                    </p>
+                 </div>
 
-        {/* --- ABOUT PAGE (Restored Legacy Images) --- */}
-        {currentPage === 'about' && (
-          <div className="animate-in fade-in duration-700 bg-white">
-            <div className="py-40 bg-[#0B0F19] text-center px-6 relative overflow-hidden">
-               <img src="/images/about.jpg" className="absolute inset-0 w-full h-full object-cover opacity-30" alt="Background" />
-               <div className="relative z-10 max-w-4xl mx-auto">
-                 <h2 className="text-3xl md:text-5xl font-light italic text-white leading-relaxed font-serif">
-                   "To enhance character, promote self-discovery, and challenge Scouts to grow in leadership, fitness, and service through exceptional outdoor experiences."
-                 </h2>
+                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+                    {/* Visual Anchor */}
+                    <div className="lg:col-span-7">
+                       <div className="relative h-[500px] lg:h-[700px] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] rounded-none group">
+                          <img src={programsList[activeProgram].img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={programsList[activeProgram].title} />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19]/90 via-[#0B0F19]/20 to-transparent flex flex-col justify-end p-10 lg:p-16">
+                             <span className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]">Focus Area 0{activeProgram + 1}</span>
+                             <h4 className="text-3xl lg:text-5xl font-black uppercase tracking-tighter mb-4 text-white leading-none">{programsList[activeProgram].title}</h4>
+                             <p className="text-lg font-light text-gray-300 max-w-lg leading-relaxed">{programsList[activeProgram].desc}</p>
+                          </div>
+                       </div>
+                    </div>
+                    
+                    {/* Interactive Index */}
+                    <div className="lg:col-span-5 flex flex-col justify-center space-y-2">
+                       {programsList.map((program, index) => {
+                         const isActive = activeProgram === index;
+                         return (
+                           <button 
+                             key={program.id} 
+                             onClick={() => setActiveProgram(index)} 
+                             className={`w-full text-left p-8 transition-all duration-300 rounded-none border-l-4 ${isActive ? 'bg-white border-[#BE1E2D] shadow-xl translate-x-2' : 'bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-300'}`}
+                           >
+                             <div className="flex justify-between items-center">
+                                <div>
+                                  <h5 className={`text-xl lg:text-2xl font-black uppercase tracking-tighter ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{program.title}</h5>
+                                </div>
+                                <span className={`font-black text-lg ${isActive ? 'text-[#1D3A6C]' : 'text-gray-300'}`}>0{index+1}</span>
+                             </div>
+                           </button>
+                         );
+                       })}
+                    </div>
+                 </div>
+
                </div>
             </div>
-            <div className="py-32 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-              <div className="lg:col-span-5">
-                <h3 className="text-5xl font-black uppercase tracking-tighter mb-6 leading-none">A Legacy of <br/><span className="text-[#1D3A6C]">Excellence</span></h3>
-                <div className="w-16 h-2 bg-[#BE1E2D] mb-8"></div>
-                <p className="text-lg text-gray-500 font-light leading-relaxed mb-10">
-                  Founded in 1956, Troop 170 has been the standard for youth leadership in Unionville for decades. We are a scout-led organization where the youth plan the adventure and adults provide the mentorship.
+          </div>
+        )}
+
+        {/* --- SCOUT CORNER (THE DIGITAL TRAIL) --- */}
+        {currentPage === 'scoutCorner' && (
+          <div className="bg-gray-50 pb-32 animate-in fade-in duration-700 min-h-screen">
+            
+            {/* Glossy Header */}
+            <div className="relative pt-32 pb-32 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
+              <div className="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80" alt="Mountains" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19] via-[#0B0F19]/80 to-[#f9fafb]"></div>
+              </div>
+              <div className="relative z-10 max-w-4xl mx-auto text-center">
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full mb-6 border border-white/10">
+                  <Flame size={16} className="text-[#BE1E2D]" />
+                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white">The Historian's Blog</span>
+                </div>
+                <h2 className="text-5xl sm:text-7xl font-black text-white tracking-tighter uppercase mb-6 drop-shadow-lg">
+                  Scout Corner
+                </h2>
+                <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">
+                  A digital timeline of Troop 170's monthly adventures, service projects, and scout insights. 
                 </p>
-                <div className="space-y-4">
-                   <div className="bg-gray-50 p-6 border-l-4 border-yellow-500 font-black uppercase text-sm tracking-tight">The Road to Eagle</div>
-                   <div className="bg-gray-50 p-6 border-l-4 border-[#1D3A6C] font-black uppercase text-sm tracking-tight">Philmont High Adventure</div>
-                   <div className="bg-gray-50 p-6 border-l-4 border-[#1D3A6C] font-black uppercase text-sm tracking-tight">Sea Base Florida</div>
+              </div>
+            </div>
+
+            {/* The Trail Container */}
+            <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative -mt-10 z-20">
+              
+              {/* HISTORIAN PROFILE CARD */}
+              <div className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] mb-20 flex flex-col md:flex-row items-center gap-8 border border-gray-100 relative z-30">
+                 <img 
+                   src="/images/scout-corner/sheldon.jpg" 
+                   onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=400&q=80'; }} 
+                   alt="Sheldon H." 
+                   className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover shadow-lg border-4 border-gray-50 shrink-0" 
+                 />
+                 <div className="text-center md:text-left">
+                   <h3 className="text-3xl font-black uppercase tracking-tight text-gray-900 mb-2">Meet Sheldon H.</h3>
+                   <p className="text-[#1D3A6C] font-bold uppercase tracking-widest text-xs mb-4">Troop 170 Historian</p>
+                   <p className="text-gray-600 leading-relaxed font-serif text-lg">
+                     Tasked with preserving the legacy of Troop 170, Sheldon documents our monthly adventures, high-adventure treks, and service projects. The Scout Corner is his vision—a living digital archive of our journey, told by the scouts who live it.
+                   </p>
+                 </div>
+              </div>
+
+              {/* Timeline Wrapper (Contains the Line and the Entries) */}
+              <div className="relative pt-10">
+                {/* Vertical Line (Hidden on mobile for cleaner look, centered on desktop) */}
+                <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gray-200 -translate-x-1/2 rounded-full z-0"></div>
+
+                {scoutTrailData.map((entry, index) => {
+                  const isEven = index % 2 === 0;
+                  
+                  return (
+                    <div key={entry.id} className={`relative flex flex-col md:flex-row items-center justify-between mb-32 z-10 ${isEven ? 'md:flex-row-reverse' : ''}`}>
+                      
+                      {/* Center Node (Dot) */}
+                      <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 w-12 h-12 bg-white border-4 border-[#1D3A6C] rounded-full items-center justify-center shadow-lg">
+                        <Star size={20} className="text-[#BE1E2D]" />
+                      </div>
+
+                      {/* Date/Milestone Tag for Mobile */}
+                      <div className="md:hidden flex flex-col items-center mb-8 w-full">
+                         <div className="bg-[#1D3A6C] text-white px-6 py-2 rounded-full shadow-md font-black tracking-widest uppercase text-sm mb-4">
+                           {entry.month} {entry.year}
+                         </div>
+                         <div className="flex flex-wrap justify-center gap-2">
+                           {entry.milestones.map((stone, i) => (
+                             <span key={i} className="text-[10px] uppercase tracking-wider font-bold bg-gray-200 text-gray-700 px-3 py-1 rounded-sm">{stone}</span>
+                           ))}
+                         </div>
+                      </div>
+
+                      {/* Content Card (Left or Right side on Desktop) */}
+                      <div className={`w-full md:w-[45%] bg-white shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] rounded-xl overflow-hidden group hover:-translate-y-2 transition-all duration-500 border border-gray-100 ${isEven ? 'md:mr-auto' : 'md:ml-auto'}`}>
+                        
+                        {/* Hero Image for the Month */}
+                        <div className="relative h-64 sm:h-80 overflow-hidden">
+                          <img 
+                            src={entry.heroImg} 
+                            onError={(e) => { e.target.onerror = null; e.target.src = entry.heroFallback; }}
+                            alt={`${entry.month} Adventure`} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          />
+                          {/* Desktop Date Overlay */}
+                          <div className="hidden md:flex absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg items-center space-x-2 shadow-lg">
+                            <Calendar size={16} className="text-[#BE1E2D]" />
+                            <span className="font-black uppercase tracking-widest text-xs text-gray-900">{entry.month} {entry.year}</span>
+                          </div>
+                        </div>
+
+                        {/* Content Body */}
+                        <div className="p-8 sm:p-10">
+                          {/* Desktop Milestones */}
+                          <div className="hidden md:flex flex-wrap gap-2 mb-6 pb-6 border-b border-gray-100">
+                            {entry.milestones.map((stone, i) => (
+                              <span key={i} className="text-[10px] uppercase tracking-wider font-bold bg-blue-50 text-[#1D3A6C] px-3 py-1.5 rounded-md border border-blue-100">
+                                {stone}
+                              </span>
+                            ))}
+                          </div>
+
+                          {/* Summary Text */}
+                          <p className="text-gray-600 leading-relaxed mb-8 font-serif text-lg whitespace-pre-wrap first-letter:text-5xl first-letter:font-black first-letter:text-[#1D3A6C] first-letter:mr-1 first-letter:float-left">
+                            {entry.summary}
+                          </p>
+
+                          {/* Testimonial Block (Glassmorphism inset) */}
+                          <div className="bg-gray-50 rounded-xl p-6 relative border border-gray-200">
+                            <div className="absolute -top-4 -left-4 w-10 h-10 bg-[#BE1E2D] rounded-full flex items-center justify-center shadow-lg">
+                              <Quote size={18} className="text-white" />
+                            </div>
+                            <p className="text-gray-800 italic font-medium leading-relaxed mb-6 mt-2 relative z-10 text-sm sm:text-base">
+                              "{entry.quote}"
+                            </p>
+                            <div className="flex items-center space-x-4 border-t border-gray-200 pt-4">
+                              <img 
+                                src={entry.scoutImg} 
+                                onError={(e) => { e.target.onerror = null; e.target.src = entry.scoutFallback; }}
+                                alt={entry.scoutName} 
+                                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                              />
+                              <div>
+                                <p className="font-black text-gray-900 text-sm uppercase tracking-tight">{entry.scoutName}</p>
+                                <p className="text-[#1D3A6C] text-[10px] font-bold uppercase tracking-widest">{entry.scoutRank}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Action Gallery (Horizontal Swipe via CSS Snap) */}
+                          <div className="mt-8 pt-8 border-t border-gray-100">
+                            <div className="flex items-center justify-between mb-4">
+                              <span className="text-[10px] font-black tracking-widest uppercase text-gray-400 flex items-center"><ImageIcon size={14} className="mr-2"/> Action Shot{entry.gallery.length > 1 ? 's' : ''}</span>
+                              {entry.gallery.length > 1 && <span className="text-[10px] font-bold text-gray-300 md:hidden uppercase">Swipe →</span>}
+                            </div>
+                            
+                            <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory hide-scrollbar">
+                              {entry.gallery.map((imgSrc, i) => (
+                                <div key={i} className={`rounded-lg overflow-hidden snap-center shadow-sm shrink-0 border border-gray-200 bg-gray-50 flex items-center justify-center ${entry.gallery.length === 1 ? 'w-full' : 'h-48 sm:h-64 min-w-[260px] sm:min-w-[340px]'}`}>
+                                  <img 
+                                    src={imgSrc} 
+                                    onError={(e) => { e.target.onerror = null; e.target.src = entry.galleryFallbacks[i]; }}
+                                    className={`w-full ${entry.gallery.length === 1 ? 'h-auto max-h-[500px] object-contain' : 'h-full object-cover'} hover:scale-105 transition-transform duration-500`} 
+                                    alt={`Action ${i}`} 
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* End of Trail Marker */}
+                <div className="text-center pt-10 border-t border-gray-200 max-w-sm mx-auto relative z-10">
+                  <div className="w-16 h-16 bg-white border-4 border-gray-200 text-gray-300 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Compass size={24} />
+                  </div>
+                  <h4 className="text-lg font-black uppercase tracking-widest text-gray-400 mb-2">End of Current Trail</h4>
+                  <button className="px-6 py-3 bg-white border border-gray-200 text-gray-600 font-bold uppercase tracking-widest text-xs hover:bg-gray-50 hover:text-[#1D3A6C] transition-colors rounded-full shadow-sm">
+                    Load Previous Year
+                  </button>
                 </div>
               </div>
-              <div className="lg:col-span-7 relative h-[600px]">
-                 <img src="/images/legacy2.jpg" className="absolute top-0 right-0 w-4/5 h-3/4 object-cover shadow-2xl z-10" alt="Hiking" />
-                 <div className="absolute bottom-0 left-0 w-2/3 h-3/5 bg-white p-2 shadow-2xl z-20">
-                    <img src="/images/legacy1.jpg" className="w-full h-full object-cover" alt="Sailing" />
+
+            </div>
+          </div>
+        )}
+
+        {/* --- ABOUT PAGE --- */}
+        {currentPage === 'about' && (
+          <div className="bg-white animate-in fade-in duration-700">
+            
+            {/* Mission Statement Hero */}
+            <div className="relative py-40 lg:py-56 px-6 text-center overflow-hidden" style={{ backgroundColor: darkBg }}>
+               <div className="absolute inset-0 z-0">
+                 <img src="/images/about.jpg" alt="Scouts in action" className="w-full h-full object-cover opacity-70" />
+                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-[#0B0F19]"></div>
+               </div>
+               <div className="relative z-10 max-w-4xl mx-auto">
+                  <div className="inline-flex items-center space-x-2 bg-white/5 px-4 py-1.5 mb-8 shadow-inner border border-white/10 rounded-none">
+                    <Compass size={14} className="text-[#BE1E2D]" />
+                    <span className="font-black tracking-[0.3em] uppercase text-[10px] text-white">Our Mission</span>
+                  </div>
+                  <h2 className="text-3xl md:text-5xl font-light italic font-serif leading-[1.3] text-white drop-shadow-xl">
+                    "To enhance character, promote self-discovery, and challenge Scouts to grow in leadership, fitness, and service through exceptional outdoor experiences."
+                  </h2>
+               </div>
+            </div>
+
+            {/* Legacy Section */}
+            <div className="py-32 px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto">
+               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+                 <div className="lg:col-span-5">
+                    <h3 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase mb-6 leading-none text-gray-900">A Legacy of <br/><span className="text-[#1D3A6C]">Excellence</span></h3>
+                    <div className="w-16 h-2 bg-[#BE1E2D] mb-8"></div>
+                    <p className="text-lg text-gray-500 font-light leading-relaxed mb-10">
+                      Founded in 1956 and rechartered in 1962, Troop 170 has been the standard for youth leadership in Unionville for decades. We are a scout-led organization where the youth plan the adventure and adults provide the mentorship.
+                    </p>
+                    <div className="space-y-6">
+                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-yellow-500 hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">The Road to Eagle</p>
+                         <p className="text-gray-500 text-sm">A strong legacy of guiding scouts to the prestigious Eagle Scout rank through mentorship and service.</p>
+                       </div>
+                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">Philmont High Adventure</p>
+                         <p className="text-gray-500 text-sm">Rugged backcountry trekking in the mountains of New Mexico.</p>
+                       </div>
+                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">Sea Base Florida</p>
+                         <p className="text-gray-500 text-sm">Deep-sea sailing and tropical island survival in the Florida Keys.</p>
+                       </div>
+                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">Maine High Adventure</p>
+                         <p className="text-gray-500 text-sm">Canoeing and wilderness survival in the rugged backcountry of Maine.</p>
+                       </div>
+                    </div>
                  </div>
+                 <div className="lg:col-span-7 relative h-[500px] lg:h-[650px] mt-10 lg:mt-0">
+                    <img src="/images/legacy2.jpg" className="absolute top-0 right-0 w-4/5 h-3/4 object-cover shadow-[0_20px_50px_-10px_rgba(0,0,0,0.3)] z-10 rounded-none" alt="Hiking" />
+                    <div className="absolute bottom-0 left-0 w-2/3 h-3/5 bg-white p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.4)] z-20 rounded-none">
+                       <img src="/images/legacy1.jpg" className="w-full h-full object-cover" alt="Sailing" />
+                    </div>
+                 </div>
+               </div>
+            </div>
+
+            {/* Donation Funnel */}
+            <div className="bg-[#050B14] py-32 px-6 text-center border-t border-gray-800">
+              <div className="max-w-3xl mx-auto relative z-10">
+                <div className="w-16 h-16 mx-auto bg-[#BE1E2D] flex items-center justify-center text-white mb-8 shadow-xl rounded-none">
+                  <Heart size={28} />
+                </div>
+                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase mb-6 leading-none">Support Us</h2>
+                <p className="text-lg text-gray-400 mb-12 font-light leading-relaxed">
+                  Help sustain our 60-year legacy. Your contributions directly fund critical equipment upkeep and high-adventure scholarships for scouts in need.
+                </p>
+                
+                <a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col sm:flex-row items-center sm:space-x-6 bg-[#008CFF] hover:bg-blue-600 px-10 py-6 font-black text-white text-xl transition-all shadow-xl group rounded-none">
+                  <span>DONATE VIA VENMO</span>
+                  <span className="bg-white/20 px-4 py-1 mt-2 sm:mt-0 text-[10px] tracking-[0.2em] uppercase rounded-none">@Troop170Unionville</span>
+                </a>
+
+                {/* The "Grandma Funnel" */}
+                <div className="mt-16 pt-10 border-t border-white/10 text-gray-500">
+                  <p className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]">Prefer to mail a check?</p>
+                  <p className="text-md font-light italic leading-relaxed">
+                    First Church of Christ<br/>
+                    ATTN: Troop 170 Treasurer<br/>
+                    61 Main St, Unionville, CT 06085
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* --- JOIN PAGE --- */}
+        {currentPage === 'join' && (
+          <div className="bg-gray-50 pb-32 animate-in fade-in duration-700">
+            
+            {/* Header */}
+            <div className="bg-[#0B0F19] text-white py-32 lg:py-60 px-6 text-center relative overflow-hidden">
+               <div className="absolute inset-0 opacity-30"><img src="/images/join.jpg" className="w-full h-full object-cover" alt="Campfire" /></div>
+               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0B0F19]"></div>
+               <h2 className="relative z-10 text-5xl lg:text-7xl font-black uppercase tracking-tighter mb-4 leading-none">Start The Trail</h2>
+               <p className="relative z-10 text-lg font-light text-gray-300 max-w-2xl mx-auto">Boys and girls ages 11-17 are welcome to join year-round.</p>
+            </div>
+
+            {/* Inquiry Form Block */}
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-16 relative z-20 mb-24">
+               <div className="bg-white grid grid-cols-1 lg:grid-cols-5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] rounded-none">
+                 
+                 {/* Info Side */}
+                 <div className="lg:col-span-2 bg-[#050B14] text-white p-10 lg:p-14 flex flex-col justify-between">
+                    <div>
+                       <h3 className="text-3xl font-black uppercase tracking-tight mb-10 leading-none">Visit A Meeting</h3>
+                       <div className="space-y-8">
+                          <div className="flex items-start space-x-5">
+                            <Clock className="text-[#BE1E2D]" size={32}/> 
+                            <div>
+                              <p className="font-black text-lg uppercase tracking-tight mb-1">Monday Evenings</p>
+                              <p className="text-gray-400 text-sm">During the school year (Sept-May)</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start space-x-5">
+                            <MapPin className="text-[#BE1E2D]" size={32}/> 
+                            <div>
+                              <p className="font-black text-lg uppercase tracking-tight mb-1">Unionville, CT</p>
+                              <p className="text-gray-400 text-sm italic opacity-80">Exact location shared upon inquiry for youth protection.</p>
+                            </div>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* Form Side - Netlify Configured */}
+                 <div className="lg:col-span-3 p-10 lg:p-14 flex flex-col justify-center bg-white">
+                    {joinSuccess ? (
+                      <div className="text-center py-10 animate-in zoom-in duration-500">
+                         <div className="w-16 h-16 bg-green-50 flex items-center justify-center mx-auto mb-6 rounded-none"><CheckCircle size={40} className="text-green-500" /></div>
+                         <h3 className="text-3xl font-black uppercase tracking-tighter text-gray-900 mb-2">Request Received</h3>
+                         <p className="text-gray-500 text-md font-light">The Scoutmaster will contact you shortly.</p>
+                      </div>
+                    ) : (
+                      <form 
+                        name="join-inquiry" 
+                        method="POST" 
+                        data-netlify="true" 
+                        className="space-y-6" 
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const form = e.target;
+                          const formData = new FormData(form);
+
+                          fetch("/", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            body: new URLSearchParams({
+                              "form-name": "join-inquiry",
+                              ...Object.fromEntries(formData)
+                            }).toString()
+                          })
+                          .then(() => setJoinSuccess(true))
+                          .catch((error) => alert(error));
+                        }}
+                      >
+                        <input type="hidden" name="form-name" value="join-inquiry" />
+                         <h3 className="text-2xl font-black uppercase tracking-tighter text-gray-900 mb-6">Secure Inquiry</h3>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Parent Name</label>
+                              <input required name="parent_name" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="e.g. Jane Doe" />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Email Address</label>
+                              <input required name="email" type="email" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="jane@example.com" />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Phone Number</label>
+                              <input required name="phone" type="tel" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="(555) 555-5555" />
+                            </div>
+                         </div>
+                         <div className="pt-2">
+                           <button type="submit" className="w-full p-5 bg-[#BE1E2D] text-white font-black uppercase tracking-[0.2em] text-sm shadow-md hover:bg-gray-900 transition-colors rounded-none flex justify-center items-center space-x-2">
+                             <span>Request Info / Schedule Visit</span>
+                             <ArrowUpRight size={16} />
+                           </button>
+                         </div>
+                      </form>
+                    )}
+                 </div>
+
+               </div>
+            </div>
+
+            {/* Registration Flow - Full Width Centered */}
+            <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
+               <div className="bg-white p-10 lg:p-14 shadow-[0_20px_50px_-10px_rgba(29,58,108,0.1)] hover:-translate-y-1 transition-transform flex flex-col justify-between group rounded-none border-t-4 border-[#1D3A6C]">
+                  <div>
+                    <div className="flex items-center space-x-4 mb-10">
+                       <div className="bg-blue-50 p-4 text-[#1D3A6C] rounded-none"><CheckCircle size={32} /></div>
+                       <h4 className="text-2xl font-black tracking-tighter uppercase text-gray-900">Onboarding Process</h4>
+                    </div>
+                    <div className="space-y-8">
+                       {[
+                         ["1", "Observe", "Visit a meeting to see the Patrol Method."], 
+                         ["2", "Apply", "Submit the official online application."], 
+                         ["3", "Outfit", "Obtain your tan uniform and handbook."]
+                       ].map(([num, title, desc]) => (
+                         <div key={num} className="flex items-start space-x-5">
+                           <div className="w-10 h-10 bg-[#1D3A6C] text-white flex items-center justify-center font-black shadow-md shrink-0 text-xl rounded-none">{num}</div>
+                           <div>
+                             <p className="font-black text-lg uppercase tracking-tight mb-1 text-gray-900 leading-none">{title}</p>
+                             <p className="text-gray-500 text-sm font-light leading-snug">{desc}</p>
+                           </div>
+                         </div>
+                       ))}
+                    </div>
+                </div>
+                <a 
+                  href="https://my.scouting.org/VES/OnlineReg/1.0.0/?tu=UF-MB-066taa0170" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="mt-10 w-full flex items-center justify-center space-x-3 p-5 bg-[#BE1E2D] text-white font-black text-sm uppercase tracking-[0.2em] shadow-lg hover:bg-red-800 transition-colors rounded-none"
+                >
+                  <span>Official Application</span>
+                  <ExternalLink size={16} />
+                </a>
               </div>
             </div>
           </div>
         )}
 
-        {/* --- JOIN PAGE (Restored inquiry form) --- */}
-        {currentPage === 'join' && (
-          <div className="bg-gray-50 pb-32 animate-in fade-in">
-             <div className="bg-[#0B0F19] py-32 text-center text-white relative overflow-hidden">
-                <img src="/images/join.jpg" className="absolute inset-0 w-full h-full object-cover opacity-30" alt="Fire" />
-                <h2 className="relative z-10 text-6xl font-black uppercase tracking-tighter">Start The Trail</h2>
-             </div>
-             <div className="max-w-7xl mx-auto px-6 -mt-16 grid grid-cols-1 lg:grid-cols-5 bg-white shadow-2xl">
-                <div className="lg:col-span-2 bg-[#050B14] text-white p-12">
-                   <h3 className="text-3xl font-black uppercase mb-10">Visit A Meeting</h3>
-                   <div className="space-y-8">
-                      <div className="flex items-center space-x-5"><Clock className="text-[#BE1E2D]" size={32}/><span className="font-black uppercase text-sm tracking-widest">Mondays @ 7:00 PM</span></div>
-                      <div className="flex items-center space-x-5"><MapPin className="text-[#BE1E2D]" size={32}/><span className="font-black uppercase text-sm tracking-widest">Unionville, CT</span></div>
-                   </div>
-                </div>
-                <div className="lg:col-span-3 p-12">
-                   {joinSuccess ? (
-                     <div className="text-center py-10"><CheckCircle size={64} className="text-green-500 mx-auto mb-4"/><h3 className="text-3xl font-black uppercase">Request Received</h3></div>
-                   ) : (
-                     <form name="join-inquiry" data-netlify="true" className="space-y-6" onSubmit={(e) => handleFormSubmit(e, 'join-inquiry', setJoinSuccess)}>
-                        <input type="hidden" name="form-name" value="join-inquiry" />
-                        <h4 className="text-2xl font-black uppercase mb-6">Secure Inquiry</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                           <input required name="parent_name" className="w-full p-4 bg-gray-50 border-0 outline-none focus:ring-2 focus:ring-[#1D3A6C]" placeholder="Parent Name" />
-                           <input required name="email" type="email" className="w-full p-4 bg-gray-50 border-0 outline-none focus:ring-2 focus:ring-[#1D3A6C]" placeholder="Email Address" />
-                        </div>
-                        <button type="submit" className="w-full p-5 bg-[#BE1E2D] text-white font-black uppercase text-sm tracking-widest shadow-lg hover:bg-gray-900 transition-colors">Request Info</button>
-                     </form>
-                   )}
-                </div>
-             </div>
-          </div>
-        )}
-
-        {/* --- VAULT (MEMBER PORTAL) --- */}
+        {/* --- MEMBER PORTAL (The Vault) --- */}
         {currentPage === 'portal' && (
-          <div className="min-h-screen bg-gray-50 animate-in fade-in">
+          <div className="min-h-screen bg-gray-50 animate-in fade-in duration-500">
+            
+            {/* Locked State */}
             {!isLoggedIn ? (
-              <div className="min-h-[80vh] flex items-center justify-center bg-[#0B0F19] px-6">
-                <div className="max-w-md w-full bg-white/5 backdrop-blur-xl p-12 border border-white/10 shadow-2xl">
-                  <ShieldCheck size={48} className="text-white mx-auto mb-8" />
-                  <h2 className="text-3xl font-black text-white uppercase text-center mb-10 tracking-tighter">Member Login</h2>
-                  <form onSubmit={(e) => { e.preventDefault(); if(password.toUpperCase()==='TROOP170') setIsLoggedIn(true); else setLoginError(true); }}>
-                    <input type="password" value={password} onChange={(e) => {setPassword(e.target.value); setLoginError(false);}} className="w-full p-4 bg-black/40 text-white border-0 outline-none focus:ring-2 focus:ring-white/20 mb-6" placeholder="Access Code" />
-                    {loginError && <p className="text-red-500 font-black text-center text-[10px] uppercase mb-6 animate-bounce">Denied</p>}
-                    <button className="w-full p-4 bg-white text-[#1D3A6C] font-black uppercase text-sm tracking-widest">Unlock</button>
-                  </form>
+              <div className="relative flex flex-col items-center justify-center min-h-screen px-6 overflow-hidden" style={{ backgroundColor: darkBg }}>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#1D3A6C] rounded-full blur-[150px] opacity-30 animate-pulse pointer-events-none"></div>
+                
+                <div className="relative z-10 bg-white/10 backdrop-blur-2xl p-12 lg:p-16 shadow-2xl max-w-md w-full border border-white/10 rounded-none">
+                    <div className="w-20 h-20 bg-white/5 flex items-center justify-center mx-auto mb-8 shadow-inner rounded-none">
+                      <ShieldCheck size={40} className="text-white" />
+                    </div>
+                    <h2 className="text-3xl font-black text-white mb-2 tracking-tighter uppercase text-center">Member Login</h2>
+                    <p className="text-gray-400 mb-10 text-sm font-light text-center">Protected resources and ledgers.</p>
+                    
+                    <form onSubmit={(e) => { e.preventDefault(); if (password.toUpperCase() === 'TROOP170') setIsLoggedIn(true); else setLoginError(true); }}>
+                      <div className="relative mb-6">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                          <Key size={16} className={loginError ? "text-red-400" : "text-gray-400"} />
+                        </div>
+                        <input 
+                          type="password" 
+                          value={password} 
+                          onChange={(e) => {setPassword(e.target.value); setLoginError(false);}} 
+                          className="w-full pl-12 pr-4 py-4 bg-black/40 text-white text-lg border-0 shadow-inner outline-none focus:ring-2 focus:ring-white/30 rounded-none" 
+                          placeholder="Gate Code" 
+                        />
+                      </div>
+                      {loginError && <p className="text-[#ff6b6b] mb-6 font-black animate-bounce uppercase text-[10px] tracking-widest text-center">Access Denied</p>}
+                      <button type="submit" className="w-full py-4 bg-white text-[#1D3A6C] font-black text-sm uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors rounded-none flex justify-center items-center space-x-2">
+                        <span>Unlock</span>
+                        <ArrowUpRight size={16} />
+                      </button>
+                    </form>
                 </div>
               </div>
             ) : (
+              
+              /* Unlocked Dashboard */
               <div className="pb-32">
-                <div className="bg-[#050B14] py-20 px-6 text-white shadow-xl mb-16 relative overflow-hidden">
-                   <div className="max-w-7xl mx-auto flex justify-between items-center relative z-10">
-                     <h2 className="text-5xl font-black uppercase tracking-tighter">Command Hub</h2>
-                     <button onClick={() => setIsLoggedIn(false)} className="px-6 py-3 bg-white/10 text-white font-black uppercase text-[10px] tracking-widest border border-white/10 hover:bg-white hover:text-black transition-colors flex items-center space-x-2">
-                       <span>Log Out</span> <LogOut size={14}/>
-                     </button>
-                   </div>
-                </div>
-
-                <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {/* Card: Blog */}
-                  <div className="bg-[#BE1E2D] p-8 shadow-lg hover:-translate-y-1 transition-transform group text-white">
-                    <Newspaper size={24} className="mb-6"/>
-                    <h3 className="text-xl font-black uppercase mb-2">Troop Blog</h3>
-                    <p className="text-white/70 text-sm mb-8">Latest stories and adventure updates.</p>
-                    <button onClick={() => setCurrentPage('blog')} className="font-black uppercase text-[10px] tracking-widest flex items-center space-x-2 group-hover:translate-x-2 transition-transform"><span>Read More</span> <ArrowUpRight size={14}/></button>
-                  </div>
-                  
-                  {/* Card: University of Cooking (UPDATED!) */}
-                  <div className="bg-[#1D3A6C] p-8 shadow-lg hover:-translate-y-1 transition-transform group text-white">
-                    <ChefHat size={24} className="mb-6"/>
-                    <h3 className="text-xl font-black uppercase mb-2">University of Cooking</h3>
-                    <p className="text-white/70 text-sm mb-8">Master the culinary arts with our official troop recipes and guides.</p>
-                    <a href="https://sites.google.com/view/troop170universityofcooking/university-of-cooking" target="_blank" rel="noopener noreferrer" className="font-black uppercase text-[10px] tracking-widest flex items-center space-x-2 group-hover:translate-x-2 transition-transform"><span>Enter University</span> <ExternalLink size={14}/></a>
-                  </div>
-
-                  {/* Card: Troop Store (NEW!) */}
-                  <div className="bg-white p-8 shadow-lg border-t-4 border-[#BE1E2D] group">
-                    <ShoppingBag size={24} className="text-[#BE1E2D] mb-6"/>
-                    <h3 className="text-xl font-black uppercase mb-2">Troop Store</h3>
-                    <p className="text-gray-500 text-sm mb-8">Official Troop 170 apparel and gear from SquadLocker.</p>
-                    <a href="https://teamlocker.squadlocker.com/#/lockers/scouting-america-troop-170-unionville-ct/landing" target="_blank" rel="noopener noreferrer" className="text-[#BE1E2D] font-black uppercase text-[10px] tracking-widest flex items-center space-x-2 group-hover:translate-x-1 transition-transform"><span>Shop Now</span> <ExternalLink size={14}/></a>
-                  </div>
-
-                  {/* Restored Cards */}
-                  <div className="bg-white p-8 shadow-lg border-t-4 border-green-500 group">
-                    <Smartphone size={24} className="text-green-600 mb-6"/>
-                    <h3 className="text-xl font-black uppercase mb-2">Band App</h3>
-                    <p className="text-gray-500 text-sm mb-8">Calendar and announcements.</p>
-                    <a href="https://band.us/n/acabb5kcAfa10" target="_blank" rel="noopener noreferrer" className="text-green-600 font-black uppercase text-[10px] flex items-center space-x-2 group-hover:translate-x-1 transition-transform"><span>Launch App</span> <ExternalLink size={14}/></a>
-                  </div>
-
-                  <div className="bg-white p-8 shadow-lg border-t-4 border-[#1D3A6C] group">
-                    <Tent size={24} className="text-[#1D3A6C] mb-6"/>
-                    <h3 className="text-xl font-black uppercase mb-2">Gear Hub</h3>
-                    <p className="text-gray-500 text-sm mb-8">Packing checklists.</p>
-                    <button onClick={() => setCurrentPage('gearLists')} className="text-[#1D3A6C] font-black uppercase text-[10px] flex items-center space-x-2 group-hover:translate-x-1 transition-transform"><span>View Lists</span> <ArrowUpRight size={14}/></button>
-                  </div>
-
-                  <div className="bg-white p-8 shadow-lg border-t-4 border-purple-500 group">
-                    <Medal size={24} className="text-purple-600 mb-6"/>
-                    <h3 className="text-xl font-black uppercase mb-2">Clinics</h3>
-                    <p className="text-gray-500 text-sm mb-8">Merit Badge registrations.</p>
-                    <button onClick={() => setCurrentPage('meritBadges')} className="text-purple-600 font-black uppercase text-[10px] flex items-center space-x-2 group-hover:translate-x-1 transition-transform"><span>Schedule</span> <ArrowUpRight size={14}/></button>
-                  </div>
-
-                  <div className="bg-white p-8 shadow-lg border-t-4 border-[#1D3A6C] group">
-                    <DollarSign size={24} className="text-[#1D3A6C] mb-6"/>
-                    <h3 className="text-xl font-black uppercase mb-2">Scout Dollars</h3>
-                    <p className="text-gray-500 text-sm mb-8">Check your balance.</p>
-                    <button onClick={() => setCurrentPage('scoutDollars')} className="text-[#1D3A6C] font-black uppercase text-[10px] flex items-center space-x-2 group-hover:translate-x-1 transition-transform"><span>Open Ledger</span> <Search size={14}/></button>
-                  </div>
-
-                  {/* Sea Base Countdown Card */}
-                  <div className="md:col-span-2 lg:col-span-3 bg-[#0B0F19] p-12 text-center text-white relative overflow-hidden shadow-2xl border border-white/10">
-                    <div className="absolute inset-0 opacity-20"><img src="/images/download.jpg" className="w-full h-full object-cover" alt="Sea Base" /></div>
-                    <div className="relative z-10">
-                      <span className="text-[#BE1E2D] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">High Adventure 2026</span>
-                      <h3 className="text-5xl font-black uppercase mb-6 tracking-tighter">Sea Base</h3>
-                      <div className="flex items-center justify-center space-x-4">
-                        <span className="text-7xl font-black">{daysLeft}</span>
-                        <span className="text-gray-500 font-black uppercase tracking-widest text-sm">Days to Launch</span>
+                
+                {/* Secure Header */}
+                <div className="bg-[#050B14] py-20 px-6 sm:px-8 lg:px-12 relative overflow-hidden shadow-xl mb-16">
+                  <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-[#1D3A6C] rounded-full blur-[150px] opacity-30 pointer-events-none"></div>
+                  <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row justify-between items-center">
+                    <div className="text-center md:text-left mb-8 md:mb-0">
+                      <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-none mb-4 shadow-inner border border-white/5">
+                        <Lock size={12} className="text-green-400" />
+                        <span className="text-[9px] font-black tracking-[0.2em] uppercase text-green-400">Secure Protocol Active</span>
                       </div>
+                      <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-2 leading-none">Dashboard</h2>
+                      <p className="text-gray-400 text-lg font-light">Internal Command Center</p>
                     </div>
+                    <button onClick={() => setIsLoggedIn(false)} className="px-6 py-3 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black border border-white/10 transition-colors rounded-none flex items-center space-x-2">
+                      <span>Log Out</span><LogOut size={14}/>
+                    </button>
                   </div>
+                </div>
+                
+                {/* Dashboard Action Grid */}
+                <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                   
+                   {/* Card 1: BAND APP */}
+                   <div className="bg-gradient-to-br from-white to-green-50 border border-green-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-green-600 mb-6 shadow-sm"><Smartphone size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Band App</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Calendar updates, photos, and announcements.</p>
+                      </div>
+                      <a href="https://band.us/n/acabb5kcAfa10" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-green-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
+                        <span>Launch App</span><ExternalLink size={14}/>
+                      </a>
+                   </div>
+
+                   {/* Card 2: MEDICAL */}
+                   <div className="bg-gradient-to-br from-white to-red-50 border border-red-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-[#BE1E2D] mb-6 shadow-sm"><FileText size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Health Forms</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">AHMR Parts A, B, and C required for all outings.</p>
+                      </div>
+                      <a href="https://www.scouting.org/health-and-safety/ahmr/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-[#BE1E2D] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
+                        <span>Download PDF</span><Download size={14}/>
+                      </a>
+                   </div>
+
+                   {/* Card 3: GEAR */}
+                   <div className="bg-gradient-to-br from-white to-amber-50 border border-amber-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-amber-600 mb-6 shadow-sm"><Tent size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Gear Hub</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Print packing checklists for troop adventures.</p>
+                      </div>
+                      <button onClick={() => setCurrentPage('gearLists')} className="flex items-center space-x-2 text-amber-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                        <span>Open Hub</span><ArrowUpRight size={14}/>
+                      </button>
+                   </div>
+
+                   {/* Card 4: CLINICS */}
+                   <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-purple-600 mb-6 shadow-sm"><Medal size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Clinics</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Schedule and registration for merit badges.</p>
+                      </div>
+                      <button onClick={() => setCurrentPage('meritBadges')} className="flex items-center space-x-2 text-purple-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                        <span>View Schedule</span><ArrowUpRight size={14}/>
+                      </button>
+                   </div>
+
+                   {/* Card 5: LEDGER */}
+                   <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-[#1D3A6C] mb-6 shadow-sm"><CreditCard size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Scout Dollars</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Securely check individual fundraising balances.</p>
+                      </div>
+                      <button onClick={() => { setCurrentPage('scoutDollars'); setHasSearched(false); setSearchQuery(''); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                        <span>Access Ledger</span><Search size={14}/>
+                      </button>
+                   </div>
+                   
+                   {/* Card: University of Cooking */}
+                   <div className="bg-gradient-to-br from-white to-orange-50 border border-orange-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-orange-600 mb-6 shadow-sm"><Utensils size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">University of Cooking</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Troop cookbook and University of Cooking planning.</p>
+                      </div>
+                      <a href="https://sites.google.com/view/troop170universityofcooking/university-of-cooking" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-orange-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
+                        <span>Open Site</span><ExternalLink size={14}/>
+                      </a>
+                   </div>
+
+                   {/* Card: Troop Store (NEW!) */}
+                   <div className="bg-white p-8 shadow-lg border-t-4 border-[#BE1E2D] group">
+                      <div>
+                         <div className="w-12 h-12 bg-gray-50 flex items-center justify-center text-[#BE1E2D] mb-6 shadow-sm"><ShoppingBag size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Troop Store</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Official Troop 170 apparel and gear from SquadLocker.</p>
+                      </div>
+                      <a href="https://teamlocker.squadlocker.com/#/lockers/scouting-america-troop-170-unionville-ct/landing" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-[#BE1E2D] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
+                        <span>Shop Now</span><ExternalLink size={14}/>
+                      </a>
+                   </div>
+                   
+                   {/* Card: Family Handbook */}
+                   <div className="bg-gradient-to-br from-white to-indigo-50 border border-indigo-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-indigo-600 mb-6 shadow-sm"><BookOpen size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Family Handbook</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Information for scouts and families on how the troop works.</p>
+                      </div>
+                      <a href="https://drive.google.com/file/d/1HJXppDP_Hl7XXf9lfFr0HMBWDXLYGnLi/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-indigo-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
+                        <span>View Document</span><ExternalLink size={14}/>
+                      </a>
+                   </div>
+
+                   {/* Card: Scout Life Magazine */}
+                   <div className="group relative bg-[#161B22] rounded-3xl p-8 border border-white/5 hover:border-[#BE1E2D]/50 transition-all duration-500 overflow-hidden lg:col-span-1">
+                     {/* Decorative Background Icon */}
+                     <div className="absolute -right-8 -top-8 text-white/5 group-hover:text-[#BE1E2D]/10 transition-colors duration-500 pointer-events-none">
+                       <BookOpen size={160} />
+                     </div>
+
+                     <div className="relative z-10">
+                       <div className="w-12 h-12 bg-[#BE1E2D]/10 rounded-xl flex items-center justify-center text-[#BE1E2D] mb-6">
+                         <BookOpen size={24} />
+                       </div>
+                       
+                       <h3 className="text-2xl font-bold text-white mb-3">Scout Life Magazine</h3>
+                       <p className="text-gray-400 text-sm leading-relaxed mb-8 max-w-lg">
+                         Explore the official magazine of the BSA. Discover project ideas, gear reviews, and stories of scouting adventure.
+                       </p>
+
+                       <a 
+                         href="https://scoutlife.org" 
+                         target="_blank" 
+                         rel="noopener noreferrer"
+                         className="inline-flex items-center space-x-3 bg-white/5 hover:bg-[#BE1E2D] text-white px-6 py-3 rounded-xl transition-all duration-300 font-bold uppercase tracking-wider text-xs"
+                       >
+                         <span>Read Online</span>
+                         <ArrowUpRight size={18} />
+                       </a>
+                     </div>
+                   </div>
+
+                   {/* Card: Sea Base Countdown Card */}
+                   <div className="relative group bg-[#0B0F19] rounded-3xl overflow-hidden border border-white/10 h-64 shadow-2xl md:col-span-2 lg:col-span-3">
+                     {/* Background Image */}
+                     <div className="absolute inset-0 opacity-40">
+                       <img 
+                         src="/images/download.jpg" 
+                         alt="Sea Base" 
+                         className="w-full h-full object-cover"
+                       />
+                     </div>
+                     
+                     {/* Gradient Overlay to make text pop */}
+                     <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-[#0B0F19]/40 to-transparent"></div>
+
+                     {/* Text Content */}
+                     <div className="relative h-full flex flex-col items-center justify-center text-center p-6">
+                       <span className="text-[#BE1E2D] font-black tracking-[0.3em] uppercase text-[10px] mb-2">High Adventure 2026</span>
+                       <h3 className="text-4xl font-black text-white mb-4 uppercase">Sea Base</h3>
+                       
+                       <div className="flex items-baseline space-x-3 mt-2">
+                         <span className="text-6xl font-black text-white">{daysLeft}</span>
+                         <span className="text-gray-400 font-bold uppercase tracking-widest text-sm">Days To Launch</span>
+                       </div>
+
+                       <div className="mt-6 flex items-center space-x-2 text-white/60 text-xs font-medium bg-black/30 px-3 py-1 rounded-full">
+                         <span>Islamorada, Florida</span>
+                       </div>
+                     </div>
+                   </div>
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* --- BLOG PAGE --- */}
-        {currentPage === 'blog' && (
-          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-500">
-            <div className="bg-[#050B14] py-24 text-center text-white relative">
-               <h2 className="relative z-10 text-5xl font-black uppercase tracking-tighter">Troop Blog</h2>
-               <button onClick={() => setCurrentPage('portal')} className="relative z-10 text-gray-500 hover:text-white uppercase font-black text-[10px] tracking-widest">← Back to Command Hub</button>
-            </div>
-            <div className="max-w-4xl mx-auto px-6 -mt-10 relative z-20 space-y-8">
-               {blogPosts.map(post => (
-                 <div key={post.id} className="bg-white p-10 shadow-xl border-l-[12px] border-[#BE1E2D]">
-                    <div className="flex justify-between mb-4">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-[#1D3A6C] bg-blue-50 px-3 py-1">{post.category}</span>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{post.date}</span>
-                    </div>
-                    <h3 className="text-3xl font-black uppercase mb-4 text-gray-900">{post.title}</h3>
-                    <p className="text-gray-500 font-light text-lg mb-8 leading-relaxed italic">"{post.excerpt}"</p>
-                    <div className="pt-6 border-t border-gray-100 flex justify-between items-center">
-                       <span className="text-[10px] font-black uppercase text-gray-900">By: {post.author}</span>
-                       <button className="text-[#BE1E2D] font-black uppercase text-[10px] flex items-center space-x-2"><span>Full Story</span> <ChevronRight size={14} /></button>
-                    </div>
-                 </div>
-               ))}
-            </div>
-          </div>
-        )}
-
-        {/* --- GEAR HUB PAGE (Restored) --- */}
+        {/* --- DYNAMIC ROOM: GEAR HUB --- */}
         {currentPage === 'gearLists' && (
-           <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right">
-              <div className="bg-[#050B14] py-24 text-center text-white"><h2 className="text-4xl font-black uppercase mb-4">Gear Hub</h2><button onClick={() => setCurrentPage('portal')} className="text-gray-500 uppercase font-black text-[10px] tracking-widest">← Back</button></div>
-              <div className="max-w-7xl mx-auto px-6 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {gearListsData.map(list => (
-                  <div key={list.id} className="bg-white p-8 shadow-lg border-t-4 border-[#1D3A6C]">
-                    <div className="w-12 h-12 bg-gray-50 flex items-center justify-center text-[#1D3A6C] mb-6">{list.icon}</div>
-                    <h3 className="text-xl font-black uppercase mb-2">{list.title}</h3>
-                    <p className="text-gray-500 text-sm mb-8">{list.desc}</p>
-                    {list.type === "document" ? (
-                      <button onClick={() => handlePrint(list)} className="w-full p-4 bg-gray-100 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-2"><Printer size={14}/> <span>Print Checklist</span></button>
-                    ) : (
-                      <div className="space-y-2">
-                        {list.links?.map(l => (
-                          <a key={l.name} href={l.url} target="_blank" rel="noopener noreferrer" className="block w-full p-4 bg-gray-100 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] flex items-center justify-between"><span>{l.name}</span> <ExternalLink size={12}/></a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-           </div>
-        )}
-
-        {/* --- CLINICS PAGE (Restored) --- */}
-        {currentPage === 'meritBadges' && (
-          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right">
-            <div className="bg-[#050B14] py-24 text-center text-white"><h2 className="text-4xl font-black uppercase mb-4">Clinics</h2><button onClick={() => setCurrentPage('portal')} className="text-gray-500 uppercase font-black text-[10px] tracking-widest">← Back</button></div>
-            <div className="max-w-7xl mx-auto px-6 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-               {upcomingBadges.map(badge => (
-                 <div key={badge.id} className="bg-white shadow-lg border-b-4 border-purple-500 group">
-                    <div className="relative h-48 overflow-hidden">
-                       <img src={badge.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="badge" />
-                       <div className="absolute top-4 right-4 bg-[#BE1E2D] text-white px-3 py-1 font-black uppercase text-[9px]">{badge.status}</div>
+          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
+            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Gear Hub</h2>
+               <button onClick={() => setCurrentPage('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+            </div>
+            
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
+               {gearListsData.map(list => (
+                 <div key={list.id} className="bg-white p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] flex flex-col justify-between border-t-4 border-[#1D3A6C] rounded-none">
+                    <div>
+                      <div className="w-12 h-12 bg-gray-50 flex items-center justify-center text-[#1D3A6C] mb-6 shadow-inner">{list.icon}</div>
+                      <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-gray-900">{list.title}</h3>
+                      <p className="text-gray-500 text-sm leading-relaxed mb-8">{list.desc}</p>
                     </div>
-                    <div className="p-8">
-                       <h3 className="text-xl font-black uppercase mb-6">{badge.name}</h3>
-                       <button className="w-full p-4 bg-[#1D3A6C] text-white font-black uppercase text-[10px] tracking-widest">Register</button>
+                    <div className="flex space-x-2">
+                       {list.type === "document" ? (
+                         <>
+                           <button onClick={() => handlePrint(list)} className="flex-1 py-3 bg-gray-100 text-gray-700 font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center space-x-2 hover:bg-gray-200 transition-colors rounded-none">
+                             <Printer size={14}/> <span>Print</span>
+                           </button>
+                           <button onClick={() => handleDownload(list)} className="flex-1 py-3 bg-[#1D3A6C] text-white font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center space-x-2 hover:bg-gray-900 transition-colors rounded-none">
+                             <Download size={14}/> <span>Save</span>
+                           </button>
+                         </>
+                       ) : (
+                         <div className="flex flex-col space-y-2 w-full">
+                           {list.links?.map(link => (
+                             <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-gray-100 text-[#1D3A6C] font-black uppercase tracking-[0.1em] text-[10px] flex items-center justify-between px-4 hover:bg-gray-200 transition-colors rounded-none">
+                               <span>{link.name}</span> <ExternalLink size={12}/>
+                             </a>
+                           ))}
+                         </div>
+                       )}
                     </div>
                  </div>
                ))}
@@ -471,49 +1020,202 @@ export default function App() {
           </div>
         )}
 
-        {/* --- LEDGER PAGE (Restored) --- */}
+        {/* --- DYNAMIC ROOM: LEDGER (Exact Match) --- */}
         {currentPage === 'scoutDollars' && (
-          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right">
-             <div className="bg-[#050B14] py-24 text-center text-white"><h2 className="text-4xl font-black uppercase mb-4">Ledger</h2><button onClick={() => setCurrentPage('portal')} className="text-gray-500 uppercase font-black text-[10px] tracking-widest">← Back</button></div>
-             <div className="max-w-3xl mx-auto px-6 -mt-10">
-                <form className="flex bg-white shadow-xl border border-gray-100" onSubmit={(e) => { e.preventDefault(); const res = scoutAccounts.find(s => s.name.toLowerCase() === searchQuery.trim().toLowerCase()); setActiveResult(res || null); setHasSearched(true); }}>
+          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
+            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Ledger</h2>
+               <button onClick={() => setCurrentPage('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+            </div>
+            
+            <div className="max-w-3xl mx-auto px-6 -mt-10 relative z-20">
+               <form className="flex shadow-lg bg-white rounded-none border border-gray-100" onSubmit={(e) => { e.preventDefault(); const res = scoutAccounts.find(s => s.name.toLowerCase() === searchQuery.trim().toLowerCase()); setActiveResult(res || null); setHasSearched(true); }}>
                   <div className="flex items-center pl-6 text-gray-400"><Search size={24}/></div>
-                  <input className="flex-grow p-6 text-xl outline-none" placeholder="Exact Registered Name..." value={searchQuery} onChange={(e) => {setSearchQuery(e.target.value); setHasSearched(false);}} />
-                  <button type="submit" className="bg-[#1D3A6C] text-white px-8 font-black uppercase tracking-widest text-xs">Search</button>
-                </form>
-                {hasSearched && (
-                 <div className="mt-12 animate-in slide-in-from-bottom">
+                  <input className="flex-grow p-6 text-xl font-light outline-none text-gray-900" placeholder="Exact Registered Name..." value={searchQuery} onChange={(e) => {setSearchQuery(e.target.value); setHasSearched(false);}} />
+                  <button type="submit" className="bg-[#1D3A6C] text-white px-8 font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors">Search</button>
+               </form>
+               
+               {hasSearched && (
+                 <div className="mt-12 animate-in slide-in-from-bottom duration-500">
                    {activeResult ? (
-                     <div className="bg-white p-10 shadow-xl border-l-[12px] border-green-500 flex justify-between items-center">
-                        <div><h3 className="text-3xl font-black uppercase mb-4">{activeResult.name}</h3><p className="text-gray-500 text-xs font-bold uppercase mb-4">Updated: {activeResult.date}</p></div>
-                        <div className="bg-green-50 p-8 border border-green-100 text-center"><span className="block text-green-800 font-black uppercase text-[10px] mb-2">Balance</span><span className="text-5xl font-black text-green-600 tracking-tighter">${activeResult.balance.toFixed(2)}</span></div>
+                     <div className="bg-white p-10 shadow-xl border-l-[12px] border-green-500 flex flex-col sm:flex-row justify-between items-center rounded-none">
+                        <div className="text-center sm:text-left mb-8 sm:mb-0">
+                           <h3 className="text-3xl font-black tracking-tight uppercase mb-4 text-gray-900">{activeResult.name}</h3>
+                           <p className="inline-flex items-center space-x-2 bg-gray-50 px-3 py-1.5 text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-4 border border-gray-100">
+                             <Clock size={12}/> <span>Updated: {activeResult.date}</span>
+                           </p>
+                           <p className="text-gray-600 text-sm italic">"{activeResult.lastTransaction}"</p>
+                        </div>
+                        <div className="text-center sm:text-right bg-green-50 p-8 border border-green-100 min-w-[200px] rounded-none">
+                           <span className="block text-green-800 font-black uppercase tracking-widest text-[10px] mb-2">Available Balance</span>
+                           <span className="text-5xl font-black text-green-600 tracking-tighter">${activeResult.balance.toFixed(2)}</span>
+                        </div>
                      </div>
                    ) : (
-                    <div className="bg-white p-16 text-center shadow-xl border-t-[12px] border-[#BE1E2D]"><Lock size={32} className="text-[#BE1E2D] mx-auto mb-6"/><h3 className="text-2xl font-black uppercase">Record Locked</h3></div>
+                    <div className="bg-white p-16 text-center shadow-xl border-t-[12px] border-[#BE1E2D] rounded-none">
+                       <div className="w-16 h-16 bg-red-50 flex items-center justify-center mx-auto mb-6 rounded-full"><Lock size={24} className="text-[#BE1E2D]"/></div>
+                       <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-gray-900">Record Locked</h3>
+                       <p className="text-gray-500 text-sm max-w-sm mx-auto">For privacy, you must search the exact spelling of the registered name (e.g. "Alexander T.").</p>
+                    </div>
                    )}
                  </div>
                )}
-             </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- DYNAMIC ROOM: CLINICS --- */}
+        {currentPage === 'meritBadges' && (
+          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
+            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Clinics</h2>
+               <button onClick={() => setCurrentPage('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+            </div>
+            
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
+               {upcomingBadges.map(badge => (
+                 <div key={badge.id} className="bg-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] group flex flex-col justify-between rounded-none border-b-4 border-purple-800 hover:-translate-y-1 transition-transform">
+                    <div className="relative h-48 overflow-hidden">
+                       <img src={badge.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={badge.name} />
+                       <div className="absolute top-4 right-4 bg-[#BE1E2D] text-white px-3 py-1 font-black uppercase tracking-widest text-[9px] shadow-md">{badge.status}</div>
+                    </div>
+                    <div className="p-8">
+                       <h3 className="text-xl font-black uppercase tracking-tight mb-6 text-gray-900 leading-tight">{badge.name}</h3>
+                       <div className="space-y-3 mb-8 text-gray-600 font-bold uppercase tracking-wider text-[10px]">
+                          <div className="flex items-center space-x-3"><Calendar size={14} className="text-[#1D3A6C]"/> <span>{badge.date}</span></div>
+                          <div className="flex items-center space-x-3"><Clock size={14} className="text-[#1D3A6C]"/> <span>{badge.time}</span></div>
+                          <div className="flex items-center space-x-3"><Users size={14} className="text-[#1D3A6C]"/> <span>{badge.counselor}</span></div>
+                       </div>
+                       <button onClick={() => { setSelectedBadge(badge); setRegistrationSuccess(false); }} className="w-full p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-[10px] hover:bg-gray-900 transition-colors rounded-none">Register Scout</button>
+                    </div>
+                 </div>
+               ))}
+            </div>
           </div>
         )}
 
       </main>
 
-      {/* FOOTER (Restored Agency Style) */}
-      <footer className="bg-[#050B14] text-white pt-24 pb-12 px-6 border-t border-white/10">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20 text-left">
-           <div className="lg:col-span-1"><div className="flex items-center space-x-4 mb-6"><Tent size={32} className="text-[#BE1E2D]" /><h2 className="text-2xl font-black uppercase tracking-tighter">Troop 170</h2></div><p className="text-gray-400 text-sm font-light leading-relaxed">Building leaders through outdoor adventure since 1956.</p></div>
-           <div><h4 className="font-black uppercase tracking-widest text-[10px] mb-6 text-[#BE1E2D]">Navigation</h4><ul className="space-y-4 text-xs font-black uppercase tracking-widest text-gray-400">{navLinks.map(page => (<li key={page.id} className="hover:text-white cursor-pointer" onClick={() => { setCurrentPage(page.id); window.scrollTo(0,0); }}>{page.label}</li>))}</ul></div>
-           <div><h4 className="font-black uppercase tracking-widest text-[10px] mb-6 text-[#BE1E2D]">Contact</h4><ul className="space-y-4 text-sm text-gray-400 font-light"><li className="flex items-start space-x-3"><MapPin size={16} className="text-[#BE1E2D] shrink-0"/><p>61 Main St, Unionville, CT 06085</p></li></ul></div>
-           <div><h4 className="font-black uppercase tracking-widest text-[10px] mb-6 text-[#BE1E2D]">Command Hub</h4><button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="w-full p-4 bg-white/5 hover:bg-white hover:text-black font-black uppercase text-[10px] tracking-[0.2em] transition-colors flex items-center justify-center space-x-2"><Lock size={12}/> <span>Member Login</span></button></div>
+      {/* --- FOOTER (Clean 4-Column Agency Style) --- */}
+      <footer className="bg-[#050B14] text-white pt-24 pb-12 px-6 sm:px-8 lg:px-12 border-t border-white/10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20">
+          
+          {/* Brand Col */}
+          <div className="lg:col-span-1">
+             <div className="flex items-center space-x-4 mb-6 cursor-pointer" onClick={() => setCurrentPage('home')}>
+                <div className="w-20 h-20 rounded-none flex items-center justify-center p-0.5">
+                   <img src="/images/logo.png" className="w-full h-full object-contain" alt="Logo" />
+                </div>
+                <h2 className="text-2xl font-black tracking-tighter uppercase">Troop 170</h2>
+             </div>
+             <p className="text-gray-400 text-sm font-light leading-relaxed mb-6 pr-4">Building leaders through outdoor adventure since 1956.</p>
+             <div className="flex space-x-4">
+                <a href="https://www.facebook.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 flex items-center justify-center rounded-none hover:bg-[#008CFF] transition-colors"><Facebook size={16}/></a>
+                <a href="mailto:bsatroop170unionville@gmail.com" className="w-10 h-10 bg-white/5 flex items-center justify-center rounded-none hover:bg-[#BE1E2D] transition-colors"><Mail size={16}/></a>
+             </div>
+          </div>
+
+          {/* Links Col */}
+          <div>
+             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Navigation</h4>
+             <ul className="space-y-4">
+               {navLinks.map(page => (
+                 <li key={page.id} className="hover:text-white text-gray-400 cursor-pointer transition-colors uppercase font-bold tracking-wider text-xs" onClick={() => { setCurrentPage(page.id); window.scrollTo(0,0); }}>{page.label}</li>
+               ))}
+               <li><a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:underline uppercase font-bold tracking-wider text-xs">Sustaining Fund</a></li>
+             </ul>
+          </div>
+
+          {/* Contact Col */}
+          <div>
+             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Contact</h4>
+             <ul className="space-y-5 text-sm text-gray-400">
+               <li className="flex items-start space-x-3">
+                 <MapPin className="text-[#BE1E2D] shrink-0 mt-0.5" size={16}/>
+                 <p className="leading-tight">First Church of Christ<br/>61 Main St, Unionville, CT 06085</p>
+               </li>
+               <li className="flex items-start space-x-3">
+                 <Phone className="text-[#BE1E2D] shrink-0 mt-0.5" size={16}/>
+                 <p className="leading-tight">860.352.5471</p>
+               </li>
+               <li className="flex items-start space-x-3">
+                 <Mail className="text-[#BE1E2D] shrink-0 mt-0.5" size={16}/>
+                 <p className="break-all leading-tight">bsatroop170unionville<br/>@gmail.com</p>
+               </li>
+             </ul>
+          </div>
+
+          {/* Portal Col */}
+          <div>
+             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Command Hub</h4>
+             <p className="text-gray-400 mb-6 text-sm font-light leading-relaxed">Access secure documents and ledgers.</p>
+             <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="w-full p-4 bg-white/5 hover:bg-white hover:text-black font-black uppercase tracking-[0.2em] text-[10px] transition-colors rounded-none flex items-center justify-center space-x-2">
+               <Lock size={12}/>
+               <span>Member Login</span>
+             </button>
+          </div>
         </div>
-        <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 text-gray-600 text-[10px] font-black uppercase tracking-[0.2em] flex flex-col md:flex-row justify-between">
-           <p>© 2026 Scouting America Troop 170</p><p>Unionville, Connecticut</p>
+
+        <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-gray-600 text-[10px] font-black uppercase tracking-[0.2em]">
+           <p className="mb-4 md:mb-0">© 2026 Scouting America Troop 170</p>
+           <p>Unionville, Connecticut</p>
         </div>
       </footer>
 
+      {/* REGISTRATION MODAL */}
+      {selectedBadge && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setSelectedBadge(null)}></div>
+          
+          {/* Modal Container */}
+          <div className="relative bg-white w-full max-w-lg p-10 shadow-2xl rounded-none border-t-8 border-[#1D3A6C] animate-in zoom-in duration-200">
+            <button onClick={() => setSelectedBadge(null)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors"><X size={24}/></button>
+            
+            {registrationSuccess ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle size={32} className="text-green-500" /></div>
+                <h3 className="text-3xl font-black tracking-tighter uppercase mb-4 text-gray-900">Confirmed</h3>
+                <p className="text-gray-500 text-md mb-8 leading-relaxed">Seat reserved for {selectedBadge.name}.</p>
+                <button onClick={() => setSelectedBadge(null)} className="w-full p-4 bg-gray-900 text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors rounded-none">Close</button>
+              </div>
+            ) : (
+              <form onSubmit={(e) => { e.preventDefault(); setRegistrationSuccess(true); }}>
+                <span className="text-[#BE1E2D] font-black uppercase tracking-[0.2em] text-[10px] mb-3 block">Secure Registration</span>
+                <h3 className="text-3xl font-black tracking-tight uppercase mb-8 leading-tight text-gray-900">{selectedBadge.name}</h3>
+                
+                <div className="space-y-6">
+                   <div>
+                     <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Scout Name</label>
+                     <input required className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors" placeholder="Full Legal Name" />
+                   </div>
+                   <div>
+                     <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Parent Email</label>
+                     <input required type="email" className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors" placeholder="For confirmation" />
+                   </div>
+                   <div className="p-4 bg-blue-50 border-l-4 border-[#1D3A6C]">
+                     <p className="text-[#1D3A6C] font-bold text-xs italic leading-relaxed">"Scouts must obtain a signed Blue Card prior to attending."</p>
+                   </div>
+                </div>
+                
+                <div className="mt-10 flex space-x-4">
+                  <button type="button" onClick={() => setSelectedBadge(null)} className="flex-1 p-4 bg-gray-100 text-gray-600 font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors rounded-none">Cancel</button>
+                  <button type="submit" className="flex-[2] p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors rounded-none shadow-lg">Confirm Seat</button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* FLOAT CHAT */}
-      <a href="https://www.facebook.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 w-14 h-14 bg-[#008CFF] flex items-center justify-center text-white shadow-lg hover:-translate-y-1 transition-transform z-50"><MessageCircle size={24} /></a>
+      <a href="https://www.facebook.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 w-14 h-14 bg-[#008CFF] rounded-none flex items-center justify-center text-white shadow-lg hover:-translate-y-1 transition-transform z-50 group">
+        <MessageCircle size={24} />
+        <span className="absolute -top-1 -right-1 flex h-4 w-4">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-4 w-4 bg-[#BE1E2D] border-2 border-white"></span>
+        </span>
+      </a>
 
     </div>
   );
