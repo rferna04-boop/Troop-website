@@ -1,23 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  Tent, Lock, ArrowUpRight, Star, MapPin, Mail, Calendar, Phone, 
+  Tent, Lock, ArrowUpRight, MapPin, Mail, Calendar, Phone, 
   Users, Compass, CheckCircle, Clock, 
   MessageCircle, ExternalLink, Medal, Flame, Heart, Key, 
   FileText, Smartphone, CreditCard, ShieldCheck, Download, 
   LogOut, BookOpen, X, Search, Printer, Snowflake, Mountain, 
   Facebook, Sun, Quote, Image as ImageIcon,
-  Utensils, ShoppingBag
+  Utensils
 } from 'lucide-react';
 
-const SEA_BASE_DATE = new Date('August 2, 2026').getTime();
-
 export default function App() {
-  const [daysLeft, setDaysLeft] = useState(0);
-
-  useEffect(() => {
-    const today = new Date().getTime();
-    setDaysLeft(Math.floor((SEA_BASE_DATE - today) / (1000 * 60 * 60 * 24)));
-  }, []);
+  const seaBaseDate = new Date('August 2, 2026').getTime();
+  const today = new Date().getTime();
+  const daysLeft = Math.floor((seaBaseDate - today) / (1000 * 60 * 60 * 24));
   
   const [currentPage, setCurrentPage] = useState('home');
   const [activeProgram, setActiveProgram] = useState(0);
@@ -39,29 +34,57 @@ export default function App() {
   // JOIN FORM STATE
   const [joinSuccess, setJoinSuccess] = useState(false);
 
+  // ACCORDION ARCHIVE STATE
+  const [openArchiveId, setOpenArchiveId] = useState(null);
+  const toggleArchive = (id) => {
+    setOpenArchiveId(prev => prev === id ? null : id);
+  };
+
   const darkBg = "#0B0F19";
 
-  // --- HISTORIAN CMS DATA (Scout's Trail) ---
+  // --- HISTORIAN CMS DATA ---
   const scoutTrailData = [
     {
-      id: '2026-05',
-      month: 'May',
+      id: '2026-07',
+      month: 'July',
       year: '2026',
-      milestones: ['Camp Workcoeman', 'Memorial Day Parade', 'Troop Hike'],
-      heroImg: '/images/scout-corner/2026-05-hero.jpg',
-      heroFallback: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=1200&q=80',
-      summary: "May was an active and meaningful month for the troop, filled with outdoor adventure, service, and preparation for upcoming celebrations and events.\n\nOne exciting highlight of the month was the Semi Quinsentennial Fun Campout at Camp Workcoeman, where Scouts spent time enjoying outdoor activities, strengthening patrol teamwork, and celebrating Scouting traditions in a fun environment. The campout gave Scouts the opportunity to connect with one another while participating in engaging activities and building lasting memories together.\n\nThe troop also participated in a hike during the month, allowing Scouts to continue developing their outdoor skills and appreciation for nature. The hike challenged Scouts to work together, stay prepared, and practice important skills while enjoying time on the trail. Events like these continue to build confidence, leadership, and teamwork within the troop.\n\nIn addition, Scouts took part in flag placement and preparations for the Memorial Day parade, honoring those who served our country. Placing flags was a meaningful act of respect and remembrance, giving Scouts the opportunity to reflect on the importance of service and patriotism.\n\nThroughout the month, troop meetings continued to focus on advancement, skill-building, and preparation for upcoming activities. Scouts worked on merit badges, practiced leadership skills, and prepared for future adventures and troop events.\n\nLooking ahead, the troop is also preparing for the upcoming Court of Honor, where Scouts will be recognized for their achievements, hard work, and progress in Scouting. This event will celebrate the dedication and accomplishments of troop members and provide an opportunity for families and leaders to recognize their continued growth.\n\nOverall, May was a month filled with adventure, service, and community involvement, highlighting the troop’s dedication to leadership, teamwork, and Scouting values.",
-      quote: "Placing flags was a meaningful act of respect and remembrance, giving Scouts the opportunity to reflect on the importance of service and patriotism.",
-      scoutName: "Troop Scribe",
-      scoutRank: "Troop 170",
-      scoutImg: '/images/scout-corner/scribe.jpg',
+      milestones: ['Summer Camp', 'Eagle Work Parties', 'Sea Base Prep'],
+      heroImg: '/images/scout-corner/2026-07-hero.jpg',
+      heroFallback: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80',
+      summary: "July was a month of adventure, service, and continued preparation for the exciting opportunities ahead. Scouts spent time building skills and memories at summer camp, supporting one another through Eagle Scout projects, and preparing for the upcoming Sea Base adventure. Throughout the month, the troop continued to demonstrate the importance of leadership, teamwork, and service.\n\nOne of the month's biggest highlights was summer camp. Scouts had the opportunity to spend time outdoors, learn new skills, work toward advancement, and enjoy the traditions and experiences that make summer camp such an important part of Scouting. The week provided Scouts with opportunities to challenge themselves, strengthen friendships, and grow more independent while participating in a variety of activities. Reflecting on the experience, one Scout shared, \"Summer camp is one of my favorite parts of Scouting because you get to learn new things while spending the week with your friends.\"\n\nJuly was also an active month for service, with multiple Scouts continuing to work toward their Eagle Scout rank by planning and completing their Eagle projects. The troop supported these efforts through two work parties, giving fellow Scouts, leaders, and families the opportunity to contribute their time and skills. These projects provided valuable leadership experiences for the Scouts organizing them while also demonstrating the Scouting spirit of service to others. As one Scout remarked, \"It's great being able to help with an Eagle project because you know that your work is making a difference and helping someone in the community.\"\n\nWith Sea Base quickly approaching, Scouts and families also continued preparing for the upcoming high-adventure experience. The trip has given Scouts something exciting to look forward to while encouraging them to work together, prepare responsibly, and make the most of the opportunities ahead. The months of planning and fundraising are coming together as the group gets closer to setting out on this adventure. One Scout summed up the excitement by saying, \"We've been preparing for Sea Base for a long time, so it's exciting to know that the adventure is finally getting closer.\"\n\nOverall, July was a month filled with adventure, service, and anticipation. From the excitement of summer camp to the hard work taking place on Eagle projects and the final preparations for Sea Base, Scouts continued to grow as leaders, teammates, and members of their community. The experiences of July helped build both individual confidence and troop spirit while setting the stage for even more memorable adventures in the months ahead.",
+      quote: "Summer camp is one of my favorite parts of Scouting because you get to learn new things while spending the week with your friends.",
+      scoutName: "Troop 170 Scout",
+      scoutRank: "Summer Camper",
+      scoutImg: '/images/scout-corner/sheldon.jpg',
       scoutFallback: 'https://images.unsplash.com/photo-1512641406448-6524e5e10bf1?auto=format&fit=crop&w=400&q=80',
       gallery: [
-        '/images/scout-corner/2026-05-gal1.jpg',
-        '/images/scout-corner/2026-05-gal2.jpg'
+        '/images/scout-corner/2026-07-camp.jpg',
+        '/images/scout-corner/2026-07-eagle.jpg'
       ],
       galleryFallbacks: [
-        'https://images.unsplash.com/photo-1533240332313-0cb49f471b75?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=600&q=80'
+      ]
+    },
+    {
+      id: '2026-06',
+      month: 'June',
+      year: '2026',
+      milestones: ['Court of Honor & Picnic', '2 New Eagle Scouts', 'Sea Base Fundraisers'],
+      heroImg: '/images/scout-corner/2026-04-gal1.jpeg',
+      heroFallback: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80',
+      summary: "June was a month of celebration, advancement, and preparation for exciting summer adventures. Scouts had the opportunity to recognize major achievements, continue working toward their individual goals, and support the troop through several successful fundraising events.\n\nOne of the month's major highlights was the June Court of Honor and annual troop picnic. The Court of Honor recognized Scouts for their hard work, dedication, and accomplishments in advancement, celebrating merit badges, rank advancements, and other achievements earned throughout the year. Following the ceremony, Scouts, families, and leaders gathered for the annual picnic, enjoying an afternoon of fun, games, good food, and fellowship. The event provided an excellent opportunity to celebrate the troop's successes while strengthening the sense of community among troop families. As one Scout shared, \"It's always exciting to see everyone's hard work pay off, and celebrating together at the picnic makes it even more special.\"\n\nThe troop also celebrated a significant milestone as Andrew Tabol and Devyaan Bordoloi were honored at their Eagle Scout Court of Honor. This memorable ceremony recognized their years of dedication, leadership, and service that culminated in earning Scouting's highest rank. Their accomplishments serve as an inspiration to younger Scouts as they continue working toward their own goals. Reflecting on the ceremony, one Scout remarked, \"Seeing two Scouts earn Eagle reminds me that if I keep working hard, I can get there too.\"\n\nWith the arrival of summer, the troop began its summer meeting schedule, placing a greater emphasis on individualized advancement. These meetings gave Scouts the opportunity to focus on their personal goals, complete advancement requirements, and receive one-on-one guidance from troop leaders. This flexible approach allowed each Scout to make meaningful progress at their own pace while continuing to build valuable Scouting skills. One Scout commented, \"I like being able to work on the things I need most because it helps me keep moving forward.\"\n\nThroughout the month, the troop also held multiple restaurant fundraising events to help support Scouts preparing for the upcoming Sea Base adventure. These fundraisers brought together Scouts, families, and members of the community while helping offset the cost of this exciting high-adventure experience. The strong participation and support demonstrated the troop's commitment to helping Scouts achieve memorable opportunities through teamwork and community involvement. As one Scout put it, \"Every fundraiser gets us one step closer to Sea Base, and it's great seeing everyone pitch in to make it happen.\"\n\nOverall, June was a month filled with celebration, personal achievement, and preparation for future adventures. From recognizing advancements and honoring new Eagle Scouts to beginning summer meetings and supporting Sea Base through fundraising, the troop continued to demonstrate the values of leadership, service, and fellowship that define the Scouting program.",
+      quote: "Seeing two Scouts earn Eagle reminds me that if I keep working hard, I can get there too.",
+      scoutName: "Troop 170 Scout",
+      scoutRank: "Court of Honor Attendee",
+      scoutImg: '/images/scout-corner/Gabe.jpg',
+      scoutFallback: 'https://images.unsplash.com/photo-1536084005850-984fb12170c2?auto=format&fit=crop&w=400&q=80',
+      gallery: [
+        '/images/scout-corner/2026-04-hero.jpg',
+        '/images/scout-corner/2026-04-scout.jpg'
+      ],
+      galleryFallbacks: [
+        'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=600&q=80',
         'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80'
       ]
     },
@@ -110,6 +133,9 @@ export default function App() {
       ]
     }
   ];
+
+  const featuredEntry = scoutTrailData[0];
+  const pastEntries = scoutTrailData.slice(1);
 
   const programsList = [
     { id: 0, title: "Scout Rank Advancement", desc: "Progress through the scouting ranks at your own pace with the guidance of experienced mentors and youth leaders.", img: "/images/rank.jpg" },
@@ -259,8 +285,6 @@ export default function App() {
         {/* --- HOME PAGE --- */}
         {currentPage === 'home' && (
           <div className="animate-in fade-in duration-700">
-            
-            {/* Cinematic Hero */}
             <div className="relative pt-32 pb-40 lg:pt-48 lg:pb-56 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
               <div className="absolute inset-0 z-0">
                 <img src="/images/hero.jpg" alt="Scouts" className="w-full h-full object-cover object-[100%_70%] -scale-x-100 opacity-90" />
@@ -305,64 +329,60 @@ export default function App() {
               </div>
             </div>
 
-            {/* Program Grid (Asymmetrical Agency Layout) */}
+            {/* Program Grid */}
             <div className="bg-gray-50 py-32">
-               <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-                 
-                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
-                    <h3 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] text-gray-900">
-                      Driven By <br/> <span className="text-[#1D3A6C]">Adventure</span>
-                    </h3>
-                    <p className="text-gray-500 text-lg font-light leading-relaxed max-w-md">
-                      Select a focus area to explore how we transform young scouts into confident community leaders.
-                    </p>
-                 </div>
+                <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+                     <h3 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] text-gray-900">
+                       Driven By <br/> <span className="text-[#1D3A6C]">Adventure</span>
+                     </h3>
+                     <p className="text-gray-500 text-lg font-light leading-relaxed max-w-md">
+                       Select a focus area to explore how we transform young scouts into confident community leaders.
+                     </p>
+                  </div>
 
-                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
-                    {/* Visual Anchor */}
-                    <div className="lg:col-span-7">
-                       <div className="relative h-[500px] lg:h-[700px] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] rounded-none group">
-                          <img src={programsList[activeProgram].img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={programsList[activeProgram].title} />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19]/90 via-[#0B0F19]/20 to-transparent flex flex-col justify-end p-10 lg:p-16">
-                             <span className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]">Focus Area 0{activeProgram + 1}</span>
-                             <h4 className="text-3xl lg:text-5xl font-black uppercase tracking-tighter mb-4 text-white leading-none">{programsList[activeProgram].title}</h4>
-                             <p className="text-lg font-light text-gray-300 max-w-lg leading-relaxed">{programsList[activeProgram].desc}</p>
-                          </div>
-                       </div>
-                    </div>
-                    
-                    {/* Interactive Index */}
-                    <div className="lg:col-span-5 flex flex-col justify-center space-y-2">
-                       {programsList.map((program, index) => {
-                         const isActive = activeProgram === index;
-                         return (
-                           <button 
-                             key={program.id} 
-                             onClick={() => setActiveProgram(index)} 
-                             className={`w-full text-left p-8 transition-all duration-300 rounded-none border-l-4 ${isActive ? 'bg-white border-[#BE1E2D] shadow-xl translate-x-2' : 'bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-300'}`}
-                           >
-                             <div className="flex justify-between items-center">
-                                <div>
-                                  <h5 className={`text-xl lg:text-2xl font-black uppercase tracking-tighter ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{program.title}</h5>
-                                </div>
-                                <span className={`font-black text-lg ${isActive ? 'text-[#1D3A6C]' : 'text-gray-300'}`}>0{index+1}</span>
-                             </div>
-                           </button>
-                         );
-                       })}
-                    </div>
-                 </div>
-
-               </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+                     <div className="lg:col-span-7">
+                        <div className="relative h-[500px] lg:h-[700px] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] rounded-none group">
+                           <img src={programsList[activeProgram].img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={programsList[activeProgram].title} />
+                           <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19]/90 via-[#0B0F19]/20 to-transparent flex flex-col justify-end p-10 lg:p-16">
+                              <span className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]">Focus Area 0{activeProgram + 1}</span>
+                              <h4 className="text-3xl lg:text-5xl font-black uppercase tracking-tighter mb-4 text-white leading-none">{programsList[activeProgram].title}</h4>
+                              <p className="text-lg font-light text-gray-300 max-w-lg leading-relaxed">{programsList[activeProgram].desc}</p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <div className="lg:col-span-5 flex flex-col justify-center space-y-2">
+                        {programsList.map((program, index) => {
+                          const isActive = activeProgram === index;
+                          return (
+                            <button 
+                              key={program.id} 
+                              onClick={() => setActiveProgram(index)} 
+                              className={`w-full text-left p-8 transition-all duration-300 rounded-none border-l-4 ${isActive ? 'bg-white border-[#BE1E2D] shadow-xl translate-x-2' : 'bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-300'}`}
+                            >
+                              <div className="flex justify-between items-center">
+                                 <div>
+                                   <h5 className={`text-xl lg:text-2xl font-black uppercase tracking-tighter ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{program.title}</h5>
+                                 </div>
+                                 <span className={`font-black text-lg ${isActive ? 'text-[#1D3A6C]' : 'text-gray-300'}`}>0{index+1}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                     </div>
+                  </div>
+                </div>
             </div>
           </div>
         )}
 
-        {/* --- SCOUT CORNER (THE DIGITAL TRAIL) --- */}
+        {/* --- SCOUT CORNER (JULY SPOTLIGHT + ACCORDION ARCHIVES) --- */}
         {currentPage === 'scoutCorner' && (
           <div className="bg-gray-50 pb-32 animate-in fade-in duration-700 min-h-screen">
             
-            {/* Glossy Header */}
+            {/* Header */}
             <div className="relative pt-32 pb-32 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
               <div className="absolute inset-0 z-0">
                 <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80" alt="Mountains" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
@@ -371,157 +391,229 @@ export default function App() {
               <div className="relative z-10 max-w-4xl mx-auto text-center">
                 <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full mb-6 border border-white/10">
                   <Flame size={16} className="text-[#BE1E2D]" />
-                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white">The Historian's Blog</span>
+                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white">The Historian's Dispatch</span>
                 </div>
                 <h2 className="text-5xl sm:text-7xl font-black text-white tracking-tighter uppercase mb-6 drop-shadow-lg">
                   Scout Corner
                 </h2>
                 <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">
-                  A digital timeline of Troop 170's monthly adventures, service projects, and scout insights. 
+                  A living chronicle of Troop 170's monthly adventures, service projects, and scout reflections.
                 </p>
               </div>
             </div>
 
-            {/* The Trail Container */}
-            <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative -mt-10 z-20">
+            <div className="max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 relative -mt-10 z-20">
               
               {/* HISTORIAN PROFILE CARD */}
-              <div className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] mb-20 flex flex-col md:flex-row items-center gap-8 border border-gray-100 relative z-30">
-                 <img 
-                   src="/images/scout-corner/sheldon.jpg" 
-                   onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=400&q=80'; }} 
-                   alt="Sheldon H." 
-                   className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover shadow-lg border-4 border-gray-50 shrink-0" 
-                 />
-                 <div className="text-center md:text-left">
-                   <h3 className="text-3xl font-black uppercase tracking-tight text-gray-900 mb-2">Meet Sheldon H.</h3>
-                   <p className="text-[#1D3A6C] font-bold uppercase tracking-widest text-xs mb-4">Troop 170 Historian</p>
-                   <p className="text-gray-600 leading-relaxed font-serif text-lg">
-                     Tasked with preserving the legacy of Troop 170, Sheldon documents our monthly adventures, high-adventure treks, and service projects. The Scout Corner is his vision—a living digital archive of our journey, told by the scouts who live it.
-                   </p>
-                 </div>
+              <div className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.08)] mb-14 flex flex-col md:flex-row items-center gap-8 border border-gray-100 relative z-30">
+                <img 
+                  src="/images/scout-corner/sheldon.jpg" 
+                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=400&q=80'; }} 
+                  alt="Sheldon H." 
+                  className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover shadow-lg border-4 border-gray-50 shrink-0" 
+                />
+                <div className="text-center md:text-left">
+                  <h3 className="text-3xl font-black uppercase tracking-tight text-gray-900 mb-2">Meet Sheldon H.</h3>
+                  <p className="text-[#1D3A6C] font-bold uppercase tracking-widest text-xs mb-4">Troop 170 Historian</p>
+                  <p className="text-gray-600 leading-relaxed font-serif text-lg">
+                    Tasked with preserving the legacy of Troop 170, Sheldon documents our monthly adventures, high-adventure treks, and service projects. The Scout Corner is his vision—a living digital archive of our journey, told by the scouts who live it.
+                  </p>
+                </div>
               </div>
 
-              {/* Timeline Wrapper (Contains the Line and the Entries) */}
-              <div className="relative pt-10">
-                {/* Vertical Line (Hidden on mobile for cleaner look, centered on desktop) */}
-                <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gray-200 -translate-x-1/2 rounded-full z-0"></div>
+              {/* FEATURED SPOTLIGHT POST (JULY 2026) */}
+              <div className="mb-20">
+                <div className="flex items-center space-x-3 mb-6">
+                  <span className="w-3 h-3 bg-[#BE1E2D] rounded-full animate-ping"></span>
+                  <span className="font-black uppercase tracking-[0.25em] text-xs text-[#BE1E2D]">Latest Dispatch • Featured</span>
+                </div>
 
-                {scoutTrailData.map((entry, index) => {
-                  const isEven = index % 2 === 0;
-                  
-                  return (
-                    <div key={entry.id} className={`relative flex flex-col md:flex-row items-center justify-between mb-32 z-10 ${isEven ? 'md:flex-row-reverse' : ''}`}>
-                      
-                      {/* Center Node (Dot) */}
-                      <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 w-12 h-12 bg-white border-4 border-[#1D3A6C] rounded-full items-center justify-center shadow-lg">
-                        <Star size={20} className="text-[#BE1E2D]" />
+                <article className="bg-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden border border-gray-100 group">
+                  <div className="relative h-80 sm:h-96 overflow-hidden">
+                    <img 
+                      src={featuredEntry.heroImg} 
+                      onError={(e) => { e.target.onerror = null; e.target.src = featuredEntry.heroFallback; }}
+                      alt={`${featuredEntry.month} Adventure`} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute top-5 left-5 bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-xl flex items-center space-x-2 shadow-md">
+                      <Calendar size={16} className="text-[#BE1E2D]" />
+                      <span className="font-black uppercase tracking-widest text-xs text-gray-900">{featuredEntry.month} {featuredEntry.year}</span>
+                    </div>
+                  </div>
+
+                  <div className="p-8 sm:p-12">
+                    <div className="flex flex-wrap gap-2 mb-8 pb-6 border-b border-gray-100">
+                      {featuredEntry.milestones.map((stone, i) => (
+                        <span key={i} className="text-xs uppercase tracking-wider font-bold bg-blue-50 text-[#1D3A6C] px-3.5 py-1.5 rounded-lg border border-blue-100">
+                          {stone}
+                        </span>
+                      ))}
+                    </div>
+
+                    <p className="text-gray-700 leading-relaxed mb-10 font-serif text-lg whitespace-pre-wrap first-letter:text-6xl first-letter:font-black first-letter:text-[#1D3A6C] first-letter:mr-2 first-letter:float-left">
+                      {featuredEntry.summary}
+                    </p>
+
+                    {/* Spotlight Quote */}
+                    <div className="bg-gray-50 rounded-2xl p-8 relative border border-gray-200/80 mb-10">
+                      <div className="absolute -top-4 -left-3 w-10 h-10 bg-[#BE1E2D] rounded-full flex items-center justify-center shadow-lg">
+                        <Quote size={18} className="text-white" />
                       </div>
-
-                      {/* Date/Milestone Tag for Mobile */}
-                      <div className="md:hidden flex flex-col items-center mb-8 w-full">
-                         <div className="bg-[#1D3A6C] text-white px-6 py-2 rounded-full shadow-md font-black tracking-widest uppercase text-sm mb-4">
-                           {entry.month} {entry.year}
-                         </div>
-                         <div className="flex flex-wrap justify-center gap-2">
-                           {entry.milestones.map((stone, i) => (
-                             <span key={i} className="text-[10px] uppercase tracking-wider font-bold bg-gray-200 text-gray-700 px-3 py-1 rounded-sm">{stone}</span>
-                           ))}
-                         </div>
-                      </div>
-
-                      {/* Content Card (Left or Right side on Desktop) */}
-                      <div className={`w-full md:w-[45%] bg-white shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] rounded-xl overflow-hidden group hover:-translate-y-2 transition-all duration-500 border border-gray-100 ${isEven ? 'md:mr-auto' : 'md:ml-auto'}`}>
-                        
-                        {/* Hero Image for the Month */}
-                        <div className="relative h-64 sm:h-80 overflow-hidden">
-                          <img 
-                            src={entry.heroImg} 
-                            onError={(e) => { e.target.onerror = null; e.target.src = entry.heroFallback; }}
-                            alt={`${entry.month} Adventure`} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                          />
-                          {/* Desktop Date Overlay */}
-                          <div className="hidden md:flex absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg items-center space-x-2 shadow-lg">
-                            <Calendar size={16} className="text-[#BE1E2D]" />
-                            <span className="font-black uppercase tracking-widest text-xs text-gray-900">{entry.month} {entry.year}</span>
-                          </div>
-                        </div>
-
-                        {/* Content Body */}
-                        <div className="p-8 sm:p-10">
-                          {/* Desktop Milestones */}
-                          <div className="hidden md:flex flex-wrap gap-2 mb-6 pb-6 border-b border-gray-100">
-                            {entry.milestones.map((stone, i) => (
-                              <span key={i} className="text-[10px] uppercase tracking-wider font-bold bg-blue-50 text-[#1D3A6C] px-3 py-1.5 rounded-md border border-blue-100">
-                                {stone}
-                              </span>
-                            ))}
-                          </div>
-
-                          {/* Summary Text */}
-                          <p className="text-gray-600 leading-relaxed mb-8 font-serif text-lg whitespace-pre-wrap first-letter:text-5xl first-letter:font-black first-letter:text-[#1D3A6C] first-letter:mr-1 first-letter:float-left">
-                            {entry.summary}
-                          </p>
-
-                          {/* Testimonial Block (Glassmorphism inset) */}
-                          <div className="bg-gray-50 rounded-xl p-6 relative border border-gray-200">
-                            <div className="absolute -top-4 -left-4 w-10 h-10 bg-[#BE1E2D] rounded-full flex items-center justify-center shadow-lg">
-                              <Quote size={18} className="text-white" />
-                            </div>
-                            <p className="text-gray-800 italic font-medium leading-relaxed mb-6 mt-2 relative z-10 text-sm sm:text-base">
-                              "{entry.quote}"
-                            </p>
-                            <div className="flex items-center space-x-4 border-t border-gray-200 pt-4">
-                              <img 
-                                src={entry.scoutImg} 
-                                onError={(e) => { e.target.onerror = null; e.target.src = entry.scoutFallback; }}
-                                alt={entry.scoutName} 
-                                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                              />
-                              <div>
-                                <p className="font-black text-gray-900 text-sm uppercase tracking-tight">{entry.scoutName}</p>
-                                <p className="text-[#1D3A6C] text-[10px] font-bold uppercase tracking-widest">{entry.scoutRank}</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Action Gallery (Horizontal Swipe via CSS Snap) */}
-                          <div className="mt-8 pt-8 border-t border-gray-100">
-                            <div className="flex items-center justify-between mb-4">
-                              <span className="text-[10px] font-black tracking-widest uppercase text-gray-400 flex items-center"><ImageIcon size={14} className="mr-2"/> Action Shot{entry.gallery.length > 1 ? 's' : ''}</span>
-                              {entry.gallery.length > 1 && <span className="text-[10px] font-bold text-gray-300 md:hidden uppercase">Swipe →</span>}
-                            </div>
-                            
-                            <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory hide-scrollbar">
-                              {entry.gallery.map((imgSrc, i) => (
-                                <div key={i} className={`rounded-lg overflow-hidden snap-center shadow-sm shrink-0 border border-gray-200 bg-gray-50 flex items-center justify-center ${entry.gallery.length === 1 ? 'w-full' : 'h-48 sm:h-64 min-w-[260px] sm:min-w-[340px]'}`}>
-                                  <img 
-                                    src={imgSrc} 
-                                    onError={(e) => { e.target.onerror = null; e.target.src = entry.galleryFallbacks[i]; }}
-                                    className={`w-full ${entry.gallery.length === 1 ? 'h-auto max-h-[500px] object-contain' : 'h-full object-cover'} hover:scale-105 transition-transform duration-500`} 
-                                    alt={`Action ${i}`} 
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
+                      <p className="text-gray-800 italic font-medium leading-relaxed mb-6 mt-2 relative z-10 text-base sm:text-lg">
+                        "{featuredEntry.quote}"
+                      </p>
+                      <div className="flex items-center space-x-4 border-t border-gray-200/80 pt-4">
+                        <img 
+                          src={featuredEntry.scoutImg} 
+                          onError={(e) => { e.target.onerror = null; e.target.src = featuredEntry.scoutFallback; }}
+                          alt={featuredEntry.scoutName} 
+                          className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                        />
+                        <div>
+                          <p className="font-black text-gray-900 text-sm uppercase tracking-tight">{featuredEntry.scoutName}</p>
+                          <p className="text-[#1D3A6C] text-[11px] font-bold uppercase tracking-widest">{featuredEntry.scoutRank}</p>
                         </div>
                       </div>
                     </div>
-                  );
-                })}
 
-                {/* End of Trail Marker */}
-                <div className="text-center pt-10 border-t border-gray-200 max-w-sm mx-auto relative z-10">
-                  <div className="w-16 h-16 bg-white border-4 border-gray-200 text-gray-300 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Compass size={24} />
+                    {/* Spotlight Gallery */}
+                    {featuredEntry.gallery?.length > 0 && (
+                      <div className="pt-6 border-t border-gray-100">
+                        <span className="text-[11px] font-black tracking-widest uppercase text-gray-400 flex items-center mb-4">
+                          <ImageIcon size={15} className="mr-2"/> Dispatch Photos
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {featuredEntry.gallery.map((imgSrc, i) => (
+                            <div key={i} className="h-56 rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50">
+                              <img 
+                                src={imgSrc} 
+                                onError={(e) => { e.target.onerror = null; e.target.src = featuredEntry.galleryFallbacks[i]; }}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+                                alt={`Action shot ${i}`} 
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <h4 className="text-lg font-black uppercase tracking-widest text-gray-400 mb-2">End of Current Trail</h4>
-                  <button className="px-6 py-3 bg-white border border-gray-200 text-gray-600 font-bold uppercase tracking-widest text-xs hover:bg-gray-50 hover:text-[#1D3A6C] transition-colors rounded-full shadow-sm">
-                    Load Previous Year
-                  </button>
+                </article>
+              </div>
+
+              {/* ACCORDION ARCHIVES */}
+              <div className="mt-20">
+                <div className="border-t border-gray-200 pt-12 mb-8 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-2xl font-black uppercase tracking-tight text-gray-900">Trail Archives</h4>
+                    <p className="text-gray-500 text-sm font-light mt-1">Explore previous months and past troop recaps.</p>
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-widest bg-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full">
+                    {pastEntries.length} Past Dispatches
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  {pastEntries.map(entry => {
+                    const isOpen = openArchiveId === entry.id;
+
+                    return (
+                      <div 
+                        key={entry.id} 
+                        className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:border-gray-300"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => toggleArchive(entry.id)}
+                          className="w-full p-6 sm:p-7 flex items-center justify-between text-left transition-colors hover:bg-gray-50/70"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 gap-2">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1D3A6C] flex items-center justify-center font-black">
+                                <Calendar size={18} />
+                              </div>
+                              <span className="text-xl font-black uppercase tracking-tight text-gray-900">
+                                {entry.month} {entry.year}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {entry.milestones.map((stone, i) => (
+                                <span key={i} className="text-[10px] uppercase tracking-wider font-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-md">
+                                  {stone}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="ml-4 w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 shrink-0">
+                            <svg 
+                              className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </button>
+
+                        {isOpen && (
+                          <div className="px-6 sm:px-8 pb-8 pt-2 border-t border-gray-100 animate-in fade-in duration-300">
+                            <div className="relative h-64 rounded-xl overflow-hidden mb-8 mt-4 border border-gray-100">
+                              <img 
+                                src={entry.heroImg} 
+                                onError={(e) => { e.target.onerror = null; e.target.src = entry.heroFallback; }}
+                                alt={`${entry.month} Adventure`}
+                                className="w-full h-full object-cover" 
+                              />
+                            </div>
+
+                            <p className="text-gray-700 leading-relaxed mb-8 font-serif text-base sm:text-lg whitespace-pre-wrap">
+                              {entry.summary}
+                            </p>
+
+                            <div className="bg-gray-50 rounded-xl p-6 relative border border-gray-200/80 mb-6">
+                              <p className="text-gray-800 italic font-medium leading-relaxed mb-4 text-sm sm:text-base">
+                                "{entry.quote}"
+                              </p>
+                              <div className="flex items-center space-x-3 border-t border-gray-200 pt-3">
+                                <img 
+                                  src={entry.scoutImg} 
+                                  onError={(e) => { e.target.onerror = null; e.target.src = entry.scoutFallback; }}
+                                  alt={entry.scoutName} 
+                                  className="w-10 h-10 rounded-full object-cover border border-white shadow-sm"
+                                />
+                                <div>
+                                  <p className="font-black text-gray-900 text-xs uppercase tracking-tight">{entry.scoutName}</p>
+                                  <p className="text-[#1D3A6C] text-[10px] font-bold uppercase tracking-widest">{entry.scoutRank}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {entry.gallery?.length > 0 && (
+                              <div className="pt-4 border-t border-gray-100">
+                                <span className="text-[10px] font-black tracking-widest uppercase text-gray-400 flex items-center mb-3">
+                                  <ImageIcon size={13} className="mr-1.5"/> Archive Gallery
+                                </span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  {entry.gallery.map((imgSrc, i) => (
+                                    <div key={i} className="h-44 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                                      <img 
+                                        src={imgSrc} 
+                                        onError={(e) => { e.target.onerror = null; e.target.src = entry.galleryFallbacks[i]; }}
+                                        className="w-full h-full object-cover" 
+                                        alt={`Archive shot ${i}`} 
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -532,8 +624,6 @@ export default function App() {
         {/* --- ABOUT PAGE --- */}
         {currentPage === 'about' && (
           <div className="bg-white animate-in fade-in duration-700">
-            
-            {/* Mission Statement Hero */}
             <div className="relative py-40 lg:py-56 px-6 text-center overflow-hidden" style={{ backgroundColor: darkBg }}>
                <div className="absolute inset-0 z-0">
                  <img src="/images/about.jpg" alt="Scouts in action" className="w-full h-full object-cover opacity-70" />
@@ -550,7 +640,6 @@ export default function App() {
                </div>
             </div>
 
-            {/* Legacy Section */}
             <div className="py-32 px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto">
                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
                  <div className="lg:col-span-5">
@@ -587,7 +676,6 @@ export default function App() {
                </div>
             </div>
 
-            {/* Donation Funnel */}
             <div className="bg-[#050B14] py-32 px-6 text-center border-t border-gray-800">
               <div className="max-w-3xl mx-auto relative z-10">
                 <div className="w-16 h-16 mx-auto bg-[#BE1E2D] flex items-center justify-center text-white mb-8 shadow-xl rounded-none">
@@ -603,7 +691,6 @@ export default function App() {
                   <span className="bg-white/20 px-4 py-1 mt-2 sm:mt-0 text-[10px] tracking-[0.2em] uppercase rounded-none">@Troop170Unionville</span>
                 </a>
 
-                {/* The "Grandma Funnel" */}
                 <div className="mt-16 pt-10 border-t border-white/10 text-gray-500">
                   <p className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]">Prefer to mail a check?</p>
                   <p className="text-md font-light italic leading-relaxed">
@@ -614,15 +701,12 @@ export default function App() {
                 </div>
               </div>
             </div>
-
           </div>
         )}
 
         {/* --- JOIN PAGE --- */}
         {currentPage === 'join' && (
           <div className="bg-gray-50 pb-32 animate-in fade-in duration-700">
-            
-            {/* Header */}
             <div className="bg-[#0B0F19] text-white py-32 lg:py-60 px-6 text-center relative overflow-hidden">
                <div className="absolute inset-0 opacity-30"><img src="/images/join.jpg" className="w-full h-full object-cover" alt="Campfire" /></div>
                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0B0F19]"></div>
@@ -630,24 +714,22 @@ export default function App() {
                <p className="relative z-10 text-lg font-light text-gray-300 max-w-2xl mx-auto">Boys and girls ages 11-17 are welcome to join year-round.</p>
             </div>
 
-            {/* Inquiry Form Block */}
             <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-16 relative z-20 mb-24">
                <div className="bg-white grid grid-cols-1 lg:grid-cols-5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] rounded-none">
                  
-                 {/* Info Side */}
                  <div className="lg:col-span-2 bg-[#050B14] text-white p-10 lg:p-14 flex flex-col justify-between">
                     <div>
                        <h3 className="text-3xl font-black uppercase tracking-tight mb-10 leading-none">Visit A Meeting</h3>
                        <div className="space-y-8">
                           <div className="flex items-start space-x-5">
-                            <Clock className="text-[#BE1E2D]" size={32}/> 
+                            <Clock className="text-[#BE1E2D] shrink-0" size={32}/> 
                             <div>
                               <p className="font-black text-lg uppercase tracking-tight mb-1">Monday Evenings</p>
                               <p className="text-gray-400 text-sm">During the school year (Sept-May)</p>
                             </div>
                           </div>
                           <div className="flex items-start space-x-5">
-                            <MapPin className="text-[#BE1E2D]" size={32}/> 
+                            <MapPin className="text-[#BE1E2D] shrink-0" size={32}/> 
                             <div>
                               <p className="font-black text-lg uppercase tracking-tight mb-1">Unionville, CT</p>
                               <p className="text-gray-400 text-sm italic opacity-80">Exact location shared upon inquiry for youth protection.</p>
@@ -657,7 +739,6 @@ export default function App() {
                     </div>
                  </div>
 
-                 {/* Form Side - Netlify Configured */}
                  <div className="lg:col-span-3 p-10 lg:p-14 flex flex-col justify-center bg-white">
                     {joinSuccess ? (
                       <div className="text-center py-10 animate-in zoom-in duration-500">
@@ -706,8 +787,8 @@ export default function App() {
                          </div>
                          <div className="pt-2">
                            <button type="submit" className="w-full p-5 bg-[#BE1E2D] text-white font-black uppercase tracking-[0.2em] text-sm shadow-md hover:bg-gray-900 transition-colors rounded-none flex justify-center items-center space-x-2">
-                             <span>Request Info / Schedule Visit</span>
-                             <ArrowUpRight size={16} />
+                              <span>Request Info / Schedule Visit</span>
+                              <ArrowUpRight size={16} />
                            </button>
                          </div>
                       </form>
@@ -717,7 +798,6 @@ export default function App() {
                </div>
             </div>
 
-            {/* Registration Flow - Full Width Centered */}
             <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
                <div className="bg-white p-10 lg:p-14 shadow-[0_20px_50px_-10px_rgba(29,58,108,0.1)] hover:-translate-y-1 transition-transform flex flex-col justify-between group rounded-none border-t-4 border-[#1D3A6C]">
                   <div>
@@ -750,16 +830,14 @@ export default function App() {
                   <span>Official Application</span>
                   <ExternalLink size={16} />
                 </a>
-              </div>
+               </div>
             </div>
           </div>
         )}
 
-        {/* --- MEMBER PORTAL (The Vault) --- */}
+        {/* --- MEMBER PORTAL --- */}
         {currentPage === 'portal' && (
           <div className="min-h-screen bg-gray-50 animate-in fade-in duration-500">
-            
-            {/* Locked State */}
             {!isLoggedIn ? (
               <div className="relative flex flex-col items-center justify-center min-h-screen px-6 overflow-hidden" style={{ backgroundColor: darkBg }}>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#1D3A6C] rounded-full blur-[150px] opacity-30 animate-pulse pointer-events-none"></div>
@@ -793,11 +871,7 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              
-              /* Unlocked Dashboard */
               <div className="pb-32">
-                
-                {/* Secure Header */}
                 <div className="bg-[#050B14] py-20 px-6 sm:px-8 lg:px-12 relative overflow-hidden shadow-xl mb-16">
                   <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-[#1D3A6C] rounded-full blur-[150px] opacity-30 pointer-events-none"></div>
                   <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row justify-between items-center">
@@ -815,10 +889,7 @@ export default function App() {
                   </div>
                 </div>
                 
-                {/* Dashboard Action Grid */}
                 <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                   
-                   {/* Card 1: BAND APP */}
                    <div className="bg-gradient-to-br from-white to-green-50 border border-green-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-green-600 mb-6 shadow-sm"><Smartphone size={24}/></div>
@@ -830,7 +901,6 @@ export default function App() {
                       </a>
                    </div>
 
-                   {/* Card 2: MEDICAL */}
                    <div className="bg-gradient-to-br from-white to-red-50 border border-red-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-[#BE1E2D] mb-6 shadow-sm"><FileText size={24}/></div>
@@ -842,7 +912,6 @@ export default function App() {
                       </a>
                    </div>
 
-                   {/* Card 3: GEAR */}
                    <div className="bg-gradient-to-br from-white to-amber-50 border border-amber-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-amber-600 mb-6 shadow-sm"><Tent size={24}/></div>
@@ -854,7 +923,6 @@ export default function App() {
                       </button>
                    </div>
 
-                   {/* Card 4: CLINICS */}
                    <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-purple-600 mb-6 shadow-sm"><Medal size={24}/></div>
@@ -866,7 +934,6 @@ export default function App() {
                       </button>
                    </div>
 
-                   {/* Card 5: LEDGER */}
                    <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-[#1D3A6C] mb-6 shadow-sm"><CreditCard size={24}/></div>
@@ -878,7 +945,6 @@ export default function App() {
                       </button>
                    </div>
                    
-                   {/* Card: University of Cooking */}
                    <div className="bg-gradient-to-br from-white to-orange-50 border border-orange-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-orange-600 mb-6 shadow-sm"><Utensils size={24}/></div>
@@ -889,20 +955,7 @@ export default function App() {
                         <span>Open Site</span><ExternalLink size={14}/>
                       </a>
                    </div>
-
-                   {/* Card: Troop Store (NEW!) */}
-                   <div className="bg-white p-8 shadow-lg border-t-4 border-[#BE1E2D] group">
-                      <div>
-                         <div className="w-12 h-12 bg-gray-50 flex items-center justify-center text-[#BE1E2D] mb-6 shadow-sm"><ShoppingBag size={24}/></div>
-                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Troop Store</h3>
-                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Official Troop 170 apparel and gear from SquadLocker.</p>
-                      </div>
-                      <a href="https://teamlocker.squadlocker.com/#/lockers/scouting-america-troop-170-unionville-ct/landing" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-[#BE1E2D] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
-                        <span>Shop Now</span><ExternalLink size={14}/>
-                      </a>
-                   </div>
                    
-                   {/* Card: Family Handbook */}
                    <div className="bg-gradient-to-br from-white to-indigo-50 border border-indigo-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-indigo-600 mb-6 shadow-sm"><BookOpen size={24}/></div>
@@ -914,9 +967,7 @@ export default function App() {
                       </a>
                    </div>
 
-                   {/* Card: Scout Life Magazine */}
-                   <div className="group relative bg-[#161B22] rounded-3xl p-8 border border-white/5 hover:border-[#BE1E2D]/50 transition-all duration-500 overflow-hidden lg:col-span-1">
-                     {/* Decorative Background Icon */}
+                   <div className="group relative bg-[#161B22] rounded-3xl p-8 border border-white/5 hover:border-[#BE1E2D]/50 transition-all duration-500 overflow-hidden lg:col-span-2">
                      <div className="absolute -right-8 -top-8 text-white/5 group-hover:text-[#BE1E2D]/10 transition-colors duration-500 pointer-events-none">
                        <BookOpen size={160} />
                      </div>
@@ -943,9 +994,7 @@ export default function App() {
                      </div>
                    </div>
 
-                   {/* Card: Sea Base Countdown Card */}
                    <div className="relative group bg-[#0B0F19] rounded-3xl overflow-hidden border border-white/10 h-64 shadow-2xl md:col-span-2 lg:col-span-3">
-                     {/* Background Image */}
                      <div className="absolute inset-0 opacity-40">
                        <img 
                          src="/images/download.jpg" 
@@ -954,10 +1003,8 @@ export default function App() {
                        />
                      </div>
                      
-                     {/* Gradient Overlay to make text pop */}
                      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-[#0B0F19]/40 to-transparent"></div>
 
-                     {/* Text Content */}
                      <div className="relative h-full flex flex-col items-center justify-center text-center p-6">
                        <span className="text-[#BE1E2D] font-black tracking-[0.3em] uppercase text-[10px] mb-2">High Adventure 2026</span>
                        <h3 className="text-4xl font-black text-white mb-4 uppercase">Sea Base</h3>
@@ -1020,7 +1067,7 @@ export default function App() {
           </div>
         )}
 
-        {/* --- DYNAMIC ROOM: LEDGER (Exact Match) --- */}
+        {/* --- DYNAMIC ROOM: LEDGER --- */}
         {currentPage === 'scoutDollars' && (
           <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
             <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
@@ -1096,11 +1143,10 @@ export default function App() {
 
       </main>
 
-      {/* --- FOOTER (Clean 4-Column Agency Style) --- */}
+      {/* --- FOOTER --- */}
       <footer className="bg-[#050B14] text-white pt-24 pb-12 px-6 sm:px-8 lg:px-12 border-t border-white/10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20">
           
-          {/* Brand Col */}
           <div className="lg:col-span-1">
              <div className="flex items-center space-x-4 mb-6 cursor-pointer" onClick={() => setCurrentPage('home')}>
                 <div className="w-20 h-20 rounded-none flex items-center justify-center p-0.5">
@@ -1115,7 +1161,6 @@ export default function App() {
              </div>
           </div>
 
-          {/* Links Col */}
           <div>
              <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Navigation</h4>
              <ul className="space-y-4">
@@ -1126,7 +1171,6 @@ export default function App() {
              </ul>
           </div>
 
-          {/* Contact Col */}
           <div>
              <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Contact</h4>
              <ul className="space-y-5 text-sm text-gray-400">
@@ -1145,7 +1189,6 @@ export default function App() {
              </ul>
           </div>
 
-          {/* Portal Col */}
           <div>
              <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Command Hub</h4>
              <p className="text-gray-400 mb-6 text-sm font-light leading-relaxed">Access secure documents and ledgers.</p>
@@ -1165,10 +1208,8 @@ export default function App() {
       {/* REGISTRATION MODAL */}
       {selectedBadge && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setSelectedBadge(null)}></div>
           
-          {/* Modal Container */}
           <div className="relative bg-white w-full max-w-lg p-10 shadow-2xl rounded-none border-t-8 border-[#1D3A6C] animate-in zoom-in duration-200">
             <button onClick={() => setSelectedBadge(null)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors"><X size={24}/></button>
             
