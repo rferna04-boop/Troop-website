@@ -38,7 +38,8 @@ export default function App() {
 
   // --- WREATH STOREFRONT STATE ---
   // Leave null for Dev/Test mode. Paste deployed Google Apps Script URL when live!
-  const GOOGLE_SCRIPT_URL = null; 
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTWx5uyh4ZSYd1zWKtBGo9H1r0Ie4tY_V0j5en8YoLcJjwsfxBKkRSiAJxhoA5q9rt/exec"
+; 
 
   const [wreathQuantities, setWreathQuantities] = useState({
     wreath24Plain: 0,
