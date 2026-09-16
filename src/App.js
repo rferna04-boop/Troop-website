@@ -10,10 +10,6 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const seaBaseDate = new Date('August 2, 2026').getTime();
-  const today = new Date().getTime();
-  const daysLeft = Math.floor((seaBaseDate - today) / (1000 * 60 * 60 * 24));
-  
   const [currentPage, setCurrentPage] = useState('home');
   const [activeProgram, setActiveProgram] = useState(0);
   
@@ -44,6 +40,28 @@ export default function App() {
 
   // --- HISTORIAN CMS DATA ---
   const scoutTrailData = [
+    {
+      id: '2026-08',
+      month: 'August',
+      year: '2026',
+      milestones: ['Sea Base', 'Community Service', 'Unionville Tag Sale', '7 Eagle Projects'],
+      heroImg: '/images/scout-corner/2026-08-eagle-workday.jpg',
+      heroFallback: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80',
+      summary: "August was a month of adventure, service, and exciting opportunities for the troop. Scouts took part in the long-awaited Sea Base high-adventure experience, continued giving back through service projects, and spent time camping and working together at the Unionville Museum tag sale. At the same time, an impressive seven Scouts continued their work toward the rank of Eagle Scout, making August another busy and meaningful month for the troop.\n\nThe biggest highlight of the month was undoubtedly Sea Base. Scouts had the opportunity to take part in an unforgettable high-adventure experience, putting their Scouting skills, teamwork, and independence to the test while enjoying an incredible adventure together. After months of preparation, planning, and anticipation, the trip gave Scouts the chance to experience something far outside their usual routine and create memories that will stay with them for years to come. More than just an adventure, Sea Base provided an opportunity for Scouts to work together, face new challenges, and grow through shared experiences. As one Scout put it, \"Sea Base was an incredible experience because we got to do so many things together that we normally wouldn't get to do.\"\n\nAugust also provided several opportunities for the troop to give back to the community. On Monday, August 17, Scouts gathered at the Churchury United Methodist Church to help clean the playground equipment, continuing the troop's tradition of helping with this project each year. Service projects like this are a reminder that Scouting is not only about adventure and advancement, but also about taking the time to improve the communities around us. One Scout reflected, \"It's always nice to come back and help with the playground because it's something our troop has been doing for years, and we know we're helping make it better for everyone who uses it.\"\n\nAnother major August event was the Unionville Museum tag sale and campout, held August 21–23. Scouts camped on the FCCU church property while helping with the tag sale across the street. The weekend gave Scouts the chance to contribute to an important community event while also enjoying time together around camp. Balancing service with camping made the weekend a great example of the fun and fellowship that can come from working together. One Scout shared, \"The tag sale was a lot of work, but camping together afterward made it really fun. It was a great way to spend the weekend with the troop.\"\n\nAugust was also an especially busy month for Eagle Scout projects. Seven—yes, seven—Scouts are currently working on their Eagle Scout projects. Each project represents a significant commitment of planning, leadership, and service, and the troop is proud to support these Scouts as they work toward this important milestone. Scouts, families, and leaders are encouraged to keep a close eye on the calendar and the Band app and help out whenever possible. These projects provide valuable opportunities for the entire troop to demonstrate the Scouting spirit of service while helping our community.\n\nOverall, August was a month filled with adventure, service, leadership, and teamwork. From the excitement and challenges of Sea Base to the Unionville Museum campout, community service at the Churchury United Methodist Church, and the continued work of seven Scouts toward their Eagle rank, the troop stayed active throughout the month. The experiences of August gave Scouts opportunities to grow, serve others, strengthen friendships, and create memories that will carry forward into the rest of the Scouting year.",
+      quote: "Sea Base was an incredible experience because we got to do so many things together that we normally wouldn't get to do.",
+      scoutName: "Troop 170 Scout",
+      scoutRank: "Sea Base Crew",
+      scoutImg: '/images/scout-corner/sheldon.jpg',
+      scoutFallback: 'https://images.unsplash.com/photo-1512641406448-6524e5e10bf1?auto=format&fit=crop&w=400&q=80',
+      gallery: [
+        '/images/scout-corner/2026-08-eagle-workday.jpg',
+        '/images/scout-corner/2026-08-eagle-bench.jpg'
+      ],
+      galleryFallbacks: [
+        'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=600&q=80'
+      ]
+    },
     {
       id: '2026-07',
       month: 'July',
@@ -334,10 +352,10 @@ export default function App() {
                 <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
                   <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
                      <h3 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] text-gray-900">
-                       Driven By <br/> <span className="text-[#1D3A6C]">Adventure</span>
+                        Driven By <br/> <span className="text-[#1D3A6C]">Adventure</span>
                      </h3>
                      <p className="text-gray-500 text-lg font-light leading-relaxed max-w-md">
-                       Select a focus area to explore how we transform young scouts into confident community leaders.
+                        Select a focus area to explore how we transform young scouts into confident community leaders.
                      </p>
                   </div>
 
@@ -378,7 +396,7 @@ export default function App() {
           </div>
         )}
 
-        {/* --- SCOUT CORNER (JULY SPOTLIGHT + ACCORDION ARCHIVES) --- */}
+        {/* --- SCOUT CORNER (AUGUST SPOTLIGHT + ACCORDION ARCHIVES) --- */}
         {currentPage === 'scoutCorner' && (
           <div className="bg-gray-50 pb-32 animate-in fade-in duration-700 min-h-screen">
             
@@ -421,7 +439,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* FEATURED SPOTLIGHT POST (JULY 2026) */}
+              {/* FEATURED SPOTLIGHT POST (AUGUST 2026) */}
               <div className="mb-20">
                 <div className="flex items-center space-x-3 mb-6">
                   <span className="w-3 h-3 bg-[#BE1E2D] rounded-full animate-ping"></span>
@@ -985,38 +1003,12 @@ export default function App() {
                        <a 
                          href="https://scoutlife.org" 
                          target="_blank" 
-                         rel="noopener noreferrer"
+                         rel="noopener noreferrer" 
                          className="inline-flex items-center space-x-3 bg-white/5 hover:bg-[#BE1E2D] text-white px-6 py-3 rounded-xl transition-all duration-300 font-bold uppercase tracking-wider text-xs"
                        >
                          <span>Read Online</span>
                          <ArrowUpRight size={18} />
                        </a>
-                     </div>
-                   </div>
-
-                   <div className="relative group bg-[#0B0F19] rounded-3xl overflow-hidden border border-white/10 h-64 shadow-2xl md:col-span-2 lg:col-span-3">
-                     <div className="absolute inset-0 opacity-40">
-                       <img 
-                         src="/images/download.jpg" 
-                         alt="Sea Base" 
-                         className="w-full h-full object-cover"
-                       />
-                     </div>
-                     
-                     <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-[#0B0F19]/40 to-transparent"></div>
-
-                     <div className="relative h-full flex flex-col items-center justify-center text-center p-6">
-                       <span className="text-[#BE1E2D] font-black tracking-[0.3em] uppercase text-[10px] mb-2">High Adventure 2026</span>
-                       <h3 className="text-4xl font-black text-white mb-4 uppercase">Sea Base</h3>
-                       
-                       <div className="flex items-baseline space-x-3 mt-2">
-                         <span className="text-6xl font-black text-white">{daysLeft}</span>
-                         <span className="text-gray-400 font-bold uppercase tracking-widest text-sm">Days To Launch</span>
-                       </div>
-
-                       <div className="mt-6 flex items-center space-x-2 text-white/60 text-xs font-medium bg-black/30 px-3 py-1 rounded-full">
-                         <span>Islamorada, Florida</span>
-                       </div>
                      </div>
                    </div>
                 </div>
