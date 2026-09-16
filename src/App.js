@@ -37,7 +37,7 @@ export default function App() {
   };
 
   // --- WREATH STOREFRONT STATE ---
-  // Leave null for Dev/Test mode. Paste your deployed Google Script URL when live!
+  // Leave null for Dev/Test mode. Paste deployed Google Apps Script URL when live!
   const GOOGLE_SCRIPT_URL = null; 
 
   const [wreathQuantities, setWreathQuantities] = useState({
@@ -209,7 +209,6 @@ export default function App() {
       totalUnits: totalUnits
     };
 
-    // --- MOCK MODE: Instant Verification When URL is Null ---
     if (!GOOGLE_SCRIPT_URL) {
       setTimeout(() => {
         const mockReceiptId = "TRP-" + Math.floor(1000 + Math.random() * 9000);
@@ -223,7 +222,6 @@ export default function App() {
       return;
     }
 
-    // --- PRODUCTION MODE ---
     try {
       const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
@@ -1040,6 +1038,249 @@ export default function App() {
 
                 </form>
               )}
+
+            </div>
+          </div>
+        )}
+
+        {/* --- SCOUT CORNER (AUGUST SPOTLIGHT + ACCORDION ARCHIVES) --- */}
+        {currentPage === 'scoutCorner' && (
+          <div className="bg-gray-50 pb-32 animate-in fade-in duration-700 min-h-screen">
+            
+            {/* Header */}
+            <div className="relative pt-32 pb-32 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
+              <div className="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80" alt="Mountains" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19] via-[#0B0F19]/80 to-[#f9fafb]"></div>
+              </div>
+              <div className="relative z-10 max-w-4xl mx-auto text-center">
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full mb-6 border border-white/10">
+                  <Flame size={16} className="text-[#BE1E2D]" />
+                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white">The Historian's Dispatch</span>
+                </div>
+                <h2 className="text-5xl sm:text-7xl font-black text-white tracking-tighter uppercase mb-6 drop-shadow-lg">
+                  Scout Corner
+                </h2>
+                <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">
+                  A living chronicle of Troop 170's monthly adventures, service projects, and scout reflections.
+                </p>
+              </div>
+            </div>
+
+            <div className="max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 relative -mt-10 z-20">
+              
+              {/* HISTORIAN PROFILE CARD */}
+              <div className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.08)] mb-14 flex flex-col md:flex-row items-center gap-8 border border-gray-100 relative z-30">
+                <img 
+                  src="/images/scout-corner/sheldon.jpg" 
+                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=400&q=80'; }} 
+                  alt="Sheldon H." 
+                  className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover shadow-lg border-4 border-gray-50 shrink-0" 
+                />
+                <div className="text-center md:text-left">
+                  <h3 className="text-3xl font-black uppercase tracking-tight text-gray-900 mb-2">Meet Sheldon H.</h3>
+                  <p className="text-[#1D3A6C] font-bold uppercase tracking-widest text-xs mb-4">Troop 170 Historian</p>
+                  <p className="text-gray-600 leading-relaxed font-serif text-lg">
+                    Tasked with preserving the legacy of Troop 170, Sheldon documents our monthly adventures, high-adventure treks, and service projects. The Scout Corner is his vision—a living digital archive of our journey, told by the scouts who live it.
+                  </p>
+                </div>
+              </div>
+
+              {/* FEATURED SPOTLIGHT POST (AUGUST 2026) */}
+              <div className="mb-20">
+                <div className="flex items-center space-x-3 mb-6">
+                  <span className="w-3 h-3 bg-[#BE1E2D] rounded-full animate-ping"></span>
+                  <span className="font-black uppercase tracking-[0.25em] text-xs text-[#BE1E2D]">Latest Dispatch • Featured</span>
+                </div>
+
+                <article className="bg-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden border border-gray-100 group">
+                  <div className="relative h-80 sm:h-96 overflow-hidden">
+                    <img 
+                      src={featuredEntry.heroImg} 
+                      onError={(e) => { e.target.onerror = null; e.target.src = featuredEntry.heroFallback; }}
+                      alt={`${featuredEntry.month} Adventure`} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute top-5 left-5 bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-xl flex items-center space-x-2 shadow-md">
+                      <Calendar size={16} className="text-[#BE1E2D]" />
+                      <span className="font-black uppercase tracking-widest text-xs text-gray-900">{featuredEntry.month} {featuredEntry.year}</span>
+                    </div>
+                  </div>
+
+                  <div className="p-8 sm:p-12">
+                    <div className="flex flex-wrap gap-2 mb-8 pb-6 border-b border-gray-100">
+                      {featuredEntry.milestones.map((stone, i) => (
+                        <span key={i} className="text-xs uppercase tracking-wider font-bold bg-blue-50 text-[#1D3A6C] px-3.5 py-1.5 rounded-lg border border-blue-100">
+                          {stone}
+                        </span>
+                      ))}
+                    </div>
+
+                    <p className="text-gray-700 leading-relaxed mb-10 font-serif text-lg whitespace-pre-wrap first-letter:text-6xl first-letter:font-black first-letter:text-[#1D3A6C] first-letter:mr-2 first-letter:float-left">
+                      {featuredEntry.summary}
+                    </p>
+
+                    {/* Spotlight Quote */}
+                    <div className="bg-gray-50 rounded-2xl p-8 relative border border-gray-200/80 mb-10">
+                      <div className="absolute -top-4 -left-3 w-10 h-10 bg-[#BE1E2D] rounded-full flex items-center justify-center shadow-lg">
+                        <Quote size={18} className="text-white" />
+                      </div>
+                      <p className="text-gray-800 italic font-medium leading-relaxed mb-6 mt-2 relative z-10 text-base sm:text-lg">
+                        "{featuredEntry.quote}"
+                      </p>
+                      <div className="flex items-center space-x-4 border-t border-gray-200/80 pt-4">
+                        <img 
+                          src={featuredEntry.scoutImg} 
+                          onError={(e) => { e.target.onerror = null; e.target.src = featuredEntry.scoutFallback; }}
+                          alt={featuredEntry.scoutName} 
+                          className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                        />
+                        <div>
+                          <p className="font-black text-gray-900 text-sm uppercase tracking-tight">{featuredEntry.scoutName}</p>
+                          <p className="text-[#1D3A6C] text-[11px] font-bold uppercase tracking-widest">{featuredEntry.scoutRank}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Spotlight Gallery */}
+                    {featuredEntry.gallery?.length > 0 && (
+                      <div className="pt-6 border-t border-gray-100">
+                        <span className="text-[11px] font-black tracking-widest uppercase text-gray-400 flex items-center mb-4">
+                          <ImageIcon size={15} className="mr-2"/> Dispatch Photos
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {featuredEntry.gallery.map((imgSrc, i) => (
+                            <div key={i} className="h-56 rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50">
+                              <img 
+                                src={imgSrc} 
+                                onError={(e) => { e.target.onerror = null; e.target.src = featuredEntry.galleryFallbacks[i]; }}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+                                alt={`Action shot ${i}`} 
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </article>
+              </div>
+
+              {/* ACCORDION ARCHIVES */}
+              <div className="mt-20">
+                <div className="border-t border-gray-200 pt-12 mb-8 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-2xl font-black uppercase tracking-tight text-gray-900">Trail Archives</h4>
+                    <p className="text-gray-500 text-sm font-light mt-1">Explore previous months and past troop recaps.</p>
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-widest bg-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full">
+                    {pastEntries.length} Past Dispatches
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  {pastEntries.map(entry => {
+                    const isOpen = openArchiveId === entry.id;
+
+                    return (
+                      <div 
+                        key={entry.id} 
+                        className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:border-gray-300"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => toggleArchive(entry.id)}
+                          className="w-full p-6 sm:p-7 flex items-center justify-between text-left transition-colors hover:bg-gray-50/70"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 gap-2">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1D3A6C] flex items-center justify-center font-black">
+                                <Calendar size={18} />
+                              </div>
+                              <span className="text-xl font-black uppercase tracking-tight text-gray-900">
+                                {entry.month} {entry.year}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {entry.milestones.map((stone, i) => (
+                                <span key={i} className="text-[10px] uppercase tracking-wider font-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-md">
+                                  {stone}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="ml-4 w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 shrink-0">
+                            <svg 
+                              className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </button>
+
+                        {isOpen && (
+                          <div className="px-6 sm:px-8 pb-8 pt-2 border-t border-gray-100 animate-in fade-in duration-300">
+                            <div className="relative h-64 rounded-xl overflow-hidden mb-8 mt-4 border border-gray-100">
+                              <img 
+                                src={entry.heroImg} 
+                                onError={(e) => { e.target.onerror = null; e.target.src = entry.heroFallback; }}
+                                alt={`${entry.month} Adventure`}
+                                className="w-full h-full object-cover" 
+                              />
+                            </div>
+
+                            <p className="text-gray-700 leading-relaxed mb-8 font-serif text-base sm:text-lg whitespace-pre-wrap">
+                              {entry.summary}
+                            </p>
+
+                            <div className="bg-gray-50 rounded-xl p-6 relative border border-gray-200/80 mb-6">
+                              <p className="text-gray-800 italic font-medium leading-relaxed mb-4 text-sm sm:text-base">
+                                "{entry.quote}"
+                              </p>
+                              <div className="flex items-center space-x-3 border-t border-gray-200 pt-3">
+                                <img 
+                                  src={entry.scoutImg} 
+                                  onError={(e) => { e.target.onerror = null; e.target.src = entry.scoutFallback; }}
+                                  alt={entry.scoutName} 
+                                  className="w-10 h-10 rounded-full object-cover border border-white shadow-sm"
+                                />
+                                <div>
+                                  <p className="font-black text-gray-900 text-xs uppercase tracking-tight">{entry.scoutName}</p>
+                                  <p className="text-[#1D3A6C] text-[10px] font-bold uppercase tracking-widest">{entry.scoutRank}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {entry.gallery?.length > 0 && (
+                              <div className="pt-4 border-t border-gray-100">
+                                <span className="text-[10px] font-black tracking-widest uppercase text-gray-400 flex items-center mb-3">
+                                  <ImageIcon size={13} className="mr-1.5"/> Archive Gallery
+                                </span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  {entry.gallery.map((imgSrc, i) => (
+                                    <div key={i} className="h-44 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                                      <img 
+                                        src={imgSrc} 
+                                        onError={(e) => { e.target.onerror = null; e.target.src = entry.galleryFallbacks[i]; }}
+                                        className="w-full h-full object-cover" 
+                                        alt={`Archive shot ${i}`} 
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
             </div>
           </div>
