@@ -37,7 +37,7 @@ export default function App() {
   };
 
   // --- WREATH STOREFRONT STATE ---
-  // Leave null to run in Dev Mode. Paste your deployed Web App URL when ready!
+  // Leave null for Dev/Test mode. Paste your deployed Google Script URL when live!
   const GOOGLE_SCRIPT_URL = null; 
 
   const [wreathQuantities, setWreathQuantities] = useState({
@@ -137,7 +137,6 @@ export default function App() {
     "Shaurya K.", "Sheldon H.", "Theo A.", "Toshan N.", "Wesley F.", "Yveson H."
   ];
 
-  // Defensive Numeric Handling
   const updateWreathQty = (id, delta) => {
     setWreathQuantities(prev => ({
       ...prev,
@@ -162,7 +161,6 @@ export default function App() {
     return Object.values(wreathQuantities).reduce((sum, qty) => sum + (parseInt(qty, 10) || 0), 0);
   };
 
-  // Safe Clipboard Copy Function
   const handleCopyText = (text) => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {
@@ -238,7 +236,6 @@ export default function App() {
       try {
         resJson = JSON.parse(resText);
       } catch {
-        // Fallback for redirect strings
         resJson = { status: "SUCCESS", receiptId: "TRP-" + Math.floor(1000 + Math.random() * 9000) };
       }
 
