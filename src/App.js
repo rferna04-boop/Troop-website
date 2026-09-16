@@ -37,6 +37,1733 @@ export default function App() {
   };
 
   // --- WREATH STOREFRONT STATE ---
+  // Leave null to run in Dev Mode. Paste your deployed Web App URL when ready!
+  const GOOGLE_SCRIPT_URL = null; 
+
+  const [wreathQuantities, setWreathQuantities] = useState({
+    wreath24Plain: 0,
+    wreath24Dec: 0,
+    wreath30Plain: 0,
+    wreath30Dec: 0,
+    wreath40Plain: 0,
+    wreath40Dec: 0,
+  });
+
+  const [wreathCustomer, setWreathCustomer] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    scoutName: "General Troop 170 Fund / Don't Know",
+    paymentMethod: 'Venmo',
+  });
+
+  const [wreathLoading, setWreathLoading] = useState(false);
+  const [wreathSubmittedOrder, setWreathSubmittedOrder] = useState(null);
+  const [wreathError, setWreathError] = useState('');
+  const [copiedMemo, setCopiedMemo] = useState(false);
+  const [showLanyardModal, setShowLanyardModal] = useState(false);
+
+  const darkBg = "#0B0F19";
+
+  // 2026 Official Pricing & SKU Catalog
+  const WREATH_PRODUCTS = [
+    {
+      id: 'wreath24Plain',
+      size: '24"',
+      title: '24" Classic Undecorated',
+      desc: 'Fresh fragrant balsam fir. Standard front door size to display natural greenery or decorate yourself.',
+      price: 22,
+      img: '/images/wreaths/24Undecorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 'wreath24Dec',
+      size: '24"',
+      title: '24" Deluxe Decorated',
+      desc: 'Fresh balsam fir adorned with natural Maine pinecones and a hand-tied weatherproof red velvet bow.',
+      price: 27,
+      img: '/images/wreaths/24Decorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 'wreath30Plain',
+      size: '30"',
+      title: '30" Classic Undecorated',
+      desc: 'Full, lush fragrant greenery crafted for larger entry doors, double doors, and broad wall displays.',
+      price: 32,
+      img: '/images/wreaths/30Undecorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 'wreath30Dec',
+      size: '30"',
+      title: '30" Deluxe Decorated',
+      desc: 'Grand 30-inch wreath trimmed with natural pinecones and an accented handcrafted festive red bow.',
+      price: 37,
+      img: '/images/wreaths/30Decorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 'wreath40Plain',
+      size: '40"',
+      title: '40" Estate Undecorated',
+      desc: 'Substantial estate-scale balsam wreath tailored for chimneys, large exterior gables, and commercial facades.',
+      price: 55,
+      img: '/images/wreaths/40Undecorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 'wreath40Dec',
+      size: '40"',
+      title: '40" Estate Decorated',
+      desc: 'Show-stopping estate centerpiece trimmed with clusters of natural pinecones and an oversized red structural bow.',
+      price: 70,
+      img: '/images/wreaths/40Decorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'
+    }
+  ];
+
+  const SCOUT_ROSTER = [
+    "General Troop 170 Fund / Don't Know",
+    "Aadhav C.", "Aarnav S.", "Adam S.", "Alexander F.", "Andrew H.", "Andrew S.", "Andrew T.",
+    "Ayan S.", "Bennett L.", "Carter O.", "Chiru Abhinav M.", "Christopher H.", "Connor N.",
+    "Daniel G.", "Devin N.", "Devlin M.", "Devyaan B.", "Divij A.", "Doug P.", "Gabriel C.",
+    "Gabriel M.", "Jack M.", "Jackson K.", "Jacob S.", "James D.", "James M.", "John H.",
+    "Ketann S.", "Kiernan W.", "Liam M.", "Lucas G.", "Luke W.", "Mason T.", "Nathan C.",
+    "Nathaniel D.", "Nicholas B.", "Oliver M.", "Parker F.", "Phillip V.", "Pranav Tej M.",
+    "Reyansh B.", "Rithvik G.", "Riyan P.", "Ronan B.", "Ryan D.", "Sebastian C.", "Seth K.",
+    "Shaurya K.", "Sheldon H.", "Theo A.", "Toshan N.", "Wesley F.", "Yveson H."
+  ];
+
+  // Defensive Numeric Handling
+  const updateWreathQty = (id, delta) => {
+    setWreathQuantities(prev => ({
+      ...prev,
+      [id]: Math.max(0, (parseInt(prev[id], 10) || 0) + delta)
+    }));
+  };
+
+  const setWreathDirectQty = (id, value) => {
+    const sanitized = value.replace(/[^0-9]/g, '');
+    const val = parseInt(sanitized, 10);
+    setWreathQuantities(prev => ({
+      ...prev,
+      [id]: isNaN(val) ? 0 : Math.max(0, val)
+    }));
+  };
+
+  const calculateWreathTotal = () => {
+    return WREATH_PRODUCTS.reduce((sum, item) => sum + ((parseInt(wreathQuantities[item.id], 10) || 0) * item.price), 0);
+  };
+
+  const calculateWreathTotalUnits = () => {
+    return Object.values(wreathQuantities).reduce((sum, qty) => sum + (parseInt(qty, 10) || 0), 0);
+  };
+
+  // Safe Clipboard Copy Function
+  const handleCopyText = (text) => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopiedMemo(true);
+        setTimeout(() => setCopiedMemo(false), 2000);
+      }).catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  };
+
+  const fallbackCopy = (text) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      setCopiedMemo(true);
+      setTimeout(() => setCopiedMemo(false), 2000);
+    } catch (err) {
+      console.error('Fallback copy failed', err);
+    }
+    document.body.removeChild(textArea);
+  };
+
+  const handleWreathOrderSubmit = async (e) => {
+    e.preventDefault();
+    const totalDue = calculateWreathTotal();
+    const totalUnits = calculateWreathTotalUnits();
+
+    if (totalUnits === 0) {
+      setWreathError("Please select at least one wreath before submitting your order.");
+      window.scrollTo({ top: 400, behavior: 'smooth' });
+      return;
+    }
+
+    setWreathLoading(true);
+    setWreathError('');
+
+    const payload = {
+      ...wreathCustomer,
+      ...wreathQuantities,
+      supporterName: `${wreathCustomer.firstName.trim()} ${wreathCustomer.lastName.trim()}`,
+      totalCost: totalDue,
+      totalUnits: totalUnits
+    };
+
+    // --- MOCK MODE: Instant Verification When URL is Null ---
+    if (!GOOGLE_SCRIPT_URL) {
+      setTimeout(() => {
+        const mockReceiptId = "TRP-" + Math.floor(1000 + Math.random() * 9000);
+        setWreathSubmittedOrder({
+          ...payload,
+          receiptId: mockReceiptId
+        });
+        setWreathLoading(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 600);
+      return;
+    }
+
+    // --- PRODUCTION MODE ---
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+
+      const resText = await response.text();
+      let resJson;
+      try {
+        resJson = JSON.parse(resText);
+      } catch {
+        // Fallback for redirect strings
+        resJson = { status: "SUCCESS", receiptId: "TRP-" + Math.floor(1000 + Math.random() * 9000) };
+      }
+
+      if (resJson.status === "SUCCESS") {
+        setWreathSubmittedOrder({
+          ...payload,
+          receiptId: resJson.receiptId
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        throw new Error(resJson.message || "Failed to submit order");
+      }
+    } catch (err) {
+      console.error(err);
+      setWreathError("Error submitting your order. Please check your connection or contact the troop.");
+    } finally {
+      setWreathLoading(false);
+    }
+  };
+
+  // --- HISTORIAN CMS DATA ---
+  const scoutTrailData = [
+    {
+      id: '2026-08',
+      month: 'August',
+      year: '2026',
+      milestones: ['Sea Base', 'Community Service', 'Unionville Tag Sale', '7 Eagle Projects'],
+      heroImg: '/images/scout-corner/2026-08-eagle-workday.jpg',
+      heroFallback: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80',
+      summary: "August was a month of adventure, service, and exciting opportunities for the troop. Scouts took part in the long-awaited Sea Base high-adventure experience, continued giving back through service projects, and spent time camping and working together at the Unionville Museum tag sale. At the same time, an impressive seven Scouts continued their work toward the rank of Eagle Scout, making August another busy and meaningful month for the troop.\n\nThe biggest highlight of the month was undoubtedly Sea Base. Scouts had the opportunity to take part in an unforgettable high-adventure experience, putting their Scouting skills, teamwork, and independence to the test while enjoying an incredible adventure together. After months of preparation, planning, and anticipation, the trip gave Scouts the chance to experience something far outside their usual routine and create memories that will stay with them for years to come. More than just an adventure, Sea Base provided an opportunity for Scouts to work together, face new challenges, and grow through shared experiences. As one Scout put it, \"Sea Base was an incredible experience because we got to do so many things together that we normally wouldn't get to do.\"\n\nAugust also provided several opportunities for the troop to give back to the community. On Monday, August 17, Scouts gathered at the Churchury United Methodist Church to help clean the playground equipment, continuing the troop's tradition of helping with this project each year. Service projects like this are a reminder that Scouting is not only about adventure and advancement, but also about taking the time to improve the communities around us. One Scout reflected, \"It's always nice to come back and help with the playground because it's something our troop has been doing for years, and we know we're helping make it better for everyone who uses it.\"\n\nAnother major August event was the Unionville Museum tag sale and campout, held August 21–23. Scouts camped on the FCCU church property while helping with the tag sale across the street. The weekend gave Scouts the chance to contribute to an important community event while also enjoying time together around camp. Balancing service with camping made the weekend a great example of the fun and fellowship that can come from working together. One Scout shared, \"The tag sale was a lot of work, but camping together afterward made it really fun. It was a great way to spend the weekend with the troop.\"\n\nAugust was also an especially busy month for Eagle Scout projects. Seven—yes, seven—Scouts are currently working on their Eagle Scout projects. Each project represents a significant commitment of planning, leadership, and service, and the troop is proud to support these Scouts as they work toward this important milestone. Scouts, families, and leaders are encouraged to keep a close eye on the calendar and the Band app and help out whenever possible. These projects provide valuable opportunities for the entire troop to demonstrate the Scouting spirit of service while helping our community.\n\nOverall, August was a month filled with adventure, service, leadership, and teamwork. From the excitement and challenges of Sea Base to the Unionville Museum campout, community service at the Churchury United Methodist Church, and the continued work of seven Scouts toward their Eagle rank, the troop stayed active throughout the month. The experiences of August gave Scouts opportunities to grow, serve others, strengthen friendships, and create memories that will carry forward into the rest of the Scouting year.",
+      quote: "Sea Base was an incredible experience because we got to do so many things together that we normally wouldn't get to do.",
+      scoutName: "Troop 170 Scout",
+      scoutRank: "Sea Base Crew",
+      scoutImg: '/images/scout-corner/sheldon.jpg',
+      scoutFallback: 'https://images.unsplash.com/photo-1512641406448-6524e5e10bf1?auto=format&fit=crop&w=400&q=80',
+      gallery: [
+        '/images/scout-corner/2026-08-eagle-workday.jpg',
+        '/images/scout-corner/2026-08-eagle-bench.jpg'
+      ],
+      galleryFallbacks: [
+        'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=600&q=80'
+      ]
+    },
+    {
+      id: '2026-07',
+      month: 'July',
+      year: '2026',
+      milestones: ['Summer Camp', 'Eagle Work Parties', 'Sea Base Prep'],
+      heroImg: '/images/scout-corner/2026-07-hero.jpg',
+      heroFallback: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80',
+      summary: "July was a month of adventure, service, and continued preparation for the exciting opportunities ahead. Scouts spent time building skills and memories at summer camp, supporting one another through Eagle Scout projects, and preparing for the upcoming Sea Base adventure. Throughout the month, the troop continued to demonstrate the importance of leadership, teamwork, and service.\n\nOne of the month's biggest highlights was summer camp. Scouts had the opportunity to spend time outdoors, learn new skills, work toward advancement, and enjoy the traditions and experiences that make summer camp such an important part of Scouting. The week provided Scouts with opportunities to challenge themselves, strengthen friendships, and grow more independent while participating in a variety of activities. Reflecting on the experience, one Scout shared, \"Summer camp is one of my favorite parts of Scouting because you get to learn new things while spending the week with your friends.\"\n\nJuly was also an active month for service, with multiple Scouts continuing to work toward their Eagle Scout rank by planning and completing their Eagle projects. The troop supported these efforts through two work parties, giving fellow Scouts, leaders, and families the opportunity to contribute their time and skills. These projects provided valuable leadership experiences for the Scouts organizing them while also demonstrating the Scouting spirit of service to others. As one Scout remarked, \"It's great being able to help with an Eagle project because you know that your work is making a difference and helping someone in the community.\"\n\nWith Sea Base quickly approaching, Scouts and families also continued preparing for the upcoming high-adventure experience. The trip has given Scouts something exciting to look forward to while encouraging them to work together, prepare responsibly, and make the most of the opportunities ahead. The months of planning and fundraising are coming together as the group gets closer to setting out on this adventure. One Scout summed up the excitement by saying, \"We've been preparing for Sea Base for a long time, so it's exciting to know that the adventure is finally getting closer.\"\n\nOverall, July was a month filled with adventure, service, and anticipation. From the excitement of summer camp to the hard work taking place on Eagle projects and the final preparations for Sea Base, Scouts continued to grow as leaders, teammates, and members of their community. The experiences of July helped build both individual confidence and troop spirit while setting the stage for even more memorable adventures in the months ahead.",
+      quote: "Summer camp is one of my favorite parts of Scouting because you get to learn new things while spending the week with your friends.",
+      scoutName: "Troop 170 Scout",
+      scoutRank: "Summer Camper",
+      scoutImg: '/images/scout-corner/sheldon.jpg',
+      scoutFallback: 'https://images.unsplash.com/photo-1512641406448-6524e5e10bf1?auto=format&fit=crop&w=400&q=80',
+      gallery: [
+        '/images/scout-corner/2026-07-camp.jpg',
+        '/images/scout-corner/2026-07-eagle.jpg'
+      ],
+      galleryFallbacks: [
+        'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=600&q=80'
+      ]
+    },
+    {
+      id: '2026-06',
+      month: 'June',
+      year: '2026',
+      milestones: ['Court of Honor & Picnic', '2 New Eagle Scouts', 'Sea Base Fundraisers'],
+      heroImg: '/images/scout-corner/2026-04-gal1.jpeg',
+      heroFallback: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80',
+      summary: "June was a month of celebration, advancement, and preparation for exciting summer adventures. Scouts had the opportunity to recognize major achievements, continue working toward their individual goals, and support the troop through several successful fundraising events.\n\nOne of the month's major highlights was the June Court of Honor and annual troop picnic. The Court of Honor recognized Scouts for their hard work, dedication, and accomplishments in advancement, celebrating merit badges, rank advancements, and other achievements earned throughout the year. Following the ceremony, Scouts, families, and leaders gathered for the annual picnic, enjoying an afternoon of fun, games, good food, and fellowship. The event provided an excellent opportunity to celebrate the troop's successes while strengthening the sense of community among troop families. As one Scout shared, \"It's always exciting to see everyone's hard work pay off, and celebrating together at the picnic makes it even more special.\"\n\nThe troop also celebrated a significant milestone as Andrew Tabol and Devyaan Bordoloi were honored at their Eagle Scout Court of Honor. This memorable ceremony recognized their years of dedication, leadership, and service that culminated in earning Scouting's highest rank. Their accomplishments serve as an inspiration to younger Scouts as they continue working toward their own goals. Reflecting on the ceremony, one Scout remarked, \"Seeing two Scouts earn Eagle reminds me that if I keep working hard, I can get there too.\"\n\nWith the arrival of summer, the troop began its summer meeting schedule, placing a greater emphasis on individualized advancement. These meetings gave Scouts the opportunity to focus on their personal goals, complete advancement requirements, and receive one-on-one guidance from troop leaders. This flexible approach allowed each Scout to make meaningful progress at their own pace while continuing to build valuable Scouting skills. One Scout commented, \"I like being able to work on the things I need most because it helps me keep moving forward.\"\n\nThroughout the month, the troop also held multiple restaurant fundraising events to help support Scouts preparing for the upcoming Sea Base adventure. These fundraisers brought together Scouts, families, and members of the community while helping offset the cost of this exciting high-adventure experience. The strong participation and support demonstrated the troop's commitment to helping Scouts achieve memorable opportunities through teamwork and community involvement. As one Scout put it, \"Every fundraiser gets us one step closer to Sea Base, and it's great seeing everyone pitch in to make it happen.\"\n\nOverall, June was a month filled with celebration, personal achievement, and preparation for future adventures. From recognizing advancements and honoring new Eagle Scouts to beginning summer meetings and supporting Sea Base through fundraising, the troop continued to demonstrate the values of leadership, service, and fellowship that define the Scouting program.",
+      quote: "Seeing two Scouts earn Eagle reminds me that if I keep working hard, I can get there too.",
+      scoutName: "Troop 170 Scout",
+      scoutRank: "Court of Honor Attendee",
+      scoutImg: '/images/scout-corner/Gabe.jpg',
+      scoutFallback: 'https://images.unsplash.com/photo-1536084005850-984fb12170c2?auto=format&fit=crop&w=400&q=80',
+      gallery: [
+        '/images/scout-corner/2026-04-hero.jpg',
+        '/images/scout-corner/2026-04-scout.jpg'
+      ],
+      galleryFallbacks: [
+        'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80'
+      ]
+    },
+    {
+      id: '2026-04',
+      month: 'April',
+      year: '2026',
+      milestones: ['150 Meals Packed', 'Sea Base Fundraiser', 'Merit Badge Push'],
+      heroImg: '/images/scout-corner/2026-04-gal1.jpeg',
+      heroFallback: 'https://images.unsplash.com/photo-1533240332313-0cb49f471b75?auto=format&fit=crop&w=1200&q=80',
+      summary: "April was a meaningful and engaging month for the troop, combining service, skill-building, and preparation for exciting future adventures.\n\nOne of the most impactful events of the month was the troop’s meal-packing service project, where Scouts came together to prepare meals for those in need. This hands-on effort emphasized the importance of giving back to the community and demonstrated how small actions can make a big difference. Scouts worked efficiently as a team, showing dedication and compassion throughout the event. “Being at the meal packing event not only helped us but it helped many people in need. It saved [and changed] people’s lives. Packing meals felt amazing” said Gabe, a Scout present at the event.\n\nAnother highlight was the University of Cooking campout, which gave Scouts the opportunity to expand their culinary skills in a fun and interactive outdoor setting. Patrols planned menus, prepared meals, and explored new cooking techniques beyond the basics. The campout encouraged creativity and teamwork while helping Scouts build confidence in their abilities. It was both an educational and enjoyable experience for everyone involved.\n\nIn addition, the troop made strong progress in fundraising efforts to support the upcoming Sea Base high adventure trip. “Although it may seem like a boring experience, it was interesting and a great way to interact with the community” said Gabe, a Scout present at the event. Through these fundraisers, Scouts showed initiative and commitment toward reaching their goals, working together to make this exciting opportunity possible.\n\nThroughout the month, troop meetings continued to focus on developing important skills and preparing Scouts for future activities and advancement. Many Scouts also continued working toward merit badges, further broadening their knowledge and experiences.\n\nOverall, April was a well-balanced month filled with service, learning, and forward-looking efforts, highlighting the troop’s dedication to teamwork, growth, and adventure.",
+      quote: "Being at the meal packing event not only helped us but it helped many people in need. It saved [and changed] people’s lives. Packing meals felt amazing.",
+      scoutName: "Gabe",
+      scoutRank: "Scout",
+      scoutImg: '/images/scout-corner/Gabe.jpg',
+      scoutFallback: 'https://images.unsplash.com/photo-1512641406448-6524e5e10bf1?auto=format&fit=crop&w=400&q=80',
+      gallery: [
+        '/images/scout-corner/2026-04-hero.jpg',
+        '/images/scout-corner/2026-04-scout.jpg'
+      ],
+      galleryFallbacks: [
+        'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=600&q=80'
+      ]
+    },
+    {
+      id: '2026-03',
+      month: 'March',
+      year: '2026',
+      milestones: ['42 Nights Camping', 'Wilderness Survival', '12 Miles Hiked'],
+      heroImg: '/images/scout-corner/2026-03-hero.jpg',
+      heroFallback: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80',
+      summary: "March was an active and productive month for the troop with lots of adventures, learning, and achievement recognition.\n\nSome of the most notable events were the Cabin and Lean-to Camping Trip at Camp Sequassen where the Scouts could experience outdoor camping life in late winter. This event gave the opportunity to learn useful camping skills, cooperate within patrols, and enjoy the associated with spending time in nature. “It was a very entertaining and unique camp out and we had a lot of fun and learned many skills!” said one of the Scouts who preferred not to be named.\n\nFurthermore, the Court of Honor took place which celebrated all the work done by the members of the troop throughout this month. Scouts were awarded for earning new ranks, completing merit badges, and other achievements during their Scouting journey.\n\nThe month of March saw a number of meetings take place with an emphasis on developing skills and knowledge among the troop. The meetings involved different subjects that helped the Scouts to develop as leaders and increase their outdoorsmanship and readiness.\n\nMoreover, some of the Scouts made good progress in earning merit badges, thereby improving themselves in various fields.\n\nMarch was indeed a very balanced month that included everything from adventure, development, and education.",
+      quote: "It was a very entertaining and unique camp out and we had a lot of fun and learned many skills!",
+      scoutName: "Anonymous Scout",
+      scoutRank: "Troop 170 Member",
+      scoutImg: '/images/scout-corner/anonymous.jpg',
+      scoutFallback: 'https://images.unsplash.com/photo-1536084005850-984fb12170c2?auto=format&fit=crop&w=400&q=80',
+      gallery: [
+        '/images/scout-corner/2026-03-gal1.jpg',
+        '/images/scout-corner/2026-03-scout.jpg'
+      ],
+      galleryFallbacks: [
+        'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1525253013412-55c1a69a5738?auto=format&fit=crop&w=600&q=80'
+      ]
+    }
+  ];
+
+  const featuredEntry = scoutTrailData[0];
+  const pastEntries = scoutTrailData.slice(1);
+
+  const programsList = [
+    { id: 0, title: "Scout Rank Advancement", desc: "Progress through the scouting ranks at your own pace with the guidance of experienced mentors and youth leaders.", img: "/images/rank.jpg" },
+    { id: 1, title: "Merit Badge Program", desc: "Explore over 140 different subjects from Robotics to First Aid in our active, year-round educational program.", img: "/images/merit.jpg" },
+    { id: 2, title: "Monthly Campouts", desc: "Develop outdoor survival skills, patrol camaraderie, and self-reliance during our regular weekend camping trips.", img: "/images/campout.jpg" },
+    { id: 3, title: "Community Service", desc: "Giving back to Farmington and Unionville through local conservation, food drives, and extensive Eagle Scout projects.", img: "/images/service.jpg" },
+    { id: 4, title: "Summer Camp", desc: "A week of intensive advancement, unparalleled fun, and outdoor bonding at our annual summer camp.", img: "/images/camp.jpg" },
+    { id: 5, title: "High Adventure Trekking", desc: "Epic outdoor trips including backpacking, wilderness survival, and annual high-adventure treks across the country.", img: "/images/philmont.jpg" }
+  ];
+
+  const upcomingBadges = [
+    { id: 101, name: "First Aid", date: "Saturday, Oct 14", time: "9:00 AM - 1:00 PM", counselor: "Dr. Smith", status: "Open", img: "https://images.unsplash.com/photo-1583324113626-70df0f4deaab?auto=format&fit=crop&w=800&q=80" },
+    { id: 102, name: "Citizenship in the Nation", date: "Monday, Oct 23", time: "6:00 PM - 7:00 PM", counselor: "Mr. Johnson", status: "Open", img: "https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&w=800&q=80" },
+    { id: 103, name: "Personal Management", date: "Monday, Nov 6", time: "6:00 PM - 7:00 PM", counselor: "Mrs. Davis", status: "Waitlist", img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80" },
+    { id: 104, name: "Environmental Science", date: "Saturday, Nov 11", time: "10:00 AM - 3:00 PM", counselor: "Mr. Thompson", status: "Full", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80" }
+  ];
+
+  const scoutAccounts = [
+    { id: 1, name: "Alexander T.", balance: 145.50, lastTransaction: "Holiday Wreath Sales (+ $120.00)", date: "Dec 15, 2025" },
+    { id: 2, name: "Benjamin C.", balance: 85.00, lastTransaction: "Spring Can Drive (+ $85.00)", date: "Mar 02, 2026" },
+    { id: 3, name: "Carter H.", balance: 320.25, lastTransaction: "Summer Camp Deposit (- $150.00)", date: "Feb 20, 2026" },
+    { id: 4, name: "Daniel W.", balance: 12.00, lastTransaction: "Weekend Campout Fee (- $25.00)", date: "Jan 10, 2026" },
+  ];
+
+  const gearListsData = [
+    { 
+      id: 1, title: "The 10 Essentials", desc: "The absolute required items for every Scout's daypack, regardless of trip duration.", icon: <Compass size={28} />,
+      type: "document",
+      content: "<ul style='line-height:1.8;'><li><strong>Pocketknife</strong> (Totin' Chip required)</li><li><strong>First-Aid Kit</strong> (personal size)</li><li><strong>Extra Clothing</strong> (layers)</li><li><strong>Rain Gear</strong> (jacket & pants)</li><li><strong>Water Bottle</strong> (full)</li><li><strong>Flashlight or Headlamp</strong> (fresh batteries)</li><li><strong>Trail Food</strong> (high energy)</li><li><strong>Matches & Fire Starter</strong></li><li><strong>Sun Protection</strong> (SPF 30+)</li><li><strong>Map and Compass</strong></li></ul>",
+      plainText: "- Pocketknife\n- First-Aid Kit\n- Extra Clothing\n- Rain Gear\n- Water Bottle\n- Flashlight or Headlamp\n- Trail Food\n- Fire Starter\n- Sun Protection\n- Map and Compass"
+    },
+    { 
+      id: 2, title: "Warm Weather Camping", desc: "Lightweight, moisture-wicking packing list for Spring and Summer overnight trips.", icon: <Sun size={28} />,
+      type: "document",
+      content: "<h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Clothing</h3><ul style='line-height:1.8;'><li>T-shirt or short-sleeved shirt</li><li>Hiking shorts</li><li>Underwear & Extra underwear</li><li>Socks (synthetic or wool blend)</li><li>Long-sleeved shirt</li><li>Brimmed hat</li><li>Bandana</li><li>Long pants (lightweight)</li><li>Sweater or warm jacket</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Cooking & Eating</h3><ul style='line-height:1.8;'><li>Large plastic bowl</li><li>Spoon (lexan/metal)</li><li>Insulated mug</li><li>Water treatment system</li><li>Stove & Fuel</li><li>Cookset (Pots & Frying pan)</li><li>Hot-pot tongs</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Hygiene</h3><ul style='line-height:1.8;'><li>Toothbrush & Toothpaste</li><li>Dental floss</li><li>Biodegradable soap</li><li>Comb</li><li>Hand cleaner</li><li>Small towel</li><li>Toilet paper (in Ziploc)</li><li>Trowel</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Expert Pro Tips</h3><ul style='line-height:1.8;'><li>Rain suit (breathable)</li><li>Hiking boots (broken in)</li><li>Backpack that fits correctly</li><li>Personal blister kit (Moleskin)</li><li>Parachute cord (20 feet)</li></ul>",
+      plainText: "CLOTHING:\n- T-shirt or short-sleeved shirt\n- Hiking shorts\n- Underwear & Extra underwear\n- Socks (synthetic or wool blend)\n- Long-sleeved shirt\n- Brimmed hat\n- Bandana\n- Long pants (lightweight)\n- Sweater or warm jacket\n\nCOOKING & EATING:\n- Large plastic bowl\n- Spoon (lexan/metal)\n- Insulated mug\n- Water treatment system\n- Stove & Fuel\n- Cookset (Pots & Frying pan)\n- Hot-pot tongs\n\nHYGIENE:\n- Toothbrush & Toothpaste\n- Dental floss\n- Biodegradable soap\n- Comb\n- Hand cleaner\n- Small towel\n- Toilet paper (in Ziploc)\n- Trowel\n\nEXPERT PRO TIPS:\n- Rain suit (breathable)\n- Hiking boots (broken in)\n- Backpack that fits correctly\n- Personal blister kit (Moleskin)\n- Parachute cord (20 feet)"
+    },
+    { 
+      id: 3, title: "Cold-Weather Camping", desc: "Sub-freezing packing guide focusing on the 'No Cotton' rule and thermal layers.", icon: <Snowflake size={28} />, 
+      type: "document",
+      content: "<p style='font-style:italic; font-weight:bold; color:#BE1E2D;'>RULE: NO COTTON!</p><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Clothing & Layers</h3><ul style='line-height:1.8;'><li>Long-sleeved shirt (synthetic/wool)</li><li>Long pants (fleece or wool)</li><li>Sweater or Jacket (fleece or wool)</li><li>Base layer (polypropylene)</li><li>Hiking boots (waterproofed)</li><li>Wool socks (multiple pairs)</li><li>Warm parka with hood</li><li>Stocking hat (covers ears)</li><li>Mittens or Gloves (warm)</li><li>Wool scarf</li><li>Extra dry underwear</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Expert Gear</h3><ul style='line-height:1.8;'><li>Bandana</li><li>Insulated Sorel-style boots</li><li>Wind parka with hood</li><li>Side-attaching suspenders</li><li>Rubberized gloves (for wet snow)</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Eating & Cooking</h3><ul style='line-height:1.8;'><li>Large storage bowl & Spoon</li><li>Insulated mug</li><li>Water treatment & Stove</li><li>Cookset & Snow Melting Pot</li><li>Hot-pot tongs</li></ul>", 
+      plainText: "RULE: NO COTTON!\n\nCLOTHING & LAYERS:\n- Long-sleeved shirt (synthetic/wool)\n- Long pants (fleece or wool)\n- Sweater or Jacket (fleece or wool)\n- Base layer (polypropylene)\n- Hiking boots (waterproofed)\n- Wool socks (multiple pairs)\n- Warm parka with hood\n- Stocking hat (covers ears)\n- Mittens or Gloves (warm)\n- Wool scarf\n- Extra dry underwear\n\nEXPERT GEAR:\n- Bandana\n- Insulated boots\n- Wind parka with hood\n- Side-attaching suspenders\n- Rubberized gloves (for wet snow)\n\nEATING & COOKING:\n- Large storage bowl & Spoon\n- Insulated mug\n- Water treatment & Stove\n- Cookset & Snow Melting Pot\n- Hot-pot tongs" 
+    },
+    { 
+      id: 4, title: "Klondike Derby", desc: "Day-trip gear list for our active, high-energy winter competition in the snow.", icon: <Flame size={28} />, 
+      type: "document",
+      content: "<h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Health & Safety</h3><ul style='line-height:1.8;'><li>Waterproof Boots (Sneakers not allowed!)</li><li>1-2 Liters drinking water per scout</li><li>Proper Winter Attire (No cotton/shorts)</li><li>Trail Lunch</li><li>Cup for hot water</li><li>Mobile Phone (Charged, in ziplock)</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>First Aid</h3><ul style='line-height:1.8;'><li>Patrol First Aid Kit</li><li>Reflective Emergency Space Blanket</li><li>Multiple cravat/triangular bandages</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Tools & Navigation</h3><ul style='line-height:1.8;'><li>Pocket or lock-back knife</li><li>Mallet or hammer</li><li>Duct tape</li><li>TWO compasses</li><li>Small notebook and pen</li><li>Hand saw / Hatchet (with sheaths)</li></ul><h3 style='color:#1D3A6C; border-bottom:1px solid #ccc; padding-bottom:5px;'>Firebuilding & Sled</h3><ul style='line-height:1.8;'><li>Wooden matches & Ferro Rod</li><li>Char Cloth & Birds Nest firestarters</li><li>6 Firewood Tolls</li><li>8 Precut 6ft ropes</li><li>4 Six-foot staves & 4 Three-foot poles</li><li>Emergency Shelter/Tarp</li></ul>", 
+      plainText: "HEALTH & SAFETY:\n- Waterproof Boots\n- 1-2L water\n- Winter Attire\n- Trail Lunch\n- Cup\n- Mobile Phone\n\nFIRST AID:\n- Patrol First Aid Kit\n- Space Blanket\n- Cravats\n\nTOOLS & NAVIGATION:\n- Knife\n- Mallet/hammer\n- Duct tape\n- 2 Compasses\n- Notebook/pen\n- Saw/Hatchet\n\nFIREBUILDING & SLED:\n- Matches & Ferro Rod\n- Char Cloth & Firestarters\n- Firewood\n- Ropes & Staves/Poles\n- Emergency Shelter/Tarp" 
+    },
+    { 
+      id: 5, title: "High Adventure", desc: "Official outfitter guides and gear lists for our premier national treks.", icon: <Mountain size={28} />, 
+      type: "external_links",
+      links: [
+        { name: "Philmont Packing", url: "https://www.philmontscoutranch.org/resources/what-to-bring/" },
+        { name: "Sea Base Guides", url: "https://seabaseha.org/scouts/resources/participant-guides/" },
+        { name: "Maine High Adv.", url: "https://www.mainehighadventure.org/pricing" }
+      ]
+    },
+  ];
+
+  const handlePrint = (list) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert("Please allow pop-ups in your browser to print this list.");
+      return;
+    }
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Troop 170 - ${list.title}</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 40px; max-w: 800px; margin: auto; color: #111; } 
+            h1 { color: #1D3A6C; border-bottom: 3px solid #BE1E2D; padding-bottom: 10px; text-transform: uppercase; font-weight: 900; letter-spacing: -0.05em; margin-bottom: 5px; }
+            p.desc { color: #666; font-size: 14px; margin-bottom: 30px; font-style: italic; }
+            .footer { margin-top: 50px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; font-weight: bold; letter-spacing: 0.05em; }
+          </style>
+        </head>
+        <body>
+          <h1>${list.title}</h1>
+          <p class="desc">${list.desc}</p>
+          ${list.content}
+          <div class="footer">SCOUTING AMERICA TROOP 170 • FARMINGTON / UNIONVILLE, CT</div>
+          <script>window.onload = () => { window.print(); }</script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const handleDownload = (list) => {
+    const fileContent = `TROOP 170: ${list.title.toUpperCase()}\n${list.desc}\n\n${list.plainText}\n\n---\nScouting America Troop 170 • Unionville, CT`;
+    const blob = new Blob([fileContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Troop170_${list.title.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const navLinks = [
+    { id: 'home', label: 'Home' },
+    { id: 'wreaths', label: 'Wreath Sale' },
+    { id: 'about', label: 'About' },
+    { id: 'scoutCorner', label: 'Scout Corner' },
+    { id: 'join', label: 'Join' }
+  ];
+
+  return (
+    <div className="min-h-screen flex flex-col font-sans bg-white text-gray-900 selection:bg-[#BE1E2D] selection:text-white">
+      
+      {/* --- AGENCY NAVIGATION --- */}
+      <nav className="text-white relative z-50 border-b border-white/10" style={{ backgroundColor: darkBg }}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex justify-between h-24 items-center">
+            
+            <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => { setCurrentPage('home'); window.scrollTo(0,0); }}>
+              <div className="w-20 h-20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                <img src="/images/logo.png" className="w-full h-full object-contain" alt="Logo" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">Troop 170</h1>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mt-1">Unionville, CT</p>
+              </div>
+            </div>
+
+            <div className="hidden md:flex space-x-8 items-center text-base font-bold uppercase tracking-wider text-gray-300">
+              {navLinks.map(page => (
+                <button 
+                  key={page.id} 
+                  onClick={() => { setCurrentPage(page.id); window.scrollTo(0,0); }} 
+                  className={`hover:text-white transition-colors relative ${currentPage === page.id ? 'text-white border-b-2 border-[#BE1E2D] pb-1' : ''}`}
+                >
+                  {page.label}
+                  {page.id === 'wreaths' && (
+                    <span className="absolute -top-3 -right-6 bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full uppercase tracking-widest font-black animate-pulse">
+                      Sale
+                    </span>
+                  )}
+                </button>
+              ))}
+              <a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:text-blue-400 transition-colors flex items-center space-x-1.5">
+                <Heart size={16}/><span>Donate</span>
+              </a>
+              <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="flex items-center space-x-2 px-5 py-2.5 bg-white text-gray-900 hover:bg-[#BE1E2D] hover:text-white transition-all duration-300 shadow-md rounded-none font-black text-sm tracking-widest">
+                <Lock size={16}/><span>Member Login</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </nav>
+
+      <main className="flex-grow">
+        
+        {/* --- HOME PAGE --- */}
+        {currentPage === 'home' && (
+          <div className="animate-in fade-in duration-700">
+            <div className="relative pt-32 pb-40 lg:pt-48 lg:pb-56 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
+              <div className="absolute inset-0 z-0">
+                <img src="/images/hero.jpg" alt="Scouts" className="w-full h-full object-cover object-[100%_70%] -scale-x-100 opacity-90" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-[#0B0F19]/80 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-transparent"></div>
+              </div>
+              <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-start">
+                
+                {/* Wreath Sale Announcement Banner */}
+                <div 
+                  onClick={() => { setCurrentPage('wreaths'); window.scrollTo(0,0); }}
+                  className="cursor-pointer mb-6 inline-flex items-center space-x-3 bg-emerald-900/80 border border-emerald-400/40 hover:bg-emerald-800/90 text-white px-5 py-2.5 rounded-full transition-all group shadow-lg"
+                >
+                  <ShoppingBag size={16} className="text-emerald-300 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">Annual Holiday Wreath Sale Is Live!</span>
+                  <ArrowUpRight size={14} className="text-emerald-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-none mb-8 shadow-inner border border-white/5">
+                  <Compass size={14} className="text-[#BE1E2D]" />
+                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white">Established 1956</span>
+                </div>
+                <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-8 uppercase max-w-4xl">
+                  Transform Youth <br/>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Into Leaders</span>
+                </h2>
+                <p className="text-lg sm:text-xl text-gray-400 font-light max-w-2xl leading-relaxed mb-12">
+                  Drive character development, boost outdoor skills, and maximize personal growth. We craft engaging, year-round scouting strategies that deliver measurable results.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <button onClick={() => { setCurrentPage('wreaths'); window.scrollTo(0,0); }} className="px-10 py-5 bg-[#BE1E2D] text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(190,30,45,0.4)] group flex items-center space-x-4 rounded-none">
+                    <span>Order Holiday Wreaths</span>
+                    <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  </button>
+                  <button onClick={() => { setCurrentPage('join'); window.scrollTo(0,0); }} className="px-8 py-5 bg-white/10 text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white/20 transition-all border border-white/20 rounded-none">
+                    <span>Schedule Visit</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Impact Strip */}
+            <div className="bg-white border-b border-gray-100 relative z-20 shadow-xl">
+              <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-16">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+                   {[
+                     { val: "60+", label: "Years Serving Unionville" },
+                     { val: "120+", label: "Eagle Scout Legacy" },
+                     { val: "140+", label: "Merit Badges Offered" },
+                     { val: "12+", label: "Annual Outdoor Trips" }
+                   ].map((stat, idx) => (
+                     <div key={idx} className="group border-l-4 border-gray-100 pl-6 hover:border-[#1D3A6C] transition-colors duration-300">
+                        <div className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter group-hover:text-[#BE1E2D] transition-colors">{stat.val}</div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mt-2">{stat.label}</p>
+                     </div>
+                   ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Program Grid */}
+            <div className="bg-gray-50 py-32">
+                <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+                     <h3 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] text-gray-900">
+                        Driven By <br/> <span className="text-[#1D3A6C]">Adventure</span>
+                     </h3>
+                     <p className="text-gray-500 text-lg font-light leading-relaxed max-w-md">
+                        Select a focus area to explore how we transform young scouts into confident community leaders.
+                     </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+                     <div className="lg:col-span-7">
+                        <div className="relative h-[500px] lg:h-[700px] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] rounded-none group">
+                           <img src={programsList[activeProgram].img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={programsList[activeProgram].title} />
+                           <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19]/90 via-[#0B0F19]/20 to-transparent flex flex-col justify-end p-10 lg:p-16">
+                              <span className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]">Focus Area 0{activeProgram + 1}</span>
+                              <h4 className="text-3xl lg:text-5xl font-black uppercase tracking-tighter mb-4 text-white leading-none">{programsList[activeProgram].title}</h4>
+                              <p className="text-lg font-light text-gray-300 max-w-lg leading-relaxed">{programsList[activeProgram].desc}</p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <div className="lg:col-span-5 flex flex-col justify-center space-y-2">
+                        {programsList.map((program, index) => {
+                          const isActive = activeProgram === index;
+                          return (
+                            <button 
+                              key={program.id} 
+                              onClick={() => setActiveProgram(index)} 
+                              className={`w-full text-left p-8 transition-all duration-300 rounded-none border-l-4 ${isActive ? 'bg-white border-[#BE1E2D] shadow-xl translate-x-2' : 'bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-300'}`}
+                            >
+                              <div className="flex justify-between items-center">
+                                 <div>
+                                   <h5 className={`text-xl lg:text-2xl font-black uppercase tracking-tighter ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{program.title}</h5>
+                                 </div>
+                                 <span className={`font-black text-lg ${isActive ? 'text-[#1D3A6C]' : 'text-gray-300'}`}>0{index+1}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                     </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- HOLIDAY WREATH STOREFRONT PAGE --- */}
+        {currentPage === 'wreaths' && (
+          <div className="bg-gray-50 pb-32 animate-in fade-in duration-500 min-h-screen">
+            {/* Header Hero */}
+            <div className="relative pt-24 pb-28 px-6 sm:px-8 lg:px-12 text-center text-white overflow-hidden" style={{ backgroundColor: "#0e2b19" }}>
+              <div className="absolute inset-0 z-0 opacity-25">
+                <img src="/images/wreaths/24Decorated.jpg" alt="Evergreen Wreaths" className="w-full h-full object-cover blur-sm" />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-b from-[#0e2b19]/90 via-[#0e2b19]/85 to-gray-50"></div>
+
+              <div className="relative z-10 max-w-4xl mx-auto">
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 border border-white/15">
+                  <Flame size={14} className="text-amber-400" />
+                  <span className="text-[10px] font-black tracking-[0.25em] uppercase text-emerald-100">Troop 170's Primary Annual Fundraiser</span>
+                </div>
+                <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white mb-6">
+                  Annual Holiday Wreath Sale
+                </h1>
+                <p className="text-lg sm:text-xl text-emerald-100/90 font-light max-w-2xl mx-auto leading-relaxed mb-8">
+                  Fragrant, fresh-cut Maine balsam fir wreaths hand-delivered directly to your porch by our Scouts. Every wreath sold directly funds summer camp, high adventure treks (Philmont, Sea Base), and essential outdoor troop equipment.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <button 
+                    onClick={() => setShowLanyardModal(true)} 
+                    className="inline-flex items-center space-x-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-black uppercase tracking-widest border border-white/20 transition-colors"
+                  >
+                    <QrCode size={16} />
+                    <span>Scout QR Lanyard Kit</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ORDER PROCESSOR OR CONFIRMATION SCREEN */}
+            <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 -mt-10 relative z-20">
+              
+              {wreathSubmittedOrder ? (
+                /* --- ORDER CONFIRMED RECEIPT VIEW --- */
+                <div className="bg-white rounded-none border-t-8 border-[#143d23] p-8 sm:p-12 shadow-2xl animate-in zoom-in-95 duration-300">
+                  <div className="text-center pb-8 border-b border-gray-100 mb-8">
+                    <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle size={36} />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#143d23]">Order Successfully Placed</span>
+                    <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mt-1 mb-2">Thank You for Supporting Troop 170!</h2>
+                    <p className="text-gray-500 text-sm max-w-md mx-auto">A confirmation receipt has been dispatched to <strong>{wreathSubmittedOrder.email}</strong>.</p>
+                  </div>
+
+                  {/* Summary Card */}
+                  <div className="bg-gray-50 p-6 sm:p-8 border border-gray-200 mb-8">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-gray-200 gap-4">
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest font-black text-gray-400 block">Unique Receipt / Order Number</span>
+                        <span className="text-3xl font-black text-[#143d23] tracking-tight">{wreathSubmittedOrder.receiptId}</span>
+                      </div>
+                      <div className="text-left sm:text-right">
+                        <span className="text-[10px] uppercase tracking-widest font-black text-gray-400 block">Total Due</span>
+                        <span className="text-3xl font-black text-[#BE1E2D]">${wreathSubmittedOrder.totalCost}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 text-sm">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Supporter</span>
+                        <strong className="text-gray-900">{wreathSubmittedOrder.supporterName}</strong>
+                        <p className="text-gray-500 text-xs mt-0.5">{wreathSubmittedOrder.phone}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Delivering Scout</span>
+                        <strong className="text-gray-900">{wreathSubmittedOrder.scoutName}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Delivery Address</span>
+                        <strong className="text-gray-900">{wreathSubmittedOrder.address}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Payment Option</span>
+                        <strong className="text-gray-900">{wreathSubmittedOrder.paymentMethod}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Reconcile Box */}
+                  {wreathSubmittedOrder.paymentMethod === 'Venmo' ? (
+                    <div className="bg-blue-50 border-2 border-[#008CFF]/30 p-8 mb-8 text-gray-800">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <Smartphone className="text-[#008CFF]" size={28} />
+                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Action Required: Complete Venmo Payment</h3>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                        To guarantee your wreaths are reserved and routed to the wholesale roster, please transfer <strong>${wreathSubmittedOrder.totalCost}</strong> to our troop's official Venmo account: <strong>@Troop170Unionville</strong>.
+                      </p>
+
+                      <div className="bg-white p-4 border border-blue-200 mb-6">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-900 block mb-1">
+                          Required Venmo Memo Note (Used for Back-Office Reconciliation):
+                        </span>
+                        <div className="flex items-center justify-between gap-4">
+                          <code className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1.5 rounded">
+                            Wreath - {wreathSubmittedOrder.receiptId} - {wreathSubmittedOrder.lastName}
+                          </code>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyText(`Wreath - ${wreathSubmittedOrder.receiptId} - ${wreathSubmittedOrder.lastName}`)}
+                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#008CFF] hover:bg-blue-600 text-white text-xs font-bold uppercase tracking-wider transition-colors"
+                          >
+                            {copiedMemo ? <Check size={14}/> : <Copy size={14}/>}
+                            <span>{copiedMemo ? 'Copied' : 'Copy Memo'}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <a 
+                        href={`https://venmo.com/Troop170Unionville?txn=pay&amount=${wreathSubmittedOrder.totalCost}&note=${encodeURIComponent(`Wreath - ${wreathSubmittedOrder.receiptId} - ${wreathSubmittedOrder.lastName}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center space-x-3 w-full py-4 bg-[#008CFF] hover:bg-blue-600 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-lg"
+                      >
+                        <span>Open Venmo To Pay ${wreathSubmittedOrder.totalCost}</span>
+                        <ExternalLink size={16} />
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 border-2 border-amber-300 p-8 mb-8 text-gray-800">
+                      <div className="flex items-center space-x-3 mb-3">
+                        <CreditCard className="text-amber-700" size={28} />
+                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Cash Payment on Delivery</h3>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                        Please have <strong>${wreathSubmittedOrder.totalCost}</strong> ready in cash for Scout <strong>{wreathSubmittedOrder.scoutName}</strong> when they hand-deliver your wreaths.
+                      </p>
+                      <p className="text-xs text-amber-900 bg-amber-100/80 p-3 border border-amber-200">
+                        <strong>Important:</strong> Please provide your receipt number <strong>{wreathSubmittedOrder.receiptId}</strong> to the Scout so they can record it on their official troop cash collection envelope.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="text-center pt-4">
+                    <button
+                      onClick={() => {
+                        setWreathSubmittedOrder(null);
+                        setWreathQuantities({
+                          wreath24Plain: 0,
+                          wreath24Dec: 0,
+                          wreath30Plain: 0,
+                          wreath30Dec: 0,
+                          wreath40Plain: 0,
+                          wreath40Dec: 0,
+                        });
+                        setWreathCustomer({
+                          firstName: '',
+                          lastName: '',
+                          email: '',
+                          phone: '',
+                          address: '',
+                          scoutName: SCOUT_ROSTER[0],
+                          paymentMethod: 'Venmo',
+                        });
+                      }}
+                      className="px-8 py-3 bg-gray-900 hover:bg-black text-white font-black uppercase tracking-widest text-xs transition-colors"
+                    >
+                      Place Another Order
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* --- ORDER FORM & STOREFRONT CATALOG --- */
+                <form onSubmit={handleWreathOrderSubmit} className="space-y-12 pb-16">
+                  
+                  {wreathError && (
+                    <div className="bg-red-50 border-l-4 border-[#BE1E2D] p-4 text-red-700 text-sm font-bold shadow-md">
+                      {wreathError}
+                    </div>
+                  )}
+
+                  {/* Section 1: Catalog */}
+                  <div className="bg-white p-8 sm:p-12 shadow-xl border-t-8 border-[#143d23]">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 pb-4 border-b border-gray-100 gap-4">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 01</span>
+                        <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900">Select Wreath Sizes & Styles</h2>
+                      </div>
+                      <div className="bg-emerald-50 px-4 py-2 text-emerald-900 font-bold text-xs uppercase tracking-wider border border-emerald-100">
+                        Selected: <span className="font-black text-base text-[#143d23]">{calculateWreathTotalUnits()}</span> Items
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {WREATH_PRODUCTS.map(product => {
+                        const qty = wreathQuantities[product.id];
+                        return (
+                          <div 
+                            key={product.id}
+                            className={`border transition-all duration-300 flex flex-col justify-between ${
+                              qty > 0 ? 'border-[#143d23] shadow-lg ring-2 ring-[#143d23]/20' : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="relative h-64 bg-gray-50 overflow-hidden">
+                              <img 
+                                src={product.img} 
+                                alt={product.title}
+                                onError={(e) => { e.target.onerror = null; e.target.src = product.fallback; }}
+                                className="w-full h-full object-contain p-4 transition-transform duration-500 hover:scale-105"
+                              />
+                              <div className="absolute top-3 left-3 bg-[#143d23] text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1">
+                                {product.size} Ring
+                              </div>
+                            </div>
+
+                            <div className="p-6 flex flex-col justify-between flex-grow">
+                              <div>
+                                <div className="flex justify-between items-baseline mb-2">
+                                  <h3 className="text-lg font-black uppercase tracking-tight text-gray-900">{product.title}</h3>
+                                  <span className="text-2xl font-black text-[#143d23]">${product.price}</span>
+                                </div>
+                                <p className="text-gray-500 text-xs leading-relaxed mb-6 font-light">
+                                  {product.desc}
+                                </p>
+                              </div>
+
+                              <div className="flex items-center justify-between bg-gray-50 p-2 border border-gray-200">
+                                <span className="text-[10px] uppercase font-black tracking-wider text-gray-500 pl-2">Quantity:</span>
+                                <div className="flex items-center space-x-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => updateWreathQty(product.id, -1)}
+                                    className="w-8 h-8 bg-white border border-gray-300 hover:bg-gray-100 flex items-center justify-center font-black text-gray-700 text-base"
+                                  >
+                                    -
+                                  </button>
+                                  <input 
+                                    type="text"
+                                    pattern="[0-9]*"
+                                    value={qty}
+                                    onChange={(e) => setWreathDirectQty(product.id, e.target.value)}
+                                    className="w-12 h-8 text-center font-black text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#143d23]"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => updateWreathQty(product.id, 1)}
+                                    className="w-8 h-8 bg-white border border-gray-300 hover:bg-gray-100 flex items-center justify-center font-black text-gray-700 text-base"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Section 2: Customer & Delivery Information */}
+                  <div className="bg-white p-8 sm:p-12 shadow-xl border-t-8 border-[#1D3A6C]">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 02</span>
+                    <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-8">Porch Delivery & Supporter Details</h2>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">First Name *</label>
+                        <input 
+                          required 
+                          type="text" 
+                          value={wreathCustomer.firstName}
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, firstName: e.target.value})}
+                          placeholder="Jane"
+                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Last Name *</label>
+                        <input 
+                          required 
+                          type="text" 
+                          value={wreathCustomer.lastName}
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, lastName: e.target.value})}
+                          placeholder="Smith"
+                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Email Address (For Order Receipt) *</label>
+                        <input 
+                          required 
+                          type="email" 
+                          value={wreathCustomer.email}
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, email: e.target.value})}
+                          placeholder="jane@example.com"
+                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Phone Number *</label>
+                        <input 
+                          required 
+                          type="tel" 
+                          value={wreathCustomer.phone}
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, phone: e.target.value})}
+                          placeholder="(860) 555-0199"
+                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mb-6">
+                      <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Porch Hand-Delivery Address (Street, Town, Zip) *</label>
+                      <input 
+                        required 
+                        type="text" 
+                        value={wreathCustomer.address}
+                        onChange={(e) => setWreathCustomer({...wreathCustomer, address: e.target.value})}
+                        placeholder="e.g. 42 Main St, Unionville, CT 06085"
+                        className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Which Scout Should Receive Credit for This Sale? *</label>
+                      <select 
+                        value={wreathCustomer.scoutName}
+                        onChange={(e) => setWreathCustomer({...wreathCustomer, scoutName: e.target.value})}
+                        className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none font-bold text-sm"
+                      >
+                        {SCOUT_ROSTER.map((name, i) => (
+                          <option key={i} value={name}>{name}</option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-gray-400 mt-2 font-light">
+                        The selected Scout will receive Scout Dollar credits toward summer camp and high adventure treks.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Section 3: Payment Choice */}
+                  <div className="bg-white p-8 sm:p-12 shadow-xl border-t-8 border-gray-900">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 03</span>
+                    <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-6">Payment Method</h2>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                      <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Venmo' ? 'border-[#008CFF] bg-blue-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input 
+                          type="radio" 
+                          name="paymentMethod" 
+                          value="Venmo" 
+                          checked={wreathCustomer.paymentMethod === 'Venmo'} 
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, paymentMethod: e.target.value})}
+                          className="mt-1"
+                        />
+                        <div>
+                          <strong className="block text-gray-900 text-base uppercase font-black">Venmo (@Troop170Unionville)</strong>
+                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            Pay immediately online. You will enter your unique receipt number into the Venmo note line for instant verification.
+                          </p>
+                        </div>
+                      </label>
+
+                      <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Cash' ? 'border-[#143d23] bg-emerald-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input 
+                          type="radio" 
+                          name="paymentMethod" 
+                          value="Cash" 
+                          checked={wreathCustomer.paymentMethod === 'Cash'} 
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, paymentMethod: e.target.value})}
+                          className="mt-1"
+                        />
+                        <div>
+                          <strong className="block text-gray-900 text-base uppercase font-black">Cash to Scout</strong>
+                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            Pay cash directly to your delivering Scout. The Scout will log your receipt ID on their official collection envelope.
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* Submit Bar */}
+                    <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-6">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block">Total Due</span>
+                        <span className="text-4xl font-black text-[#143d23]">
+                          ${calculateWreathTotal()}
+                        </span>
+                        <span className="text-xs text-gray-500 font-bold ml-2">({calculateWreathTotalUnits()} Wreaths)</span>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={wreathLoading}
+                        className="w-full sm:w-auto px-12 py-5 bg-[#143d23] hover:bg-[#0e2b19] text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl transition-all disabled:opacity-50"
+                      >
+                        {wreathLoading ? 'Processing...' : `Confirm & Place Order`}
+                      </button>
+                    </div>
+                  </div>
+
+                </form>
+              )}
+
+            </div>
+          </div>
+        )}
+
+        {/* --- ABOUT PAGE --- */}
+        {currentPage === 'about' && (
+          <div className="bg-white animate-in fade-in duration-700">
+            <div className="relative py-40 lg:py-56 px-6 text-center overflow-hidden" style={{ backgroundColor: darkBg }}>
+               <div className="absolute inset-0 z-0">
+                 <img src="/images/about.jpg" alt="Scouts in action" className="w-full h-full object-cover opacity-70" />
+                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-[#0B0F19]"></div>
+               </div>
+               <div className="relative z-10 max-w-4xl mx-auto">
+                  <div className="inline-flex items-center space-x-2 bg-white/5 px-4 py-1.5 mb-8 shadow-inner border border-white/10 rounded-none">
+                    <Compass size={14} className="text-[#BE1E2D]" />
+                    <span className="font-black tracking-[0.3em] uppercase text-[10px] text-white">Our Mission</span>
+                  </div>
+                  <h2 className="text-3xl md:text-5xl font-light italic font-serif leading-[1.3] text-white drop-shadow-xl">
+                    "To enhance character, promote self-discovery, and challenge Scouts to grow in leadership, fitness, and service through exceptional outdoor experiences."
+                  </h2>
+               </div>
+            </div>
+
+            <div className="py-32 px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto">
+               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+                 <div className="lg:col-span-5">
+                    <h3 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase mb-6 leading-none text-gray-900">A Legacy of <br/><span className="text-[#1D3A6C]">Excellence</span></h3>
+                    <div className="w-16 h-2 bg-[#BE1E2D] mb-8"></div>
+                    <p className="text-lg text-gray-500 font-light leading-relaxed mb-10">
+                      Founded in 1956 and rechartered in 1962, Troop 170 has been the standard for youth leadership in Unionville for decades. We are a scout-led organization where the youth plan the adventure and adults provide the mentorship.
+                    </p>
+                    <div className="space-y-6">
+                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-yellow-500 hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">The Road to Eagle</p>
+                         <p className="text-gray-500 text-sm">A strong legacy of guiding scouts to the prestigious Eagle Scout rank through mentorship and service.</p>
+                       </div>
+                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">Philmont High Adventure</p>
+                         <p className="text-gray-500 text-sm">Rugged backcountry trekking in the mountains of New Mexico.</p>
+                       </div>
+                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">Sea Base Florida</p>
+                         <p className="text-gray-500 text-sm">Deep-sea sailing and tropical island survival in the Florida Keys.</p>
+                       </div>
+                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">Maine High Adventure</p>
+                         <p className="text-gray-500 text-sm">Canoeing and wilderness survival in the rugged backcountry of Maine.</p>
+                       </div>
+                    </div>
+                 </div>
+                 <div className="lg:col-span-7 relative h-[500px] lg:h-[650px] mt-10 lg:mt-0">
+                    <img src="/images/legacy2.jpg" className="absolute top-0 right-0 w-4/5 h-3/4 object-cover shadow-[0_20px_50px_-10px_rgba(0,0,0,0.3)] z-10 rounded-none" alt="Hiking" />
+                    <div className="absolute bottom-0 left-0 w-2/3 h-3/5 bg-white p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.4)] z-20 rounded-none">
+                       <img src="/images/legacy1.jpg" className="w-full h-full object-cover" alt="Sailing" />
+                    </div>
+                 </div>
+               </div>
+            </div>
+
+            <div className="bg-[#050B14] py-32 px-6 text-center border-t border-gray-800">
+              <div className="max-w-3xl mx-auto relative z-10">
+                <div className="w-16 h-16 mx-auto bg-[#BE1E2D] flex items-center justify-center text-white mb-8 shadow-xl rounded-none">
+                  <Heart size={28} />
+                </div>
+                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase mb-6 leading-none">Support Us</h2>
+                <p className="text-lg text-gray-400 mb-12 font-light leading-relaxed">
+                  Help sustain our 60-year legacy. Your contributions directly fund critical equipment upkeep and high-adventure scholarships for scouts in need.
+                </p>
+                
+                <a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col sm:flex-row items-center sm:space-x-6 bg-[#008CFF] hover:bg-blue-600 px-10 py-6 font-black text-white text-xl transition-all shadow-xl group rounded-none">
+                  <span>DONATE VIA VENMO</span>
+                  <span className="bg-white/20 px-4 py-1 mt-2 sm:mt-0 text-[10px] tracking-[0.2em] uppercase rounded-none">@Troop170Unionville</span>
+                </a>
+
+                <div className="mt-16 pt-10 border-t border-white/10 text-gray-500">
+                  <p className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]">Prefer to mail a check?</p>
+                  <p className="text-md font-light italic leading-relaxed">
+                    First Church of Christ<br/>
+                    ATTN: Troop 170 Treasurer<br/>
+                    61 Main St, Unionville, CT 06085
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- JOIN PAGE --- */}
+        {currentPage === 'join' && (
+          <div className="bg-gray-50 pb-32 animate-in fade-in duration-700">
+            <div className="bg-[#0B0F19] text-white py-32 lg:py-60 px-6 text-center relative overflow-hidden">
+               <div className="absolute inset-0 opacity-30"><img src="/images/join.jpg" className="w-full h-full object-cover" alt="Campfire" /></div>
+               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0B0F19]"></div>
+               <h2 className="relative z-10 text-5xl lg:text-7xl font-black uppercase tracking-tighter mb-4 leading-none">Start The Trail</h2>
+               <p className="relative z-10 text-lg font-light text-gray-300 max-w-2xl mx-auto">Boys and girls ages 11-17 are welcome to join year-round.</p>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-16 relative z-20 mb-24">
+               <div className="bg-white grid grid-cols-1 lg:grid-cols-5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] rounded-none">
+                 
+                 <div className="lg:col-span-2 bg-[#050B14] text-white p-10 lg:p-14 flex flex-col justify-between">
+                    <div>
+                       <h3 className="text-3xl font-black uppercase tracking-tight mb-10 leading-none">Visit A Meeting</h3>
+                       <div className="space-y-8">
+                          <div className="flex items-start space-x-5">
+                            <Clock className="text-[#BE1E2D] shrink-0" size={32}/> 
+                            <div>
+                              <p className="font-black text-lg uppercase tracking-tight mb-1">Monday Evenings</p>
+                              <p className="text-gray-400 text-sm">During the school year (Sept-May)</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start space-x-5">
+                            <MapPin className="text-[#BE1E2D] shrink-0" size={32}/> 
+                            <div>
+                              <p className="font-black text-lg uppercase tracking-tight mb-1">Unionville, CT</p>
+                              <p className="text-gray-400 text-sm italic opacity-80">Exact location shared upon inquiry for youth protection.</p>
+                            </div>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="lg:col-span-3 p-10 lg:p-14 flex flex-col justify-center bg-white">
+                    {joinSuccess ? (
+                      <div className="text-center py-10 animate-in zoom-in duration-500">
+                         <div className="w-16 h-16 bg-green-50 flex items-center justify-center mx-auto mb-6 rounded-none"><CheckCircle size={40} className="text-green-500" /></div>
+                         <h3 className="text-3xl font-black uppercase tracking-tighter text-gray-900 mb-2">Request Received</h3>
+                         <p className="text-gray-500 text-md font-light">The Scoutmaster will contact you shortly.</p>
+                      </div>
+                    ) : (
+                      <form 
+                        name="join-inquiry" 
+                        method="POST" 
+                        data-netlify="true" 
+                        className="space-y-6" 
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const form = e.target;
+                          const formData = new FormData(form);
+
+                          fetch("/", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            body: new URLSearchParams({
+                              "form-name": "join-inquiry",
+                              ...Object.fromEntries(formData)
+                            }).toString()
+                          })
+                          .then(() => setJoinSuccess(true))
+                          .catch((error) => alert(error));
+                        }}
+                      >
+                        <input type="hidden" name="form-name" value="join-inquiry" />
+                         <h3 className="text-2xl font-black uppercase tracking-tighter text-gray-900 mb-6">Secure Inquiry</h3>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Parent Name</label>
+                              <input required name="parent_name" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="e.g. Jane Doe" />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Email Address</label>
+                              <input required name="email" type="email" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="jane@example.com" />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Phone Number</label>
+                              <input required name="phone" type="tel" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="(555) 555-5555" />
+                            </div>
+                         </div>
+                         <div className="pt-2">
+                           <button type="submit" className="w-full p-5 bg-[#BE1E2D] text-white font-black uppercase tracking-[0.2em] text-sm shadow-md hover:bg-gray-900 transition-colors rounded-none flex justify-center items-center space-x-2">
+                              <span>Request Info / Schedule Visit</span>
+                              <ArrowUpRight size={16} />
+                           </button>
+                         </div>
+                      </form>
+                    )}
+                 </div>
+
+               </div>
+            </div>
+
+            <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
+               <div className="bg-white p-10 lg:p-14 shadow-[0_20px_50px_-10px_rgba(29,58,108,0.1)] hover:-translate-y-1 transition-transform flex flex-col justify-between group rounded-none border-t-4 border-[#1D3A6C]">
+                  <div>
+                    <div className="flex items-center space-x-4 mb-10">
+                       <div className="bg-blue-50 p-4 text-[#1D3A6C] rounded-none"><CheckCircle size={32} /></div>
+                       <h4 className="text-2xl font-black tracking-tighter uppercase text-gray-900">Onboarding Process</h4>
+                    </div>
+                    <div className="space-y-8">
+                       {[
+                         ["1", "Observe", "Visit a meeting to see the Patrol Method."], 
+                         ["2", "Apply", "Submit the official online application."], 
+                         ["3", "Outfit", "Obtain your tan uniform and handbook."]
+                       ].map(([num, title, desc]) => (
+                         <div key={num} className="flex items-start space-x-5">
+                           <div className="w-10 h-10 bg-[#1D3A6C] text-white flex items-center justify-center font-black shadow-md shrink-0 text-xl rounded-none">{num}</div>
+                           <div>
+                             <p className="font-black text-lg uppercase tracking-tight mb-1 text-gray-900 leading-none">{title}</p>
+                             <p className="text-gray-500 text-sm font-light leading-snug">{desc}</p>
+                           </div>
+                         </div>
+                       ))}
+                    </div>
+                </div>
+                <a 
+                  href="https://my.scouting.org/VES/OnlineReg/1.0.0/?tu=UF-MB-066taa0170" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="mt-10 w-full flex items-center justify-center space-x-3 p-5 bg-[#BE1E2D] text-white font-black text-sm uppercase tracking-[0.2em] shadow-lg hover:bg-red-800 transition-colors rounded-none"
+                >
+                  <span>Official Application</span>
+                  <ExternalLink size={16} />
+                </a>
+               </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- MEMBER PORTAL --- */}
+        {currentPage === 'portal' && (
+          <div className="min-h-screen bg-gray-50 animate-in fade-in duration-500">
+            {!isLoggedIn ? (
+              <div className="relative flex flex-col items-center justify-center min-h-screen px-6 overflow-hidden" style={{ backgroundColor: darkBg }}>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#1D3A6C] rounded-full blur-[150px] opacity-30 animate-pulse pointer-events-none"></div>
+                
+                <div className="relative z-10 bg-white/10 backdrop-blur-2xl p-12 lg:p-16 shadow-2xl max-w-md w-full border border-white/10 rounded-none">
+                    <div className="w-20 h-20 bg-white/5 flex items-center justify-center mx-auto mb-8 shadow-inner rounded-none">
+                      <ShieldCheck size={40} className="text-white" />
+                    </div>
+                    <h2 className="text-3xl font-black text-white mb-2 tracking-tighter uppercase text-center">Member Login</h2>
+                    <p className="text-gray-400 mb-10 text-sm font-light text-center">Protected resources and ledgers.</p>
+                    
+                    <form onSubmit={(e) => { e.preventDefault(); if (password.toUpperCase() === 'TROOP170') setIsLoggedIn(true); else setLoginError(true); }}>
+                      <div className="relative mb-6">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                          <Key size={16} className={loginError ? "text-red-400" : "text-gray-400"} />
+                        </div>
+                        <input 
+                          type="password" 
+                          value={password} 
+                          onChange={(e) => {setPassword(e.target.value); setLoginError(false);}} 
+                          className="w-full pl-12 pr-4 py-4 bg-black/40 text-white text-lg border-0 shadow-inner outline-none focus:ring-2 focus:ring-white/30 rounded-none" 
+                          placeholder="Gate Code" 
+                        />
+                      </div>
+                      {loginError && <p className="text-[#ff6b6b] mb-6 font-black animate-bounce uppercase text-[10px] tracking-widest text-center">Access Denied</p>}
+                      <button type="submit" className="w-full py-4 bg-white text-[#1D3A6C] font-black text-sm uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors rounded-none flex justify-center items-center space-x-2">
+                        <span>Unlock</span>
+                        <ArrowUpRight size={16} />
+                      </button>
+                    </form>
+                </div>
+              </div>
+            ) : (
+              <div className="pb-32">
+                <div className="bg-[#050B14] py-20 px-6 sm:px-8 lg:px-12 relative overflow-hidden shadow-xl mb-16">
+                  <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-[#1D3A6C] rounded-full blur-[150px] opacity-30 pointer-events-none"></div>
+                  <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row justify-between items-center">
+                    <div className="text-center md:text-left mb-8 md:mb-0">
+                      <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-none mb-4 shadow-inner border border-white/5">
+                        <Lock size={12} className="text-green-400" />
+                        <span className="text-[9px] font-black tracking-[0.2em] uppercase text-green-400">Secure Protocol Active</span>
+                      </div>
+                      <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-2 leading-none">Dashboard</h2>
+                      <p className="text-gray-400 text-lg font-light">Internal Command Center</p>
+                    </div>
+                    <button onClick={() => setIsLoggedIn(false)} className="px-6 py-3 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black border border-white/10 transition-colors rounded-none flex items-center space-x-2">
+                      <span>Log Out</span><LogOut size={14}/>
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                   <div className="bg-gradient-to-br from-white to-green-50 border border-green-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-green-600 mb-6 shadow-sm"><Smartphone size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Band App</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Calendar updates, photos, and announcements.</p>
+                      </div>
+                      <a href="https://band.us/n/acabb5kcAfa10" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-green-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
+                        <span>Launch App</span><ExternalLink size={14}/>
+                      </a>
+                   </div>
+
+                   <div className="bg-gradient-to-br from-white to-red-50 border border-red-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-[#BE1E2D] mb-6 shadow-sm"><FileText size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Health Forms</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">AHMR Parts A, B, and C required for all outings.</p>
+                      </div>
+                      <a href="https://www.scouting.org/health-and-safety/ahmr/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-[#BE1E2D] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
+                        <span>Download PDF</span><Download size={14}/>
+                      </a>
+                   </div>
+
+                   <div className="bg-gradient-to-br from-white to-amber-50 border border-amber-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-amber-600 mb-6 shadow-sm"><Tent size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Gear Hub</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Print packing checklists for troop adventures.</p>
+                      </div>
+                      <button onClick={() => { setCurrentPage('gearLists'); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-amber-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                        <span>Open Hub</span><ArrowUpRight size={14}/>
+                      </button>
+                   </div>
+
+                   <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-purple-600 mb-6 shadow-sm"><Medal size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Clinics</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Schedule and registration for merit badges.</p>
+                      </div>
+                      <button onClick={() => { setCurrentPage('meritBadges'); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-purple-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                        <span>View Schedule</span><ArrowUpRight size={14}/>
+                      </button>
+                   </div>
+
+                   <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-[#1D3A6C] mb-6 shadow-sm"><CreditCard size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Scout Dollars</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Securely check individual fundraising balances.</p>
+                      </div>
+                      <button onClick={() => { setCurrentPage('scoutDollars'); setHasSearched(false); setSearchQuery(''); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                        <span>Access Ledger</span><Search size={14}/>
+                      </button>
+                   </div>
+                   
+                   <div className="bg-gradient-to-br from-white to-orange-50 border border-orange-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-orange-600 mb-6 shadow-sm"><Utensils size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">University of Cooking</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Troop cookbook and University of Cooking planning.</p>
+                      </div>
+                      <a href="https://sites.google.com/view/troop170universityofcooking/university-of-cooking" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-orange-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
+                        <span>Open Site</span><ExternalLink size={14}/>
+                      </a>
+                   </div>
+                   
+                   <div className="bg-gradient-to-br from-white to-indigo-50 border border-indigo-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-indigo-600 mb-6 shadow-sm"><BookOpen size={24}/></div>
+                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Family Handbook</h3>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Information for scouts and families on how the troop works.</p>
+                      </div>
+                      <a href="https://drive.google.com/file/d/1HJXppDP_Hl7XXf9lfFr0HMBWDXLYGnLi/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-indigo-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
+                        <span>View Document</span><ExternalLink size={14}/>
+                      </a>
+                   </div>
+
+                   <div className="group relative bg-[#161B22] rounded-3xl p-8 border border-white/5 hover:border-[#BE1E2D]/50 transition-all duration-500 overflow-hidden lg:col-span-2">
+                     <div className="absolute -right-8 -top-8 text-white/5 group-hover:text-[#BE1E2D]/10 transition-colors duration-500 pointer-events-none">
+                       <BookOpen size={160} />
+                     </div>
+
+                     <div className="relative z-10">
+                       <div className="w-12 h-12 bg-[#BE1E2D]/10 rounded-xl flex items-center justify-center text-[#BE1E2D] mb-6">
+                         <BookOpen size={24} />
+                       </div>
+                       
+                       <h3 className="text-2xl font-bold text-white mb-3">Scout Life Magazine</h3>
+                       <p className="text-gray-400 text-sm leading-relaxed mb-8 max-w-lg">
+                         Explore the official magazine of the BSA. Discover project ideas, gear reviews, and stories of scouting adventure.
+                       </p>
+
+                       <a 
+                         href="https://scoutlife.org" 
+                         target="_blank" 
+                         rel="noopener noreferrer" 
+                         className="inline-flex items-center space-x-3 bg-white/5 hover:bg-[#BE1E2D] text-white px-6 py-3 rounded-xl transition-all duration-300 font-bold uppercase tracking-wider text-xs"
+                       >
+                         <span>Read Online</span>
+                         <ArrowUpRight size={18} />
+                       </a>
+                     </div>
+                   </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- DYNAMIC ROOM: GEAR HUB --- */}
+        {currentPage === 'gearLists' && (
+          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
+            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Gear Hub</h2>
+               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+            </div>
+            
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
+               {gearListsData.map(list => (
+                 <div key={list.id} className="bg-white p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] flex flex-col justify-between border-t-4 border-[#1D3A6C] rounded-none">
+                    <div>
+                      <div className="w-12 h-12 bg-gray-50 flex items-center justify-center text-[#1D3A6C] mb-6 shadow-inner">{list.icon}</div>
+                      <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-gray-900">{list.title}</h3>
+                      <p className="text-gray-500 text-sm leading-relaxed mb-8">{list.desc}</p>
+                    </div>
+                    <div className="flex space-x-2">
+                       {list.type === "document" ? (
+                         <>
+                           <button onClick={() => handlePrint(list)} className="flex-1 py-3 bg-gray-100 text-gray-700 font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center space-x-2 hover:bg-gray-200 transition-colors rounded-none">
+                             <Printer size={14}/> <span>Print</span>
+                           </button>
+                           <button onClick={() => handleDownload(list)} className="flex-1 py-3 bg-[#1D3A6C] text-white font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center space-x-2 hover:bg-gray-900 transition-colors rounded-none">
+                             <Download size={14}/> <span>Save</span>
+                           </button>
+                         </>
+                       ) : (
+                         <div className="flex flex-col space-y-2 w-full">
+                           {list.links?.map(link => (
+                             <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-gray-100 text-[#1D3A6C] font-black uppercase tracking-[0.1em] text-[10px] flex items-center justify-between px-4 hover:bg-gray-200 transition-colors rounded-none">
+                               <span>{link.name}</span> <ExternalLink size={12}/>
+                             </a>
+                           ))}
+                         </div>
+                       )}
+                    </div>
+                 </div>
+               ))}
+            </div>
+          </div>
+        )}
+
+        {/* --- DYNAMIC ROOM: LEDGER --- */}
+        {currentPage === 'scoutDollars' && (
+          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
+            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Ledger</h2>
+               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+            </div>
+            
+            <div className="max-w-3xl mx-auto px-6 -mt-10 relative z-20">
+               <form className="flex shadow-lg bg-white rounded-none border border-gray-100" onSubmit={(e) => { e.preventDefault(); const res = scoutAccounts.find(s => s.name.toLowerCase() === searchQuery.trim().toLowerCase()); setActiveResult(res || null); setHasSearched(true); }}>
+                  <div className="flex items-center pl-6 text-gray-400"><Search size={24}/></div>
+                  <input className="flex-grow p-6 text-xl font-light outline-none text-gray-900" placeholder="Exact Registered Name..." value={searchQuery} onChange={(e) => {setSearchQuery(e.target.value); setHasSearched(false);}} />
+                  <button type="submit" className="bg-[#1D3A6C] text-white px-8 font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors">Search</button>
+               </form>
+               
+               {hasSearched && (
+                 <div className="mt-12 animate-in slide-in-from-bottom duration-500">
+                   {activeResult ? (
+                     <div className="bg-white p-10 shadow-xl border-l-[12px] border-green-500 flex flex-col sm:flex-row justify-between items-center rounded-none">
+                        <div className="text-center sm:text-left mb-8 sm:mb-0">
+                           <h3 className="text-3xl font-black tracking-tight uppercase mb-4 text-gray-900">{activeResult.name}</h3>
+                           <p className="inline-flex items-center space-x-2 bg-gray-50 px-3 py-1.5 text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-4 border border-gray-100">
+                             <Clock size={12}/> <span>Updated: {activeResult.date}</span>
+                           </p>
+                           <p className="text-gray-600 text-sm italic">"{activeResult.lastTransaction}"</p>
+                        </div>
+                        <div className="text-center sm:text-right bg-green-50 p-8 border border-green-100 min-w-[200px] rounded-none">
+                           <span className="block text-green-800 font-black uppercase tracking-widest text-[10px] mb-2">Available Balance</span>
+                           <span className="text-5xl font-black text-green-600 tracking-tighter">${activeResult.balance.toFixed(2)}</span>
+                        </div>
+                     </div>
+                   ) : (
+                    <div className="bg-white p-16 text-center shadow-xl border-t-[12px] border-[#BE1E2D] rounded-none">
+                       <div className="w-16 h-16 bg-red-50 flex items-center justify-center mx-auto mb-6 rounded-full"><Lock size={24} className="text-[#BE1E2D]"/></div>
+                       <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-gray-900">Record Locked</h3>
+                       <p className="text-gray-500 text-sm max-w-sm mx-auto">For privacy, you must search the exact spelling of the registered name (e.g. "Alexander T.").</p>
+                    </div>
+                   )}
+                 </div>
+               )}
+            </div>
+          </div>
+        )}
+
+        {/* --- DYNAMIC ROOM: CLINICS --- */}
+        {currentPage === 'meritBadges' && (
+          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
+            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Clinics</h2>
+               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+            </div>
+            
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
+               {upcomingBadges.map(badge => (
+                 <div key={badge.id} className="bg-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] group flex flex-col justify-between rounded-none border-b-4 border-purple-800 hover:-translate-y-1 transition-transform">
+                    <div className="relative h-48 overflow-hidden">
+                       <img src={badge.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={badge.name} />
+                       <div className="absolute top-4 right-4 bg-[#BE1E2D] text-white px-3 py-1 font-black uppercase tracking-widest text-[9px] shadow-md">{badge.status}</div>
+                    </div>
+                    <div className="p-8">
+                       <h3 className="text-xl font-black uppercase tracking-tight mb-6 text-gray-900 leading-tight">{badge.name}</h3>
+                       <div className="space-y-3 mb-8 text-gray-600 font-bold uppercase tracking-wider text-[10px]">
+                          <div className="flex items-center space-x-3"><Calendar size={14} className="text-[#1D3A6C]"/> <span>{badge.date}</span></div>
+                          <div className="flex items-center space-x-3"><Clock size={14} className="text-[#1D3A6C]"/> <span>{badge.time}</span></div>
+                          <div className="flex items-center space-x-3"><Users size={14} className="text-[#1D3A6C]"/> <span>{badge.counselor}</span></div>
+                       </div>
+                       <button onClick={() => { setSelectedBadge(badge); setRegistrationSuccess(false); }} className="w-full p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-[10px] hover:bg-gray-900 transition-colors rounded-none">Register Scout</button>
+                    </div>
+                 </div>
+               ))}
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* --- FOOTER --- */}
+      <footer className="bg-[#050B14] text-white pt-24 pb-12 px-6 sm:px-8 lg:px-12 border-t border-white/10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20">
+          
+          <div className="lg:col-span-1">
+             <div className="flex items-center space-x-4 mb-6 cursor-pointer" onClick={() => { setCurrentPage('home'); window.scrollTo(0,0); }}>
+                <div className="w-20 h-20 rounded-none flex items-center justify-center p-0.5">
+                   <img src="/images/logo.png" className="w-full h-full object-contain" alt="Logo" />
+                </div>
+                <h2 className="text-2xl font-black tracking-tighter uppercase">Troop 170</h2>
+             </div>
+             <p className="text-gray-400 text-sm font-light leading-relaxed mb-6 pr-4">Building leaders through outdoor adventure since 1956.</p>
+             <div className="flex space-x-4">
+                <a href="https://www.facebook.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 flex items-center justify-center rounded-none hover:bg-[#008CFF] transition-colors"><Facebook size={16}/></a>
+                <a href="mailto:bsatroop170unionville@gmail.com" className="w-10 h-10 bg-white/5 flex items-center justify-center rounded-none hover:bg-[#BE1E2D] transition-colors"><Mail size={16}/></a>
+             </div>
+          </div>
+
+          <div>
+             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Navigation</h4>
+             <ul className="space-y-4">
+               {navLinks.map(page => (
+                 <li key={page.id} className="hover:text-white text-gray-400 cursor-pointer transition-colors uppercase font-bold tracking-wider text-xs" onClick={() => { setCurrentPage(page.id); window.scrollTo(0,0); }}>{page.label}</li>
+               ))}
+               <li><a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:underline uppercase font-bold tracking-wider text-xs">Sustaining Fund</a></li>
+             </ul>
+          </div>
+
+          <div>
+             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Contact</h4>
+             <ul className="space-y-5 text-sm text-gray-400">
+               <li className="flex items-start space-x-3">
+                 <MapPin className="text-[#BE1E2D] shrink-0 mt-0.5" size={16}/>
+                 <p className="leading-tight">First Church of Christ<br/>61 Main St, Unionville, CT 06085</p>
+               </li>
+               <li className="flex items-start space-x-3">
+                 <Phone className="text-[#BE1E2D] shrink-0 mt-0.5" size={16}/>
+                 <p className="leading-tight">860.352.5471</p>
+               </li>
+               <li className="flex items-start space-x-3">
+                 <Mail className="text-[#BE1E2D] shrink-0 mt-0.5" size={16}/>
+                 <p className="break-all leading-tight">bsatroop170unionville<br/>@gmail.com</p>
+               </li>
+             </ul>
+          </div>
+
+          <div>
+             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Command Hub</h4>
+             <p className="text-gray-400 mb-6 text-sm font-light leading-relaxed">Access secure documents and ledgers.</p>
+             <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="w-full p-4 bg-white/5 hover:bg-white hover:text-black font-black uppercase tracking-[0.2em] text-[10px] transition-colors rounded-none flex items-center justify-center space-x-2">
+               <Lock size={12}/>
+               <span>Member Login</span>
+             </button>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-gray-600 text-[10px] font-black uppercase tracking-[0.2em]">
+           <p className="mb-4 md:mb-0">© 2026 Scouting America Troop 170</p>
+           <p>Unionville, Connecticut</p>
+        </div>
+      </footer>
+
+      {/* --- SCOUT LANYARD QR CARD MODAL --- */}
+      {showLanyardModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setShowLanyardModal(false)}></div>
+          <div className="relative bg-white w-full max-w-2xl p-8 sm:p-10 shadow-2xl rounded-none border-t-8 border-[#143d23] animate-in zoom-in-95 duration-200">
+            <button onClick={() => setShowLanyardModal(false)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors">
+              <X size={24}/>
+            </button>
+            
+            <div className="text-center mb-8">
+              <span className="text-[#BE1E2D] font-black uppercase tracking-[0.25em] text-[10px] block mb-1">Scout Canvassing Kit</span>
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-gray-900">QR Code Lanyard Generator</h3>
+              <p className="text-gray-500 text-xs sm:text-sm mt-1">Print these QR codes for the double-sided scout badge lanyards.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
+              {/* QR 1: Website */}
+              <div className="bg-gray-50 p-6 border border-gray-200 text-center flex flex-col items-center">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#143d23] mb-3">Front: Wreath Order Store</span>
+                <div className="w-48 h-48 bg-white p-2 border border-gray-200 shadow-sm flex items-center justify-center mb-3">
+                  <img 
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Ftroop170.org" 
+                    alt="Storefront QR" 
+                    className="w-full h-full"
+                  />
+                </div>
+                <p className="text-[11px] text-gray-500 font-bold">Points directly to troop170.org</p>
+              </div>
+
+              {/* QR 2: Venmo */}
+              <div className="bg-blue-50/50 p-6 border border-blue-200 text-center flex flex-col items-center">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#008CFF] mb-3">Back: Direct Venmo</span>
+                <div className="w-48 h-48 bg-white p-2 border border-blue-200 shadow-sm flex items-center justify-center mb-3">
+                  <img 
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fvenmo.com%2FTroop170Unionville" 
+                    alt="Venmo QR" 
+                    className="w-full h-full"
+                  />
+                </div>
+                <p className="text-[11px] text-blue-900 font-bold">@Troop170Unionville</p>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button 
+                type="button" 
+                onClick={() => {
+                  const printWin = window.open('', '_blank');
+                  if (!printWin) {
+                    alert("Please allow pop-ups to print the lanyard cards.");
+                    return;
+                  }
+                  printWin.document.write(`
+                    <html>
+                      <head>
+                        <title>Troop 170 - Lanyard QR Codes</title>
+                        <style>
+                          body { font-family: sans-serif; text-align: center; padding: 40px; }
+                          .qr-container { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
+                          .card { border: 2px dashed #333; padding: 20px; width: 220px; }
+                          h3 { margin-top: 0; font-size: 14px; text-transform: uppercase; }
+                          p { font-size: 11px; margin-bottom: 0; }
+                        </style>
+                      </head>
+                      <body>
+                        <h2>TROOP 170 WREATH SALE LANYARD CARDS</h2>
+                        <div class="qr-container">
+                          <div class="card">
+                            <h3>Front: Order Store</h3>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Ftroop170.org" width="180" height="180" />
+                            <p>Scan to place online order</p>
+                          </div>
+                          <div class="card">
+                            <h3>Back: Troop Venmo</h3>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fvenmo.com%2FTroop170Unionville" width="180" height="180" />
+                            <p>@Troop170Unionville</p>
+                          </div>
+                        </div>
+                        <script>window.onload = () => { window.print(); }</script>
+                      </body>
+                    </html>
+                  `);
+                  printWin.document.close();
+                }}
+                className="flex-1 py-3.5 bg-[#143d23] hover:bg-[#0e2b19] text-white font-black uppercase tracking-widest text-xs transition-colors flex items-center justify-center space-x-2"
+              >
+                <Printer size={16}/> <span>Print Lanyard Cards</span>
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setShowLanyardModal(false)}
+                className="px-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-black uppercase tracking-widest text-xs transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* REGISTRATION MODAL */}
+      {selectedBadge && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setSelectedBadge(null)}></div>
+          
+          <div className="relative bg-white w-full max-w-lg p-10 shadow-2xl rounded-none border-t-8 border-[#1D3A6C] animate-in zoom-in duration-200">
+            <button onClick={() => setSelectedBadge(null)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors"><X size={24}/></button>
+            
+            {registrationSuccess ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle size={32} className="text-green-500" /></div>
+                <h3 className="text-3xl font-black tracking-tighter uppercase mb-4 text-gray-900">Confirmed</h3>
+                <p className="text-gray-500 text-md mb-8 leading-relaxed">Seat reserved for {selectedBadge.name}.</p>
+                <button onClick={() => setSelectedBadge(null)} className="w-full p-4 bg-gray-900 text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors rounded-none">Close</button>
+              </div>
+            ) : (
+              <form onSubmit={(e) => { e.preventDefault(); setRegistrationSuccess(true); }}>
+                <span className="text-[#BE1E2D] font-black uppercase tracking-[0.2em] text-[10px] mb-3 block">Secure Registration</span>
+                <h3 className="text-3xl font-black tracking-tight uppercase mb-8 leading-tight text-gray-900">{selectedBadge.name}</h3>
+                
+                <div className="space-y-6">
+                   <div>
+                     <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Scout Name</label>
+                     <input required className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors" placeholder="Full Legal Name" />
+                   </div>
+                   <div>
+                     <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Parent Email</label>
+                     <input required type="email" className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors" placeholder="For confirmation" />
+                   </div>
+                   <div className="p-4 bg-blue-50 border-l-4 border-[#1D3A6C]">
+                     <p className="text-[#1D3A6C] font-bold text-xs italic leading-relaxed">"Scouts must obtain a signed Blue Card prior to attending."</p>
+                   </div>
+                </div>
+                
+                <div className="mt-10 flex space-x-4">
+                  <button type="button" onClick={() => setSelectedBadge(null)} className="flex-1 p-4 bg-gray-100 text-gray-600 font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors rounded-none">Cancel</button>
+                  <button type="submit" className="flex-[2] p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors rounded-none shadow-lg">Confirm Seat</button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* FLOAT CHAT */}
+      <a href="https://www.facebook.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 w-14 h-14 bg-[#008CFF] rounded-none flex items-center justify-center text-white shadow-lg hover:-translate-y-1 transition-transform z-50 group">
+        <MessageCircle size={24} />
+        <span className="absolute -top-1 -right-1 flex h-4 w-4">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-4 w-4 bg-[#BE1E2D] border-2 border-white"></span>
+        </span>
+      </a>
+
+    </div>
+  );
+}  };
+
+  // --- WREATH STOREFRONT STATE ---
   // Leave null/empty to run in Dev/Preview Mode. Paste Web App URL once deployed!
   const GOOGLE_SCRIPT_URL = null; 
 
