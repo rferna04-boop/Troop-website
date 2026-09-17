@@ -766,13 +766,13 @@ export default function App() {
                     <div className="bg-amber-50 border-2 border-amber-300 p-8 mb-8 text-gray-800">
                       <div className="flex items-center space-x-3 mb-3">
                         <CreditCard className="text-amber-700" size={28} />
-                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Cash Payment on Delivery</h3>
+                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Cash Payment Collected With Order</h3>
                       </div>
                       <p className="text-sm text-gray-700 leading-relaxed mb-4">
-                        Please have <strong>${wreathSubmittedOrder.totalCost}</strong> ready in cash for Scout <strong>{wreathSubmittedOrder.scoutName}</strong> when they hand-deliver your wreaths.
+                        Please provide <strong>${wreathSubmittedOrder.totalCost}</strong> in cash directly to Scout <strong>{wreathSubmittedOrder.scoutName}</strong> now that your order has been entered.
                       </p>
                       <p className="text-xs text-amber-900 bg-amber-100/80 p-3 border border-amber-200">
-                        <strong>Important:</strong> Please provide your receipt number <strong>{wreathSubmittedOrder.receiptId}</strong> to the Scout so they can record it on their official troop cash collection envelope.
+                        <strong>Important:</strong> Provide receipt number <strong>{wreathSubmittedOrder.receiptId}</strong> to the Scout so they can write it on their sealed troop cash collection envelope[cite: 1].
                       </p>
                     </div>
                   )}
