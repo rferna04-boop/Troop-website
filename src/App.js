@@ -753,7 +753,7 @@ export default function App() {
                       </div>
 
                       <a 
-                        href={`https://venmo.com/Troop170Unionville?txn=pay&amount=${wreathSubmittedOrder.totalCost}&note=${encodeURIComponent(`Wreath - ${wreathSubmittedOrder.receiptId} - ${wreathSubmittedOrder.lastName}`)}`}
+                        href={`https://venmo.com/Troop170Unionville?txn=pay&amount=${wreathSubmittedOrder.totalCost}&note=${encodeURIComponent(`Wreath - ${wreathSubmittedOrder.receiptId} -${wreathSubmittedOrder.lastName}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center space-x-3 w-full py-4 bg-[#008CFF] hover:bg-blue-600 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-lg"
@@ -761,6 +761,25 @@ export default function App() {
                         <span>Open Venmo To Pay ${wreathSubmittedOrder.totalCost}</span>
                         <ExternalLink size={16} />
                       </a>
+                    </div>
+                  ) : wreathSubmittedOrder.paymentMethod === 'Check' ? (
+                    <div className="bg-slate-50 border-2 border-slate-300 p-8 mb-8 text-gray-800">
+                      <div className="flex items-center space-x-3 mb-3">
+                        <FileText className="text-[#1D3A6C]" size={28} />
+                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Check Payment Instructions</h3>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                        Please make your check payable to <strong>Troop 170</strong> in the amount of <strong>${wreathSubmittedOrder.totalCost}</strong>.
+                      </p>
+                      <div className="bg-white p-4 border border-slate-200 mb-4">
+                        <p className="text-xs text-gray-700 m-0">
+                          <strong>Required on Memo Line:</strong> <code className="bg-gray-100 px-2 py-0.5 font-bold">Wreath - {wreathSubmittedOrder.receiptId} - {wreathSubmittedOrder.scoutName}</code>
+                        </p>
+                      </div>
+                      <p className="text-xs text-gray-600 leading-relaxed">
+                        Hand the check directly to Scout <strong>{wreathSubmittedOrder.scoutName}</strong> now that your order has been placed, or mail to:<br/>
+                        <strong>First Church of Christ, ATTN: Troop 170 Treasurer, 61 Main St, Unionville, CT 06085</strong>
+                      </p>
                     </div>
                   ) : (
                     <div className="bg-amber-50 border-2 border-amber-300 p-8 mb-8 text-gray-800">
@@ -776,7 +795,6 @@ export default function App() {
                       </p>
                     </div>
                   )}
-
                   <div className="text-center pt-4">
                     <button
                       onClick={() => {
@@ -977,12 +995,13 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Section 3: Payment Choice */}
+                 {/* Section 3: Payment Choice */}
                   <div className="bg-white p-8 sm:p-12 shadow-xl border-t-8 border-gray-900">
                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 03</span>
                     <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-6">Payment Method</h2>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                      {/* OPTION 1: VENMO */}
                       <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Venmo' ? 'border-[#008CFF] bg-blue-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
                         <input 
                           type="radio" 
@@ -993,13 +1012,32 @@ export default function App() {
                           className="mt-1"
                         />
                         <div>
-                          <strong className="block text-gray-900 text-base uppercase font-black">Venmo (@Troop170Unionville)</strong>
+                          <strong className="block text-gray-900 text-base uppercase font-black">Venmo</strong>
                           <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                            Pay immediately online. You will enter your unique receipt number into the Venmo note line for instant verification.
+                            @Troop170Unionville. Enter your receipt number in the memo.
                           </p>
                         </div>
                       </label>
 
+                      {/* OPTION 2: CHECK */}
+                      <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Check' ? 'border-[#1D3A6C] bg-slate-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input 
+                          type="radio" 
+                          name="paymentMethod" 
+                          value="Check" 
+                          checked={wreathCustomer.paymentMethod === 'Check'} 
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, paymentMethod: e.target.value})}
+                          className="mt-1"
+                        />
+                        <div>
+                          <strong className="block text-gray-900 text-base uppercase font-black">Check</strong>
+                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            Payable to "Troop 170" with receipt # on memo line.
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* OPTION 3: CASH */}
                       <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Cash' ? 'border-[#143d23] bg-emerald-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
                         <input 
                           type="radio" 
@@ -1012,7 +1050,7 @@ export default function App() {
                         <div>
                           <strong className="block text-gray-900 text-base uppercase font-black">Cash to Scout</strong>
                           <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                            Pay cash directly to your delivering Scout. The Scout will log your receipt ID on their official collection envelope.
+                            Cash given directly to Scout when placing your order.
                           </p>
                         </div>
                       </label>
