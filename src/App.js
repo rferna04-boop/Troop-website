@@ -37,8 +37,8 @@ export default function App() {
   };
 
   // --- WREATH STOREFRONT STATE ---
-  // Paste your active Google Apps Script Web App URL here:
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTWx5uyh4ZSYd1zWKtBGo9H1r0Ie4tY_V0j5en8YoLcJjwsfxBKKRSIAJxhoA5q9rt/exec";
+  // Deployed Google Apps Script Web App URL:
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTWx5uyh4ZSYd1zWKtBGo9H1r0Ie4tY_V0j5en8YoLcJjwsfxBKKRSIAJxhoA5q9rt/exec";
   
   const [wreathQuantities, setWreathQuantities] = useState({
     wreath24Plain: 0,
@@ -201,53 +201,38 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTWx5uyh4ZSY
     setWreathLoading(true);
     setWreathError('');
 
+    // Generate unique client-side receipt identifier
+    const clientReceiptId = "TRP-" + Math.floor(1000 + Math.random() * 9000);
+
     const payload = {
       ...wreathCustomer,
       ...wreathQuantities,
       supporterName: `${wreathCustomer.firstName.trim()} ${wreathCustomer.lastName.trim()}`,
       totalCost: totalDue,
-      totalUnits: totalUnits
+      totalUnits: totalUnits,
+      receiptId: clientReceiptId
     };
 
-    if (!GOOGLE_SCRIPT_URL) {
-      setTimeout(() => {
-        const mockReceiptId = "TRP-" + Math.floor(1000 + Math.random() * 9000);
-        setWreathSubmittedOrder({
-          ...payload,
-          receiptId: mockReceiptId
-        });
-        setWreathLoading(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 600);
-      return;
-    }
-
     try {
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload),
-      });
-
-      const resText = await response.text();
-      let resJson;
-      try {
-        resJson = JSON.parse(resText);
-      } catch {
-        resJson = { status: "SUCCESS", receiptId: "TRP-" + Math.floor(1000 + Math.random() * 9000) };
-      }
-
-      if (resJson.status === "SUCCESS") {
-        setWreathSubmittedOrder({
-          ...payload,
-          receiptId: resJson.receiptId
+      if (GOOGLE_SCRIPT_URL) {
+        // mode: "no-cors" dispatches payload without triggering browser HTTP 302 redirect blocks
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          cache: "no-cache",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload),
         });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        throw new Error(resJson.message || "Failed to submit order");
       }
+
+      setWreathSubmittedOrder({
+        ...payload,
+        receiptId: clientReceiptId
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
     } catch (err) {
-      console.error(err);
+      console.error("Submission error:", err);
       setWreathError("Error submitting your order. Please check your connection or contact the troop.");
     } finally {
       setWreathLoading(false);
@@ -1401,7 +1386,7 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTWx5uyh4ZSY
                          <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Scout Dollars</h3>
                          <p className="text-gray-500 text-sm leading-relaxed mb-8">Securely check individual fundraising balances.</p>
                       </div>
-                      <button onClick={() => { setCurrentPage('scoutDollars'); setHasSearched(false); setSearchQuery(''); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                      <button onClick={() => { setCurrentPage('scoutDollars'); setHasSearched(false); setSearchQuery(''); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
                         <span>Access Ledger</span><Search size={14}/>
                       </button>
                    </div>
