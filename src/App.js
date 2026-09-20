@@ -38,7 +38,7 @@ export default function App() {
 
   // --- WREATH STOREFRONT STATE ---
   // Deployed Google Apps Script Web App URL:
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTWx5uyh4ZSYd1zWKtBGo9H1r0Ie4tY_V0j5en8YoLcJjwsfxBKKRSIAJxhoA5q9rt/exec";
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCynuJmNFE8m19REtdu1J5YM5m3C5RPtr5fOf9qBSSzak9lsISXJq5HK2KWQMCw1u2/exec";
   
   const [wreathQuantities, setWreathQuantities] = useState({
     wreath24Plain: 0,
