@@ -10,8 +10,8 @@ import {
 } from 'lucide-react';
 
 // SET YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE:
-const GAS_API_URL = process.env.REACT_APP_GAS_API_URL || "https://script.google.com/macros/s/AKfycb.../exec";
-const LEADER_PORTAL_PASSCODE = "T170LEADER"; // Code to switch to leader mode inside the member portal
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7tNBzEsbBF3DoKrmIhrAwjvqMyM91rbzi81-Rr48BHIKiqmJp0o56P9AYc787vR8B/exec";
+const LEADER_PORTAL_PASSCODE = "T170LEADER";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -70,8 +70,15 @@ export default function App() {
     setParentAccount(null);
 
     try {
-      const url = `${GAS_API_URL}?action=getBalance&scoutId=${encodeURIComponent(parentScoutId.trim())}&pin=${encodeURIComponent(parentPin.trim())}`;
-      const res = await fetch(url);
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'getBalance',
+          scoutId: parentScoutId.trim().toUpperCase(),
+          pin: parentPin.trim()
+        })
+      });
       const data = await res.json();
 
       if (data.success) {
