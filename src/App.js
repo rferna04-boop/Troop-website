@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Tent, Lock, ArrowUpRight, MapPin, Mail, Calendar, Phone, 
   Users, Compass, CheckCircle, Clock, 
   MessageCircle, ExternalLink, Medal, Flame, Heart, Key, 
   FileText, Smartphone, CreditCard, ShieldCheck, Download, 
-  LogOut, BookOpen, X, Search, Printer, Snowflake, Mountain, 
+  LogOut, BookOpen, X, Printer, Snowflake, Mountain, 
   Facebook, Sun, Quote, Image as ImageIcon,
   Utensils, PlusCircle, MinusCircle, AlertCircle, RefreshCw, ChevronRight, Shield
 } from 'lucide-react';
@@ -87,27 +87,25 @@ export default function App() {
     }
   };
 
-  // Fetch Scout Roster for Leader Dropdown
-  const fetchScoutRoster = async () => {
+  // Fetch Scout Roster for Leader Dropdown (Memoized with useCallback)
+  const fetchScoutRoster = useCallback(async () => {
     try {
       const res = await fetch(`${GAS_API_URL}?action=getScouts&apiKey=T170_LEADER_SECRET_2026&leaderEmail=${encodeURIComponent(leaderEmail || 'leader@troop170.org')}`);
       const data = await res.json();
       if (data.success && data.scouts) {
         setScoutList(data.scouts);
-        if (data.scouts.length > 0 && !selectedScoutId) {
-          setSelectedScoutId(data.scouts[0].scoutId);
-        }
+        setSelectedScoutId(prev => prev || (data.scouts[0] ? data.scouts[0].scoutId : ''));
       }
     } catch (err) {
       console.error("Could not fetch scouts:", err);
     }
-  };
+  }, [leaderEmail]);
 
   useEffect(() => {
     if (leaderAuthUnlocked && currentPage === 'scoutDollars') {
       fetchScoutRoster();
     }
-  }, [leaderAuthUnlocked, currentPage]);
+  }, [leaderAuthUnlocked, currentPage, fetchScoutRoster]);
 
   // Submit Leader Transaction
   const handleLeaderSubmit = async (e) => {
@@ -117,6 +115,12 @@ export default function App() {
 
     const amountNum = parseFloat(txAmount);
     const chosenScout = scoutList.find(s => s.scoutId === selectedScoutId);
+
+    if (!selectedScoutId) {
+      setTxMessage({ type: 'error', text: 'Please select a scout.' });
+      setTxLoading(false);
+      return;
+    }
 
     if (txType === 'DEBIT' && chosenScout && amountNum > chosenScout.balance) {
       setTxMessage({ type: 'error', text: `Insufficient funds! Available: $${chosenScout.balance.toFixed(2)}, Requested: $${amountNum.toFixed(2)}` });
