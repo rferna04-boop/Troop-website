@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 // SET YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE:
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwYOUR_SCRIPT_ID_HERE/exec";
+const GAS_API_URL = process.env.REACT_APP_GAS_API_URL || "https://script.google.com/macros/s/AKfycb.../exec";
 const LEADER_PORTAL_PASSCODE = "T170LEADER"; // Code to switch to leader mode inside the member portal
 
 export default function App() {
