@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Tent, Lock, ArrowUpRight, MapPin, Mail, Calendar, Phone, 
-  Users, Compass, CheckCircle, Clock, 
-  MessageCircle, ExternalLink, Medal, Flame, Heart, Key, 
-  FileText, Smartphone, CreditCard, ShieldCheck, Download, 
-  LogOut, BookOpen, X, Printer, Snowflake, Mountain, 
-  Facebook, Sun, Quote, Image as ImageIcon,
-  Utensils, PlusCircle, MinusCircle, AlertCircle, RefreshCw, ChevronRight, Shield,
+  Lock, ArrowUpRight, 
+  Compass, CheckCircle, 
+  MessageCircle, CreditCard, ShieldCheck, Download, 
+  LogOut, 
+  Printer, 
+  PlusCircle, MinusCircle, AlertCircle, RefreshCw, ChevronRight, Shield,
   ClipboardCheck, Send
 } from 'lucide-react';
 
@@ -14,25 +13,11 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7tNBzEsbBF3DoKrmI
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
-  const [activeProgram, setActiveProgram] = useState(0);
   
   // PORTAL AUTHENTICATION STATE
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
-
-  // REGISTRATION MODAL STATE
-  const [selectedBadge, setSelectedBadge] = useState(null);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
-
-  // JOIN FORM STATE
-  const [joinSuccess, setJoinSuccess] = useState(false);
-
-  // ACCORDION ARCHIVE STATE
-  const [openArchiveId, setOpenArchiveId] = useState(null);
-  const toggleArchive = (id) => {
-    setOpenArchiveId(prev => prev === id ? null : id);
-  };
 
   // ========================================================
   // SCOUT DOLLARS: PARENT & LEADER & AUDIT SYSTEM STATE
@@ -150,8 +135,7 @@ export default function App() {
           cumulativeDebits: data.cumulativeDebits || 0,
           pendingTransactions: data.pendingTransactions || []
         });
-        // Pre-select all pending transactions by default
-        setSelectedTxIds(data.pendingTransactions.map(tx => tx.txId));
+        setSelectedTxIds((data.pendingTransactions || []).map(tx => tx.txId));
       }
     } catch (err) {
       console.error("Could not fetch audit queue:", err);
@@ -325,45 +309,9 @@ export default function App() {
 
   const darkBg = "#0B0F19";
 
-  // --- HISTORIAN CMS DATA ---
-  const scoutTrailData = [
-    {
-      id: '2026-08',
-      month: 'August',
-      year: '2026',
-      milestones: ['Sea Base', 'Community Service', 'Unionville Tag Sale', '7 Eagle Projects'],
-      heroImg: '/images/scout-corner/2026-08-eagle-workday.jpg',
-      heroFallback: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80',
-      summary: "August was a month of adventure, service, and exciting opportunities for the troop. Scouts took part in the long-awaited Sea Base high-adventure experience, continued giving back through service projects, and spent time camping and working together at the Unionville Museum tag sale. At the same time, an impressive seven Scouts continued their work toward the rank of Eagle Scout, making August another busy and meaningful month for the troop.",
-      quote: "Sea Base was an incredible experience because we got to do so many things together that we normally wouldn't get to do.",
-      scoutName: "Troop 170 Scout",
-      scoutRank: "Sea Base Crew",
-      scoutImg: '/images/scout-corner/sheldon.jpg',
-      scoutFallback: 'https://images.unsplash.com/photo-1512641406448-6524e5e10bf1?auto=format&fit=crop&w=400&q=80',
-      gallery: [],
-      galleryFallbacks: []
-    }
-  ];
-
-  const featuredEntry = scoutTrailData[0];
-  const pastEntries = scoutTrailData.slice(1);
-
-  const programsList = [
-    { id: 0, title: "Scout Rank Advancement", desc: "Progress through the scouting ranks at your own pace with the guidance of experienced mentors and youth leaders.", img: "/images/rank.jpg" },
-    { id: 1, title: "Merit Badge Program", desc: "Explore over 140 different subjects from Robotics to First Aid in our active, year-round educational program.", img: "/images/merit.jpg" },
-    { id: 2, title: "Monthly Campouts", desc: "Develop outdoor survival skills, patrol camaraderie, and self-reliance during our regular weekend camping trips.", img: "/images/campout.jpg" },
-    { id: 3, title: "Community Service", desc: "Giving back to Farmington and Unionville through local conservation, food drives, and extensive Eagle Scout projects.", img: "/images/service.jpg" },
-    { id: 4, title: "Summer Camp", desc: "A week of intensive advancement, unparalleled fun, and outdoor bonding at our annual summer camp.", img: "/images/camp.jpg" },
-    { id: 5, title: "High Adventure Trekking", desc: "Epic outdoor trips including backpacking, wilderness survival, and annual high-adventure treks across the country.", img: "/images/philmont.jpg" }
-  ];
-
-  const upcomingBadges = [
-    { id: 101, name: "First Aid", date: "Saturday, Oct 14", time: "9:00 AM - 1:00 PM", counselor: "Dr. Smith", status: "Open", img: "https://images.unsplash.com/photo-1583324113626-70df0f4deaab?auto=format&fit=crop&w=800&q=80" }
-  ];
-
   const gearListsData = [
     { 
-      id: 1, title: "The 10 Essentials", desc: "The absolute required items for every Scout's daypack, regardless of trip duration.", icon: <Compass size={28} />,
+      id: 1, title: "The 10 Essentials", desc: "The absolute required items for every Scout's daypack, regardless of trip duration.",
       type: "document",
       content: "<ul style='line-height:1.8;'><li><strong>Pocketknife</strong></li><li><strong>First-Aid Kit</strong></li><li><strong>Extra Clothing</strong></li><li><strong>Rain Gear</strong></li><li><strong>Water Bottle</strong></li><li><strong>Flashlight</strong></li><li><strong>Trail Food</strong></li><li><strong>Matches</strong></li><li><strong>Sun Protection</strong></li><li><strong>Map & Compass</strong></li></ul>",
       plainText: "- Pocketknife\n- First-Aid Kit\n- Extra Clothing\n- Rain Gear\n- Water Bottle\n- Flashlight\n- Trail Food\n- Matches\n- Sun Protection\n- Map and Compass"
@@ -389,10 +337,7 @@ export default function App() {
   };
 
   const navLinks = [
-    { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About' },
-    { id: 'scoutCorner', label: 'Scout Corner' },
-    { id: 'join', label: 'Join' }
+    { id: 'home', label: 'Home' }
   ];
 
   return (
@@ -454,8 +399,8 @@ export default function App() {
                   Transform Youth <br/>
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Into Leaders</span>
                 </h2>
-                <button onClick={() => setCurrentPage('join')} className="px-10 py-5 bg-[#BE1E2D] text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 flex items-center space-x-4 rounded-none">
-                   <span>Schedule Visit</span>
+                <button onClick={() => setCurrentPage('portal')} className="px-10 py-5 bg-[#BE1E2D] text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 flex items-center space-x-4 rounded-none">
+                   <span>Member Portal</span>
                    <ArrowUpRight size={20} />
                 </button>
               </div>
