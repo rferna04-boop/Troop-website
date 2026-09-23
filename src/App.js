@@ -6,7 +6,7 @@ import {
   LogOut, 
   Printer, 
   PlusCircle, MinusCircle, AlertCircle, RefreshCw, ChevronRight, Shield,
-  ClipboardCheck, Send
+  ClipboardCheck, Send, Heart
 } from 'lucide-react';
 
 const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7tNBzEsbBF3DoKrmIhrAwjvqMyM91rbzi81-Rr48BHIKiqmJp0o56P9AYc787vR8B/exec";
