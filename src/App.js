@@ -6,7 +6,7 @@ import {
   FileText, Smartphone, CreditCard, ShieldCheck, Download, 
   LogOut, BookOpen, X, Printer, Snowflake, Mountain, 
   Facebook, Sun, Quote, Image as ImageIcon,
-Utensils, ShoppingBag, QrCode, Copy, Check,
+  Utensils, ShoppingBag, QrCode, Copy, Check,
   PlusCircle, MinusCircle, AlertCircle, RefreshCw, ChevronRight, Shield,
   ClipboardCheck, Send
 } from 'lucide-react';
@@ -36,8 +36,7 @@ export default function App() {
     setOpenArchiveId(prev => prev === id ? null : id);
   };
 
-// --- WREATH STOREFRONT STATE ---
-  // Deployed Google Apps Script Web App URL:
+  // --- WREATH STOREFRONT STATE ---
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCynuJmNFE8m19REtdu1J5YM5m3C5RPtr5fOf9qBSSzak9lsISXJq5HK2KWQMCw1u2/exec";
   
   const [wreathQuantities, setWreathQuantities] = useState({
@@ -1015,9 +1014,9 @@ export default function App() {
                       </div>
 
                       <a 
-                        href="https://venmo.com/u/Troop170Unionville"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="https://venmo.com/u/Troop170Unionville" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
                         className="inline-flex items-center justify-center space-x-3 w-full py-4 bg-[#008CFF] hover:bg-blue-600 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-lg"
                       >
                         <span>Open @Troop170Unionville on Venmo</span>
@@ -1152,7 +1151,7 @@ export default function App() {
                                     -
                                   </button>
                                   <input 
-                                    type="text"
+                                    type="text" 
                                     pattern="[0-9]*"
                                     value={qty}
                                     onChange={(e) => setWreathDirectQty(product.id, e.target.value)}
@@ -1772,11 +1771,11 @@ export default function App() {
                          ["3", "Outfit", "Obtain your tan uniform and handbook."]
                        ].map(([num, title, desc]) => (
                          <div key={num} className="flex items-start space-x-5">
-                           <div className="w-10 h-10 bg-[#1D3A6C] text-white flex items-center justify-center font-black shadow-md shrink-0 text-xl rounded-none">{num}</div>
-                           <div>
-                             <p className="font-black text-lg uppercase tracking-tight mb-1 text-gray-900 leading-none">{title}</p>
-                             <p className="text-gray-500 text-sm font-light leading-snug">{desc}</p>
-                           </div>
+                            <div className="w-10 h-10 bg-[#1D3A6C] text-white flex items-center justify-center font-black shadow-md shrink-0 text-xl rounded-none">{num}</div>
+                            <div>
+                              <p className="font-black text-lg uppercase tracking-tight mb-1 text-gray-900 leading-none">{title}</p>
+                              <p className="text-gray-500 text-sm font-light leading-snug">{desc}</p>
+                            </div>
                          </div>
                        ))}
                     </div>
@@ -1905,8 +1904,8 @@ export default function App() {
                          <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Scout Dollars</h3>
                          <p className="text-gray-500 text-sm leading-relaxed mb-8">Check live family balances, leader transaction entry, and treasurer audits.</p>
                       </div>
-                      <button onClick={() => { setCurrentPage('scoutDollars'); setHasSearched(false); setSearchQuery(''); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
-                        <span>Access Ledger</span><Search size={14}/>
+                      <button onClick={() => { setCurrentPage('scoutDollars'); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                        <span>Access Ledger</span><ArrowUpRight size={14}/>
                       </button>
                    </div>
                    
@@ -1971,13 +1970,35 @@ export default function App() {
         {currentPage === 'scoutDollars' && (
           <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
             <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
-               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Gear Hub</h2>
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Scout Dollar Ledger</h2>
+               <div className="relative z-10 flex justify-center items-center space-x-4 mb-4">
+                 <button 
+                   onClick={() => setScoutDollarMode('parent')} 
+                   className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'parent' ? 'bg-[#1D3A6C] text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                 >
+                   Family Balance
+                 </button>
+                 <button 
+                   onClick={() => setScoutDollarMode('leader')} 
+                   className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'leader' ? 'bg-[#BE1E2D] text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                 >
+                   Leader Entry
+                 </button>
+                 {isFinanceOfficer && (
+                   <button 
+                     onClick={() => setScoutDollarMode('audit')} 
+                     className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'audit' ? 'bg-green-700 text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                   >
+                     Treasurer Audit
+                   </button>
+                 )}
+               </div>
                <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
             </div>
 
             <div className="max-w-4xl mx-auto px-6 -mt-8 relative z-20">
               
-              {/* 1. FAMILY MOBILE ACCOUNT CARD */}
+              {/* 1. FAMILY MOBILE ACCOUNT LOOKUP */}
               {scoutDollarMode === 'parent' && (
                 <div>
                   <form onSubmit={handleParentLookup} className="bg-white p-6 shadow-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-12 gap-4 rounded-none mb-8">
@@ -2014,52 +2035,24 @@ export default function App() {
                     </div>
                   </form>
 
-        {/* --- DYNAMIC ROOM: LEDGER --- */}
-        {currentPage === 'scoutDollars' && (
-          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
-            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
-               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Ledger</h2>
-               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
-            </div>
-            
-            <div className="max-w-3xl mx-auto px-6 -mt-10 relative z-20">
-               <form className="flex shadow-lg bg-white rounded-none border border-gray-100" onSubmit={(e) => { e.preventDefault(); const res = scoutAccounts.find(s => s.name.toLowerCase() === searchQuery.trim().toLowerCase()); setActiveResult(res || null); setHasSearched(true); }}>
-                  <div className="flex items-center pl-6 text-gray-400"><Search size={24}/></div>
-                  <input className="flex-grow p-6 text-xl font-light outline-none text-gray-900" placeholder="Exact Registered Name..." value={searchQuery} onChange={(e) => {setSearchQuery(e.target.value); setHasSearched(false);}} />
-                  <button type="submit" className="bg-[#1D3A6C] text-white px-8 font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors">Search</button>
-               </form>
-               
-               {hasSearched && (
-                 <div className="mt-12 animate-in slide-in-from-bottom duration-500">
-                   {activeResult ? (
-                     <>
-                     <div className="bg-white p-10 shadow-xl border-l-[12px] border-green-500 flex flex-col sm:flex-row justify-between items-center rounded-none">
-                        <div className="text-center sm:text-left mb-8 sm:mb-0">
-                           <h3 className="text-3xl font-black tracking-tight uppercase mb-4 text-gray-900">{activeResult.name}</h3>
-                           <p className="inline-flex items-center space-x-2 bg-gray-50 px-3 py-1.5 text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-4 border border-gray-100">
-                             <Clock size={12}/> <span>Updated: {activeResult.date}</span>
-                           </p>
-                           <p className="text-gray-600 text-sm italic">"{activeResult.lastTransaction}"</p>
-                        </div>
+                  {parentError && (
+                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 text-red-700 font-bold text-sm">
+                      {parentError}
+                    </div>
+                  )}
 
-                        <div className="mt-8 flex flex-col sm:flex-row sm:items-end justify-between border-t border-white/10 pt-6 gap-6">
-                          <div>
-                            <span className="block text-[10px] uppercase tracking-[0.25em] text-green-300 font-black mb-1">Available Scout Dollars</span>
-                            <div className="text-4xl sm:text-5xl font-black text-white tracking-tighter">
-                              ${parentAccount.currentBalance.toFixed(2)}
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4 text-right sm:text-left">
-                            <div className="bg-black/20 p-2.5 rounded-lg border border-white/5">
-                              <span className="text-[9px] uppercase tracking-wider text-gray-300 block font-bold">Total Earned</span>
-                              <span className="text-sm font-black text-green-400">+${parentAccount.totalEarned.toFixed(2)}</span>
-                            </div>
-                            <div className="bg-black/20 p-2.5 rounded-lg border border-white/5">
-                              <span className="text-[9px] uppercase tracking-wider text-gray-300 block font-bold">Total Applied</span>
-                              <span className="text-sm font-black text-red-400">-${parentAccount.totalUsed.toFixed(2)}</span>
-                            </div>
-                          </div>
+                  {parentAccount && (
+                    <>
+                      {/* Balance Summary Card */}
+                      <div className="bg-[#143d23] text-white p-8 sm:p-10 shadow-xl mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-200 block mb-1">Scout Account</span>
+                          <h3 className="text-3xl font-black uppercase tracking-tight">{parentAccount.scoutName || parentScoutId}</h3>
+                          <p className="text-xs text-emerald-100 mt-1">Troop 170 General Ledger System</p>
+                        </div>
+                        <div className="text-left sm:text-right">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-emerald-200 block mb-1">Available Balance</span>
+                          <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">${parentAccount.currentBalance.toFixed(2)}</span>
                         </div>
                       </div>
 
@@ -2077,7 +2070,6 @@ export default function App() {
 
                         {parentTransactions.length === 0 ? (
                           <p className="text-gray-400 text-center py-8 text-sm italic">No transaction records on file yet.</p>
-                          </>
                         ) : (
                           <div className="divide-y divide-gray-100">
                             {parentTransactions.map(tx => {
@@ -2112,10 +2104,8 @@ export default function App() {
                           </div>
                         )}
                       </div>
-
-                    </div>
+                    </>
                   )}
-
                 </div>
               )}
 
@@ -2137,7 +2127,7 @@ export default function App() {
                           <input 
                             required 
                             type="email"
-                            placeholder="e.g. vallarioc@gmail.com"
+                            placeholder="e.g. leader@gmail.com"
                             value={leaderEmailInput}
                             onChange={(e) => setLeaderEmailInput(e.target.value)}
                             className="w-full p-3.5 bg-gray-50 border border-gray-200 text-sm focus:border-[#BE1E2D] outline-none"
@@ -2220,7 +2210,7 @@ export default function App() {
                           <div>
                             <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Logged By</label>
                             <input 
-                              disabled
+                              disabled 
                               value={`${activeLeader.name} (${activeLeader.role})`}
                               className="w-full p-4 bg-gray-100 border border-gray-200 text-gray-600 text-sm font-semibold outline-none cursor-not-allowed"
                             />
@@ -2286,7 +2276,7 @@ export default function App() {
                             required 
                             value={txDescription} 
                             onChange={(e) => setTxDescription(e.target.value)}
-                            placeholder="e.g. October Sequassen Fall Campout (Paid via Form)" 
+                            placeholder="e.g. October Sequassen Fall Campout" 
                             className="w-full p-4 bg-gray-50 border border-gray-200 text-gray-900 text-sm focus:border-[#1D3A6C] outline-none"
                           />
                         </div>
@@ -2368,7 +2358,7 @@ export default function App() {
                     <div className="bg-gray-50 p-12 text-center border border-gray-100">
                       <CheckCircle size={40} className="text-green-600 mx-auto mb-3" />
                       <h4 className="text-lg font-black uppercase tracking-tight text-gray-900">Audit Journal Complete</h4>
-                      <p className="text-xs text-gray-500 max-w-md mx-auto mt-1">All posted debits and credits have been reconciled. Click "Dispatch CFO Memo" above to send the monthly report to Oliver Gloe.</p>
+                      <p className="text-xs text-gray-500 max-w-md mx-auto mt-1">All posted debits and credits have been reconciled.</p>
                     </div>
                   ) : (
                     <div className="border border-gray-200 overflow-x-auto">
