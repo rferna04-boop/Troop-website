@@ -2032,6 +2032,7 @@ export default function App() {
                {hasSearched && (
                  <div className="mt-12 animate-in slide-in-from-bottom duration-500">
                    {activeResult ? (
+                     <>
                      <div className="bg-white p-10 shadow-xl border-l-[12px] border-green-500 flex flex-col sm:flex-row justify-between items-center rounded-none">
                         <div className="text-center sm:text-left mb-8 sm:mb-0">
                            <h3 className="text-3xl font-black tracking-tight uppercase mb-4 text-gray-900">{activeResult.name}</h3>
@@ -2076,6 +2077,7 @@ export default function App() {
 
                         {parentTransactions.length === 0 ? (
                           <p className="text-gray-400 text-center py-8 text-sm italic">No transaction records on file yet.</p>
+                          </>
                         ) : (
                           <div className="divide-y divide-gray-100">
                             {parentTransactions.map(tx => {
