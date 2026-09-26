@@ -415,12 +415,12 @@ export default function App() {
   const SCOUT_ROSTER = [
     "General Troop 170 Fund / Don't Know",
     "Aadhav C.", "Aarnav S.", "Adam S.", "Alexander F.", "Andrew H.", "Andrew S.", "Andrew T.",
-    "Ayan S.", "Bennett L.", "Carter O.", "Chiru Abhinav M.", "Christopher H.", "Connor N.",
-    "Daniel G.", "Devin N.", "Devlin M.", "Devyaan B.", "Divij A.", "Doug P.", "Gabriel C.",
-    "Gabriel M.", "Jack M.", "Jackson K.", "Jacob S.", "James D.", "James M.", "John H.",
-    "Ketann S.", "Kiernan W.", "Liam M.", "Lucas G.", "Luke W.", "Mason T.", "Nathan C.",
+    "Ayan S.", "Bennett L.", "Carter O.", "Chiru M.", "Christopher H.", "Claire B." , "Connor N.",
+    "Daniel G.", "Devin N.", "Devlin M.", "Devyaan B.", "Divij A.", "Doug P.", "Evelyn F." , "Gabriel C.",
+    "Gabriel M.", "Jack H." , "Jack M.", "Jackson K.", "Jack P.", "Jacob S.", "James D.", "James M.", "John H.",
+    "Ketann S.", "Kiernan W.", "Lucas Gu.", "Liam M.", "Lucas Gl.", "Luke W.", "Mason T.", "Nathan C.",
     "Nathaniel D.", "Nicholas B.", "Oliver M.", "Parker F.", "Phillip V.", "Pranav Tej M.",
-    "Reyansh B.", "Rithvik G.", "Riyan P.", "Ronan B.", "Ryan D.", "Sebastian C.", "Seth K.",
+    "Reyansh B.", "Ricky G." , "Rithvik G.", "Riyan P.", "Ronan B.", "Ryan D.", "Sebastian C.", "Seth K.",
     "Shaurya K.", "Sheldon H.", "Theo A.", "Toshan N.", "Wesley F.", "Yveson H."
   ];
 
