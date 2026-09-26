@@ -7,8 +7,8 @@ import {
   LogOut, BookOpen, X, Printer, Snowflake, Mountain, 
   Facebook, Sun, Quote, Image as ImageIcon,
   Utensils, ShoppingBag, QrCode, Copy, Check,
-  PlusCircle, MinusCircle, AlertCircle, RefreshCw, ChevronRight, Shield,
-  ClipboardCheck, Send
+  PlusCircle, MinusCircle, AlertCircle, RefreshCw,
+  Send
 } from 'lucide-react';
 
 // SET YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE:
