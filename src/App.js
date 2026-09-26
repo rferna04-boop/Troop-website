@@ -6,7 +6,8 @@ import {
   FileText, Smartphone, CreditCard, ShieldCheck, Download, 
   LogOut, BookOpen, X, Printer, Snowflake, Mountain, 
   Facebook, Sun, Quote, Image as ImageIcon,
-  Utensils, PlusCircle, MinusCircle, AlertCircle, RefreshCw, ChevronRight, Shield,
+  Utensils, ShoppingBag, QrCode, Copy, Check,
+  PlusCircle, MinusCircle, AlertCircle, RefreshCw, ChevronRight, Shield,
   ClipboardCheck, Send
 } from 'lucide-react';
 
@@ -34,6 +35,34 @@ export default function App() {
   const toggleArchive = (id) => {
     setOpenArchiveId(prev => prev === id ? null : id);
   };
+
+  // --- WREATH STOREFRONT STATE ---
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCynuJmNFE8m19REtdu1J5YM5m3C5RPtr5fOf9qBSSzak9lsISXJq5HK2KWQMCw1u2/exec";
+  
+  const [wreathQuantities, setWreathQuantities] = useState({
+    wreath24Plain: 0,
+    wreath24Dec: 0,
+    wreath30Plain: 0,
+    wreath30Dec: 0,
+    wreath40Plain: 0,
+    wreath40Dec: 0,
+  });
+
+  const [wreathCustomer, setWreathCustomer] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    scoutName: "General Troop 170 Fund / Don't Know",
+    paymentMethod: 'Venmo',
+  });
+
+  const [wreathLoading, setWreathLoading] = useState(false);
+  const [wreathSubmittedOrder, setWreathSubmittedOrder] = useState(null);
+  const [wreathError, setWreathError] = useState('');
+  const [copiedMemo, setCopiedMemo] = useState(false);
+  const [showLanyardModal, setShowLanyardModal] = useState(false);
 
   // ========================================================
   // SCOUT DOLLARS: PARENT & LEADER & AUDIT SYSTEM STATE
@@ -325,6 +354,176 @@ export default function App() {
 
   const darkBg = "#0B0F19";
 
+  // 2026 Official Pricing & SKU Catalog
+  const WREATH_PRODUCTS = [
+    {
+      id: 'wreath24Plain',
+      size: '24"',
+      title: '24" Classic Undecorated',
+      desc: 'Fresh fragrant balsam fir. Standard front door size to display natural greenery or decorate yourself.',
+      price: 22,
+      img: '/images/wreaths/24Undecorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 'wreath24Dec',
+      size: '24"',
+      title: '24" Deluxe Decorated',
+      desc: 'Fresh balsam fir adorned with natural Maine pinecones and a hand-tied weatherproof red velvet bow.',
+      price: 27,
+      img: '/images/wreaths/24Decorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 'wreath30Plain',
+      size: '30"',
+      title: '30" Classic Undecorated',
+      desc: 'Full, lush fragrant greenery crafted for larger entry doors, double doors, and broad wall displays.',
+      price: 32,
+      img: '/images/wreaths/30Undecorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 'wreath30Dec',
+      size: '30"',
+      title: '30" Deluxe Decorated',
+      desc: 'Grand 30-inch wreath trimmed with natural pinecones and an accented handcrafted festive red bow.',
+      price: 37,
+      img: '/images/wreaths/30Decorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 'wreath40Plain',
+      size: '40"',
+      title: '40" Estate Undecorated',
+      desc: 'Substantial estate-scale balsam wreath tailored for chimneys, large exterior gables, and commercial facades.',
+      price: 55,
+      img: '/images/wreaths/40Undecorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 'wreath40Dec',
+      size: '40"',
+      title: '40" Estate Decorated',
+      desc: 'Show-stopping estate centerpiece trimmed with clusters of natural pinecones and an oversized red structural bow.',
+      price: 70,
+      img: '/images/wreaths/40Decorated.jpg',
+      fallback: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'
+    }
+  ];
+
+  const SCOUT_ROSTER = [
+    "General Troop 170 Fund / Don't Know",
+    "Aadhav C.", "Aarnav S.", "Adam S.", "Alexander F.", "Andrew H.", "Andrew S.", "Andrew T.",
+    "Ayan S.", "Bennett L.", "Carter O.", "Chiru Abhinav M.", "Christopher H.", "Connor N.",
+    "Daniel G.", "Devin N.", "Devlin M.", "Devyaan B.", "Divij A.", "Doug P.", "Gabriel C.",
+    "Gabriel M.", "Jack M.", "Jackson K.", "Jacob S.", "James D.", "James M.", "John H.",
+    "Ketann S.", "Kiernan W.", "Liam M.", "Lucas G.", "Luke W.", "Mason T.", "Nathan C.",
+    "Nathaniel D.", "Nicholas B.", "Oliver M.", "Parker F.", "Phillip V.", "Pranav Tej M.",
+    "Reyansh B.", "Rithvik G.", "Riyan P.", "Ronan B.", "Ryan D.", "Sebastian C.", "Seth K.",
+    "Shaurya K.", "Sheldon H.", "Theo A.", "Toshan N.", "Wesley F.", "Yveson H."
+  ];
+
+  const updateWreathQty = (id, delta) => {
+    setWreathQuantities(prev => ({
+      ...prev,
+      [id]: Math.max(0, (parseInt(prev[id], 10) || 0) + delta)
+    }));
+  };
+
+  const setWreathDirectQty = (id, value) => {
+    const sanitized = value.replace(/[^0-9]/g, '');
+    const val = parseInt(sanitized, 10);
+    setWreathQuantities(prev => ({
+      ...prev,
+      [id]: isNaN(val) ? 0 : Math.max(0, val)
+    }));
+  };
+
+  const calculateWreathTotal = () => {
+    return WREATH_PRODUCTS.reduce((sum, item) => sum + ((parseInt(wreathQuantities[item.id], 10) || 0) * item.price), 0);
+  };
+
+  const calculateWreathTotalUnits = () => {
+    return Object.values(wreathQuantities).reduce((sum, qty) => sum + (parseInt(qty, 10) || 0), 0);
+  };
+
+  const handleCopyText = (text) => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopiedMemo(true);
+        setTimeout(() => setCopiedMemo(false), 2000);
+      }).catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  };
+
+  const fallbackCopy = (text) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      setCopiedMemo(true);
+      setTimeout(() => setCopiedMemo(false), 2000);
+    } catch (err) {
+      console.error('Fallback copy failed', err);
+    }
+    document.body.removeChild(textArea);
+  };
+
+  const handleWreathOrderSubmit = async (e) => {
+    e.preventDefault();
+    const totalDue = calculateWreathTotal();
+    const totalUnits = calculateWreathTotalUnits();
+
+    if (totalUnits === 0) {
+      setWreathError("Please select at least one wreath before submitting your order.");
+      window.scrollTo({ top: 400, behavior: 'smooth' });
+      return;
+    }
+
+    setWreathLoading(true);
+    setWreathError('');
+
+    const clientReceiptId = "TRP-" + Math.floor(1000 + Math.random() * 9000);
+
+    const payload = {
+      ...wreathCustomer,
+      ...wreathQuantities,
+      supporterName: `${wreathCustomer.firstName.trim()} ${wreathCustomer.lastName.trim()}`,
+      totalCost: totalDue,
+      totalUnits: totalUnits,
+      receiptId: clientReceiptId
+    };
+
+    try {
+      if (GOOGLE_SCRIPT_URL) {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          cache: "no-cache",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      setWreathSubmittedOrder({
+        ...payload,
+        receiptId: clientReceiptId
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      console.error("Submission error:", err);
+      setWreathError("Error submitting your order. Please check your connection or contact the troop.");
+    } finally {
+      setWreathLoading(false);
+    }
+  };
+
   // --- HISTORIAN CMS DATA ---
   const scoutTrailData = [
     {
@@ -496,6 +695,10 @@ export default function App() {
 
   const handlePrint = (list) => {
     const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert("Please allow pop-ups in your browser to print this list.");
+      return;
+    }
     printWindow.document.write(`
       <html>
         <head>
@@ -533,6 +736,7 @@ export default function App() {
 
   const navLinks = [
     { id: 'home', label: 'Home' },
+    { id: 'wreaths', label: 'Wreath Sale' },
     { id: 'about', label: 'About' },
     { id: 'scoutCorner', label: 'Scout Corner' },
     { id: 'join', label: 'Join' }
@@ -546,7 +750,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex justify-between h-24 items-center">
             
-            <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => setCurrentPage('home')}>
+            <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => { setCurrentPage('home'); window.scrollTo(0,0); }}>
               <div className="w-20 h-20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                 <img src="/images/logo.png" className="w-full h-full object-contain" alt="Logo" />
               </div>
@@ -556,20 +760,25 @@ export default function App() {
               </div>
             </div>
 
-            <div className="hidden md:flex space-x-10 items-center text-base font-bold uppercase tracking-wider text-gray-300">
+            <div className="hidden md:flex space-x-8 items-center text-base font-bold uppercase tracking-wider text-gray-300">
               {navLinks.map(page => (
                 <button 
                   key={page.id} 
-                  onClick={() => setCurrentPage(page.id)} 
-                  className={`hover:text-white transition-colors ${currentPage === page.id ? 'text-white border-b-2 border-[#BE1E2D] pb-1' : ''}`}
+                  onClick={() => { setCurrentPage(page.id); window.scrollTo(0,0); }} 
+                  className={`hover:text-white transition-colors relative ${currentPage === page.id ? 'text-white border-b-2 border-[#BE1E2D] pb-1' : ''}`}
                 >
                   {page.label}
+                  {page.id === 'wreaths' && (
+                    <span className="absolute -top-3 -right-6 bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full uppercase tracking-widest font-black animate-pulse">
+                      Sale
+                    </span>
+                  )}
                 </button>
               ))}
-              <a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:text-blue-400 transition-colors flex items-center space-x-2">
+              <a href="https://venmo.com/u/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:text-blue-400 transition-colors flex items-center space-x-1.5">
                 <Heart size={16}/><span>Donate</span>
               </a>
-              <button onClick={() => setCurrentPage('portal')} className="flex items-center space-x-2 px-6 py-2.5 bg-white text-gray-900 hover:bg-[#BE1E2D] hover:text-white transition-all duration-300 shadow-md rounded-none font-black text-sm tracking-widest">
+              <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="flex items-center space-x-2 px-5 py-2.5 bg-white text-gray-900 hover:bg-[#BE1E2D] hover:text-white transition-all duration-300 shadow-md rounded-none font-black text-sm tracking-widest">
                 <Lock size={16}/><span>Member Login</span>
               </button>
             </div>
@@ -590,6 +799,17 @@ export default function App() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-transparent"></div>
               </div>
               <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-start">
+                
+                {/* Wreath Sale Announcement Banner */}
+                <div 
+                  onClick={() => { setCurrentPage('wreaths'); window.scrollTo(0,0); }}
+                  className="cursor-pointer mb-6 inline-flex items-center space-x-3 bg-emerald-900/80 border border-emerald-400/40 hover:bg-emerald-800/90 text-white px-5 py-2.5 rounded-full transition-all group shadow-lg"
+                >
+                  <ShoppingBag size={16} className="text-emerald-300 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">Annual Holiday Wreath Sale Is Live!</span>
+                  <ArrowUpRight size={14} className="text-emerald-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+
                 <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-none mb-8 shadow-inner border border-white/5">
                   <Compass size={14} className="text-[#BE1E2D]" />
                   <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white">Established 1956</span>
@@ -601,10 +821,15 @@ export default function App() {
                 <p className="text-lg sm:text-xl text-gray-400 font-light max-w-2xl leading-relaxed mb-12">
                   Drive character development, boost outdoor skills, and maximize personal growth. We craft engaging, year-round scouting strategies that deliver measurable results.
                 </p>
-                <button onClick={() => setCurrentPage('join')} className="px-10 py-5 bg-[#BE1E2D] text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(190,30,45,0.4)] group flex items-center space-x-4 rounded-none">
-                   <span>Schedule Visit</span>
-                   <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </button>
+                <div className="flex flex-wrap gap-4">
+                  <button onClick={() => { setCurrentPage('wreaths'); window.scrollTo(0,0); }} className="px-10 py-5 bg-[#BE1E2D] text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(190,30,45,0.4)] group flex items-center space-x-4 rounded-none">
+                    <span>Order Holiday Wreaths</span>
+                    <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  </button>
+                  <button onClick={() => { setCurrentPage('join'); window.scrollTo(0,0); }} className="px-8 py-5 bg-white/10 text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white/20 transition-all border border-white/20 rounded-none">
+                    <span>Schedule Visit</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -676,7 +901,451 @@ export default function App() {
           </div>
         )}
 
-        {/* --- SCOUT CORNER --- */}
+        {/* --- HOLIDAY WREATH STOREFRONT PAGE --- */}
+        {currentPage === 'wreaths' && (
+          <div className="bg-gray-50 pb-32 animate-in fade-in duration-500 min-h-screen">
+            {/* Header Hero */}
+            <div className="relative pt-24 pb-28 px-6 sm:px-8 lg:px-12 text-center text-white overflow-hidden" style={{ backgroundColor: "#0e2b19" }}>
+              <div className="absolute inset-0 z-0 opacity-25">
+                <img src="/images/wreaths/24Decorated.jpg" alt="Evergreen Wreaths" className="w-full h-full object-cover blur-sm" />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-b from-[#0e2b19]/90 via-[#0e2b19]/85 to-gray-50"></div>
+
+              <div className="relative z-10 max-w-4xl mx-auto">
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 border border-white/15">
+                  <Flame size={14} className="text-amber-400" />
+                  <span className="text-[10px] font-black tracking-[0.25em] uppercase text-emerald-100">Troop 170's Primary Annual Fundraiser</span>
+                </div>
+                <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white mb-6">
+                  Annual Holiday Wreath Sale
+                </h1>
+                <p className="text-lg sm:text-xl text-emerald-100/90 font-light max-w-2xl mx-auto leading-relaxed mb-8">
+                  Fragrant, fresh-cut Maine balsam fir wreaths hand-delivered directly to your porch by our Scouts. Every wreath sold directly funds summer camp, high adventure treks (Philmont, Sea Base), and essential outdoor troop equipment[cite: 1].
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <button 
+                    onClick={() => setShowLanyardModal(true)} 
+                    className="inline-flex items-center space-x-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-black uppercase tracking-widest border border-white/20 transition-colors"
+                  >
+                    <QrCode size={16} />
+                    <span>Scout QR Lanyard Kit</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ORDER PROCESSOR OR CONFIRMATION SCREEN */}
+            <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 -mt-10 relative z-20">
+              
+              {wreathSubmittedOrder ? (
+                /* --- ORDER CONFIRMED RECEIPT VIEW --- */
+                <div className="bg-white rounded-none border-t-8 border-[#143d23] p-8 sm:p-12 shadow-2xl animate-in zoom-in-95 duration-300">
+                  <div className="text-center pb-8 border-b border-gray-100 mb-8">
+                    <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle size={36} />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#143d23]">Order Successfully Placed</span>
+                    <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mt-1 mb-2">Thank You for Supporting Troop 170!</h2>
+                    <p className="text-gray-500 text-sm max-w-md mx-auto">A confirmation receipt has been dispatched to <strong>{wreathSubmittedOrder.email}</strong>.</p>
+                  </div>
+
+                  {/* Summary Card */}
+                  <div className="bg-gray-50 p-6 sm:p-8 border border-gray-200 mb-8">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-gray-200 gap-4">
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest font-black text-gray-400 block">Unique Receipt / Order Number</span>
+                        <span className="text-3xl font-black text-[#143d23] tracking-tight">{wreathSubmittedOrder.receiptId}</span>
+                      </div>
+                      <div className="text-left sm:text-right">
+                        <span className="text-[10px] uppercase tracking-widest font-black text-gray-400 block">Total Due</span>
+                        <span className="text-3xl font-black text-[#BE1E2D]">${wreathSubmittedOrder.totalCost}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 text-sm">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Supporter</span>
+                        <strong className="text-gray-900">{wreathSubmittedOrder.supporterName}</strong>
+                        <p className="text-gray-500 text-xs mt-0.5">{wreathSubmittedOrder.phone}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Delivering Scout</span>
+                        <strong className="text-gray-900">{wreathSubmittedOrder.scoutName}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Delivery Address</span>
+                        <strong className="text-gray-900">{wreathSubmittedOrder.address}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Payment Option</span>
+                        <strong className="text-gray-900">{wreathSubmittedOrder.paymentMethod}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* DYNAMIC 3-WAY PAYMENT INSTRUCTIONS */}
+                  {wreathSubmittedOrder.paymentMethod === 'Venmo' ? (
+                    <div className="bg-blue-50 border-2 border-[#008CFF]/30 p-8 mb-8 text-gray-800">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <Smartphone className="text-[#008CFF]" size={28} />
+                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Action Required: Complete Venmo Payment</h3>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                        To guarantee your wreaths are reserved and routed to the wholesale roster, please transfer <strong>${wreathSubmittedOrder.totalCost}</strong> to our troop's official Venmo account: <strong>@Troop170Unionville</strong>.
+                      </p>
+
+                      <div className="bg-white p-4 border border-blue-200 mb-6">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-900 block mb-1">
+                          Required Venmo Memo Note (Used for Back-Office Reconciliation):
+                        </span>
+                        <div className="flex items-center justify-between gap-4">
+                          <code className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1.5 rounded">
+                            Wreath - {wreathSubmittedOrder.receiptId} - {wreathCustomer.lastName.trim()}
+                          </code>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyText(`Wreath - ${wreathSubmittedOrder.receiptId} - ${wreathCustomer.lastName.trim()}`)}
+                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#008CFF] hover:bg-blue-600 text-white text-xs font-bold uppercase tracking-wider transition-colors"
+                          >
+                            {copiedMemo ? <Check size={14}/> : <Copy size={14}/>}
+                            <span>{copiedMemo ? 'Copied' : 'Copy Memo'}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <a 
+                        href="https://venmo.com/u/Troop170Unionville" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-flex items-center justify-center space-x-3 w-full py-4 bg-[#008CFF] hover:bg-blue-600 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-lg"
+                      >
+                        <span>Open @Troop170Unionville on Venmo</span>
+                        <ExternalLink size={16} />
+                      </a>
+                    </div>
+                  ) : wreathSubmittedOrder.paymentMethod === 'Check' ? (
+                    <div className="bg-slate-50 border-2 border-slate-300 p-8 mb-8 text-gray-800">
+                      <div className="flex items-center space-x-3 mb-3">
+                        <FileText className="text-[#1D3A6C]" size={28} />
+                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Check Payment Instructions</h3>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                        Please make your check payable to <strong>Troop 170</strong> in the amount of <strong>${wreathSubmittedOrder.totalCost}</strong>.
+                      </p>
+                      <div className="bg-white p-4 border border-slate-200 mb-4">
+                        <p className="text-xs text-gray-700 m-0">
+                          <strong>Required on Memo Line:</strong> <code className="bg-gray-100 px-2 py-0.5 font-bold">Wreath - {wreathSubmittedOrder.receiptId} - {wreathSubmittedOrder.scoutName}</code>
+                        </p>
+                      </div>
+                      <p className="text-xs text-gray-600 leading-relaxed">
+                        Hand the check directly to Scout <strong>{wreathSubmittedOrder.scoutName}</strong> now that your order has been placed, or mail to:<br/>
+                        <strong>First Church of Christ, ATTN: Troop 170 Treasurer, 61 Main St, Unionville, CT 06085</strong>
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 border-2 border-amber-300 p-8 mb-8 text-gray-800">
+                      <div className="flex items-center space-x-3 mb-3">
+                        <CreditCard className="text-amber-700" size={28} />
+                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Cash Payment Collected With Order</h3>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                        Please provide <strong>${wreathSubmittedOrder.totalCost}</strong> in cash directly to Scout <strong>{wreathSubmittedOrder.scoutName}</strong> now that your order has been entered.
+                      </p>
+                      <p className="text-xs text-amber-900 bg-amber-100/80 p-3 border border-amber-200">
+                        <strong>Important:</strong> Provide receipt number <strong>{wreathSubmittedOrder.receiptId}</strong> to the Scout so they can write it on their sealed troop cash collection envelope[cite: 1].
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="text-center pt-4">
+                    <button
+                      onClick={() => {
+                        setWreathSubmittedOrder(null);
+                        setWreathQuantities({
+                          wreath24Plain: 0,
+                          wreath24Dec: 0,
+                          wreath30Plain: 0,
+                          wreath30Dec: 0,
+                          wreath40Plain: 0,
+                          wreath40Dec: 0,
+                        });
+                        setWreathCustomer({
+                          firstName: '',
+                          lastName: '',
+                          email: '',
+                          phone: '',
+                          address: '',
+                          scoutName: SCOUT_ROSTER[0],
+                          paymentMethod: 'Venmo',
+                        });
+                      }}
+                      className="px-8 py-3 bg-gray-900 hover:bg-black text-white font-black uppercase tracking-widest text-xs transition-colors"
+                    >
+                      Place Another Order
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* --- ORDER FORM & STOREFRONT CATALOG --- */
+                <form onSubmit={handleWreathOrderSubmit} className="space-y-12 pb-16">
+                  
+                  {wreathError && (
+                    <div className="bg-red-50 border-l-4 border-[#BE1E2D] p-4 text-red-700 text-sm font-bold shadow-md">
+                      {wreathError}
+                    </div>
+                  )}
+
+                  {/* Section 1: Catalog */}
+                  <div className="bg-white p-8 sm:p-12 shadow-xl border-t-8 border-[#143d23]">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 pb-4 border-b border-gray-100 gap-4">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 01</span>
+                        <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900">Select Wreath Sizes & Styles</h2>
+                      </div>
+                      <div className="bg-emerald-50 px-4 py-2 text-emerald-900 font-bold text-xs uppercase tracking-wider border border-emerald-100">
+                        Selected: <span className="font-black text-base text-[#143d23]">{calculateWreathTotalUnits()}</span> Items
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {WREATH_PRODUCTS.map(product => {
+                        const qty = wreathQuantities[product.id];
+                        return (
+                          <div 
+                            key={product.id}
+                            className={`border transition-all duration-300 flex flex-col justify-between ${
+                              qty > 0 ? 'border-[#143d23] shadow-lg ring-2 ring-[#143d23]/20' : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="relative h-64 bg-gray-50 overflow-hidden">
+                              <img 
+                                src={product.img} 
+                                alt={product.title}
+                                onError={(e) => { e.target.onerror = null; e.target.src = product.fallback; }}
+                                className="w-full h-full object-contain p-4 transition-transform duration-500 hover:scale-105"
+                              />
+                              <div className="absolute top-3 left-3 bg-[#143d23] text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1">
+                                {product.size} Ring
+                              </div>
+                            </div>
+
+                            <div className="p-6 flex flex-col justify-between flex-grow">
+                              <div>
+                                <div className="flex justify-between items-baseline mb-2">
+                                  <h3 className="text-lg font-black uppercase tracking-tight text-gray-900">{product.title}</h3>
+                                  <span className="text-2xl font-black text-[#143d23]">${product.price}</span>
+                                </div>
+                                <p className="text-gray-500 text-xs leading-relaxed mb-6 font-light">
+                                  {product.desc}
+                                </p>
+                              </div>
+
+                              <div className="flex items-center justify-between bg-gray-50 p-2 border border-gray-200">
+                                <span className="text-[10px] uppercase font-black tracking-wider text-gray-500 pl-2">Quantity:</span>
+                                <div className="flex items-center space-x-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => updateWreathQty(product.id, -1)}
+                                    className="w-8 h-8 bg-white border border-gray-300 hover:bg-gray-100 flex items-center justify-center font-black text-gray-700 text-base"
+                                  >
+                                    -
+                                  </button>
+                                  <input 
+                                    type="text" 
+                                    pattern="[0-9]*"
+                                    value={qty}
+                                    onChange={(e) => setWreathDirectQty(product.id, e.target.value)}
+                                    className="w-12 h-8 text-center font-black text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#143d23]"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => updateWreathQty(product.id, 1)}
+                                    className="w-8 h-8 bg-white border border-gray-300 hover:bg-gray-100 flex items-center justify-center font-black text-gray-700 text-base"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Section 2: Customer & Delivery Information */}
+                  <div className="bg-white p-8 sm:p-12 shadow-xl border-t-8 border-[#1D3A6C]">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 02</span>
+                    <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-8">Porch Delivery & Supporter Details</h2>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">First Name *</label>
+                        <input 
+                          required 
+                          type="text" 
+                          value={wreathCustomer.firstName}
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, firstName: e.target.value})}
+                          placeholder="Jane"
+                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Last Name *</label>
+                        <input 
+                          required 
+                          type="text" 
+                          value={wreathCustomer.lastName}
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, lastName: e.target.value})}
+                          placeholder="Smith"
+                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Email Address (For Order Receipt) *</label>
+                        <input 
+                          required 
+                          type="email" 
+                          value={wreathCustomer.email}
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, email: e.target.value})}
+                          placeholder="jane@example.com"
+                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Phone Number *</label>
+                        <input 
+                          required 
+                          type="tel" 
+                          value={wreathCustomer.phone}
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, phone: e.target.value})}
+                          placeholder="(860) 555-0199"
+                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mb-6">
+                      <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Porch Hand-Delivery Address (Street, Town, Zip) *</label>
+                      <input 
+                        required 
+                        type="text" 
+                        value={wreathCustomer.address}
+                        onChange={(e) => setWreathCustomer({...wreathCustomer, address: e.target.value})}
+                        placeholder="e.g. 42 Main St, Unionville, CT 06085"
+                        className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Which Scout Should Receive Credit for This Sale? *</label>
+                      <select 
+                        value={wreathCustomer.scoutName}
+                        onChange={(e) => setWreathCustomer({...wreathCustomer, scoutName: e.target.value})}
+                        className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none font-bold text-sm"
+                      >
+                        {SCOUT_ROSTER.map((name, i) => (
+                          <option key={i} value={name}>{name}</option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-gray-400 mt-2 font-light">
+                        The selected Scout will receive Scout Dollar credits toward summer camp and high adventure treks.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Section 3: Payment Choice (VENMO, CHECK, CASH) */}
+                  <div className="bg-white p-8 sm:p-12 shadow-xl border-t-8 border-gray-900">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 03</span>
+                    <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-6">Payment Method</h2>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                      {/* VENMO */}
+                      <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Venmo' ? 'border-[#008CFF] bg-blue-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input 
+                          type="radio" 
+                          name="paymentMethod" 
+                          value="Venmo" 
+                          checked={wreathCustomer.paymentMethod === 'Venmo'} 
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, paymentMethod: e.target.value})}
+                          className="mt-1"
+                        />
+                        <div>
+                          <strong className="block text-gray-900 text-base uppercase font-black">Venmo</strong>
+                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            @Troop170Unionville. Enter your receipt number into the Venmo memo line.
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* CHECK */}
+                      <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Check' ? 'border-[#1D3A6C] bg-slate-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input 
+                          type="radio" 
+                          name="paymentMethod" 
+                          value="Check" 
+                          checked={wreathCustomer.paymentMethod === 'Check'} 
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, paymentMethod: e.target.value})}
+                          className="mt-1"
+                        />
+                        <div>
+                          <strong className="block text-gray-900 text-base uppercase font-black">Check</strong>
+                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            Payable to "Troop 170" with receipt # and scout name on the memo line.
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* CASH */}
+                      <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Cash' ? 'border-[#143d23] bg-emerald-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input 
+                          type="radio" 
+                          name="paymentMethod" 
+                          value="Cash" 
+                          checked={wreathCustomer.paymentMethod === 'Cash'} 
+                          onChange={(e) => setWreathCustomer({...wreathCustomer, paymentMethod: e.target.value})}
+                          className="mt-1"
+                        />
+                        <div>
+                          <strong className="block text-gray-900 text-base uppercase font-black">Cash to Scout</strong>
+                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            Cash given directly to Scout when placing your order today.
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* Submit Bar */}
+                    <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-6">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block">Total Due</span>
+                        <span className="text-4xl font-black text-[#143d23]">
+                          ${calculateWreathTotal()}
+                        </span>
+                        <span className="text-xs text-gray-500 font-bold ml-2">({calculateWreathTotalUnits()} Wreaths)</span>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={wreathLoading}
+                        className="w-full sm:w-auto px-12 py-5 bg-[#143d23] hover:bg-[#0e2b19] text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl transition-all disabled:opacity-50"
+                      >
+                        {wreathLoading ? 'Processing...' : `Confirm & Place Order`}
+                      </button>
+                    </div>
+                  </div>
+
+                </form>
+              )}
+
+            </div>
+          </div>
+        )}
+
+        {/* --- SCOUT CORNER (AUGUST SPOTLIGHT + ACCORDION ARCHIVES) --- */}
         {currentPage === 'scoutCorner' && (
           <div className="bg-gray-50 pb-32 animate-in fade-in duration-700 min-h-screen">
             <div className="relative pt-32 pb-32 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
@@ -779,9 +1448,9 @@ export default function App() {
                             <div key={i} className="h-56 rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50">
                               <img 
                                 src={imgSrc} 
+                                alt={`Action shot ${i}`} 
                                 onError={(e) => { e.target.onerror = null; e.target.src = featuredEntry.galleryFallbacks[i]; }}
                                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                                alt={`Action shot ${i}`} 
                               />
                             </div>
                           ))}
@@ -852,8 +1521,8 @@ export default function App() {
                             <div className="relative h-64 rounded-xl overflow-hidden mb-8 mt-4 border border-gray-100">
                               <img 
                                 src={entry.heroImg} 
+                                alt={`${entry.month} Adventure`}
                                 onError={(e) => { e.target.onerror = null; e.target.src = entry.heroFallback; }}
-                                alt={`${entry.month} Adventure`} 
                                 className="w-full h-full object-cover" 
                               />
                             </div>
@@ -869,9 +1538,9 @@ export default function App() {
                               <div className="flex items-center space-x-3 border-t border-gray-200 pt-3">
                                 <img 
                                   src={entry.scoutImg} 
-                                  onError={(e) => { e.target.onerror = null; e.target.src = entry.scoutFallback; }}
                                   alt={entry.scoutName} 
-                                  className="w-10 h-10 rounded-full object-cover border border-white shadow-sm" 
+                                  onError={(e) => { e.target.onerror = null; e.target.src = entry.scoutFallback; }}
+                                  className="w-10 h-10 rounded-full object-cover border border-white shadow-sm"
                                 />
                                 <div>
                                   <p className="font-black text-gray-900 text-xs uppercase tracking-tight">{entry.scoutName}</p>
@@ -890,9 +1559,9 @@ export default function App() {
                                     <div key={i} className="h-44 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
                                       <img 
                                         src={imgSrc} 
+                                        alt={`Archive shot ${i}`} 
                                         onError={(e) => { e.target.onerror = null; e.target.src = entry.galleryFallbacks[i]; }}
                                         className="w-full h-full object-cover" 
-                                        alt={`Archive shot ${i}`} 
                                       />
                                     </div>
                                   ))}
@@ -976,7 +1645,7 @@ export default function App() {
                   Help sustain our 60-year legacy. Your contributions directly fund critical equipment upkeep and high-adventure scholarships for scouts in need.
                 </p>
                 
-                <a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col sm:flex-row items-center sm:space-x-6 bg-[#008CFF] hover:bg-blue-600 px-10 py-6 font-black text-white text-xl transition-all shadow-xl group rounded-none">
+                <a href="https://venmo.com/u/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col sm:flex-row items-center sm:space-x-6 bg-[#008CFF] hover:bg-blue-600 px-10 py-6 font-black text-white text-xl transition-all shadow-xl group rounded-none">
                   <span>DONATE VIA VENMO</span>
                   <span className="bg-white/20 px-4 py-1 mt-2 sm:mt-0 text-[10px] tracking-[0.2em] uppercase rounded-none">@Troop170Unionville</span>
                 </a>
@@ -1102,11 +1771,11 @@ export default function App() {
                          ["3", "Outfit", "Obtain your tan uniform and handbook."]
                        ].map(([num, title, desc]) => (
                          <div key={num} className="flex items-start space-x-5">
-                           <div className="w-10 h-10 bg-[#1D3A6C] text-white flex items-center justify-center font-black shadow-md shrink-0 text-xl rounded-none">{num}</div>
-                           <div>
-                             <p className="font-black text-lg uppercase tracking-tight mb-1 text-gray-900 leading-none">{title}</p>
-                             <p className="text-gray-500 text-sm font-light leading-snug">{desc}</p>
-                           </div>
+                            <div className="w-10 h-10 bg-[#1D3A6C] text-white flex items-center justify-center font-black shadow-md shrink-0 text-xl rounded-none">{num}</div>
+                            <div>
+                              <p className="font-black text-lg uppercase tracking-tight mb-1 text-gray-900 leading-none">{title}</p>
+                              <p className="text-gray-500 text-sm font-light leading-snug">{desc}</p>
+                            </div>
                          </div>
                        ))}
                     </div>
@@ -1114,7 +1783,7 @@ export default function App() {
                 <a 
                   href="https://my.scouting.org/VES/OnlineReg/1.0.0/?tu=UF-MB-066taa0170" 
                   target="_blank" 
-                  rel="noopener noreferrer"
+                  rel="noopener noreferrer" 
                   className="mt-10 w-full flex items-center justify-center space-x-3 p-5 bg-[#BE1E2D] text-white font-black text-sm uppercase tracking-[0.2em] shadow-lg hover:bg-red-800 transition-colors rounded-none"
                 >
                   <span>Official Application</span>
@@ -1211,7 +1880,7 @@ export default function App() {
                          <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Gear Hub</h3>
                          <p className="text-gray-500 text-sm leading-relaxed mb-8">Print packing checklists for troop adventures.</p>
                       </div>
-                      <button onClick={() => setCurrentPage('gearLists')} className="flex items-center space-x-2 text-amber-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                      <button onClick={() => { setCurrentPage('gearLists'); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-amber-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
                         <span>Open Hub</span><ArrowUpRight size={14}/>
                       </button>
                    </div>
@@ -1223,7 +1892,7 @@ export default function App() {
                          <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Clinics</h3>
                          <p className="text-gray-500 text-sm leading-relaxed mb-8">Schedule and registration for merit badges.</p>
                       </div>
-                      <button onClick={() => setCurrentPage('meritBadges')} className="flex items-center space-x-2 text-purple-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                      <button onClick={() => { setCurrentPage('meritBadges'); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-purple-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
                         <span>View Schedule</span><ArrowUpRight size={14}/>
                       </button>
                    </div>
@@ -1235,8 +1904,8 @@ export default function App() {
                          <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Scout Dollars</h3>
                          <p className="text-gray-500 text-sm leading-relaxed mb-8">Check live family balances, leader transaction entry, and treasurer audits.</p>
                       </div>
-                      <button onClick={() => { setCurrentPage('scoutDollars'); setParentAccount(null); setParentError(''); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
-                        <span>Access Bank</span><ChevronRight size={14}/>
+                      <button onClick={() => { setCurrentPage('scoutDollars'); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                        <span>Access Ledger</span><ArrowUpRight size={14}/>
                       </button>
                    </div>
                    
@@ -1300,46 +1969,36 @@ export default function App() {
         {/* --- DYNAMIC ROOM: SCOUT DOLLARS (WITH TREASURER AUDIT QUEUE) --- */}
         {currentPage === 'scoutDollars' && (
           <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
-            <div className="bg-[#050B14] py-20 px-6 text-center shadow-md relative overflow-hidden text-white">
-               <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
-                 <div className="inline-flex items-center space-x-2 bg-white/10 px-3 py-1 rounded-none mb-4 border border-white/10">
-                    <CreditCard size={14} className="text-green-400" />
-                    <span className="text-[10px] font-black tracking-[0.2em] uppercase text-green-400">Troop 170 Financial Reserve</span>
-                 </div>
-                 <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-4 uppercase">Scout Dollar Bank</h2>
-                 <button onClick={() => setCurrentPage('portal')} className="text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
-
-                 {/* TAB SELECTOR */}
-                 <div className="flex mt-8 border border-white/10 bg-white/5 p-1 rounded-none">
-                    <button 
-                      onClick={() => setScoutDollarMode('parent')} 
-                      className={`px-5 py-2.5 font-black uppercase tracking-wider text-xs transition-colors rounded-none ${scoutDollarMode === 'parent' ? 'bg-white text-gray-900 shadow' : 'text-gray-400 hover:text-white'}`}
-                    >
-                      Family Account Card
-                    </button>
-                    <button 
-                      onClick={() => setScoutDollarMode('leader')} 
-                      className={`px-5 py-2.5 font-black uppercase tracking-wider text-xs transition-colors rounded-none flex items-center space-x-1.5 ${scoutDollarMode === 'leader' ? 'bg-[#BE1E2D] text-white shadow' : 'text-gray-400 hover:text-white'}`}
-                    >
-                      <Shield size={14} />
-                      <span>Leader Transaction Hub</span>
-                    </button>
-                    {isFinanceOfficer && (
-                      <button 
-                        onClick={() => setScoutDollarMode('audit')} 
-                        className={`px-5 py-2.5 font-black uppercase tracking-wider text-xs transition-colors rounded-none flex items-center space-x-1.5 ${scoutDollarMode === 'audit' ? 'bg-[#1D3A6C] text-white shadow' : 'text-green-400 hover:text-white'}`}
-                      >
-                        <ClipboardCheck size={14} />
-                        <span>Treasurer Audit Queue</span>
-                      </button>
-                    )}
-                 </div>
+            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Scout Dollar Ledger</h2>
+               <div className="relative z-10 flex justify-center items-center space-x-4 mb-4">
+                 <button 
+                   onClick={() => setScoutDollarMode('parent')} 
+                   className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'parent' ? 'bg-[#1D3A6C] text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                 >
+                   Family Balance
+                 </button>
+                 <button 
+                   onClick={() => setScoutDollarMode('leader')} 
+                   className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'leader' ? 'bg-[#BE1E2D] text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                 >
+                   Leader Entry
+                 </button>
+                 {isFinanceOfficer && (
+                   <button 
+                     onClick={() => setScoutDollarMode('audit')} 
+                     className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'audit' ? 'bg-green-700 text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                   >
+                     Treasurer Audit
+                   </button>
+                 )}
                </div>
+               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
             </div>
 
             <div className="max-w-4xl mx-auto px-6 -mt-8 relative z-20">
               
-              {/* 1. FAMILY MOBILE ACCOUNT CARD */}
+              {/* 1. FAMILY MOBILE ACCOUNT LOOKUP */}
               {scoutDollarMode === 'parent' && (
                 <div>
                   <form onSubmit={handleParentLookup} className="bg-white p-6 shadow-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-12 gap-4 rounded-none mb-8">
@@ -1377,47 +2036,23 @@ export default function App() {
                   </form>
 
                   {parentError && (
-                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 flex items-center space-x-3 text-red-700 text-sm font-semibold">
-                      <AlertCircle size={20} />
-                      <span>{parentError}</span>
+                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 text-red-700 font-bold text-sm">
+                      {parentError}
                     </div>
                   )}
 
                   {parentAccount && (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom duration-300">
-                      
-                      {/* Mobile Banking Card */}
-                      <div className="relative overflow-hidden bg-gradient-to-tr from-[#0F2027] via-[#203A43] to-[#2C5364] text-white p-8 md:p-10 shadow-2xl rounded-2xl border border-white/10">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-300">Troop 170 • Member Reserve</span>
-                            <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white mt-1">{parentAccount.fullName}</h3>
-                            <p className="text-xs font-mono text-gray-400 mt-0.5">Scout ID: {parentAccount.scoutId}</p>
-                          </div>
-                          <div className="bg-white/10 px-3 py-1.5 rounded-md border border-white/10 text-right">
-                            <span className="text-[9px] uppercase tracking-widest font-black text-green-300 block">Status</span>
-                            <span className="text-xs font-bold text-white uppercase">{parentAccount.status}</span>
-                          </div>
+                    <>
+                      {/* Balance Summary Card */}
+                      <div className="bg-[#143d23] text-white p-8 sm:p-10 shadow-xl mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-200 block mb-1">Scout Account</span>
+                          <h3 className="text-3xl font-black uppercase tracking-tight">{parentAccount.scoutName || parentScoutId}</h3>
+                          <p className="text-xs text-emerald-100 mt-1">Troop 170 General Ledger System</p>
                         </div>
-
-                        <div className="mt-8 flex flex-col sm:flex-row sm:items-end justify-between border-t border-white/10 pt-6 gap-6">
-                          <div>
-                            <span className="block text-[10px] uppercase tracking-[0.25em] text-green-300 font-black mb-1">Available Scout Dollars</span>
-                            <div className="text-4xl sm:text-5xl font-black text-white tracking-tighter">
-                              ${parentAccount.currentBalance.toFixed(2)}
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4 text-right sm:text-left">
-                            <div className="bg-black/20 p-2.5 rounded-lg border border-white/5">
-                              <span className="text-[9px] uppercase tracking-wider text-gray-300 block font-bold">Total Earned</span>
-                              <span className="text-sm font-black text-green-400">+${parentAccount.totalEarned.toFixed(2)}</span>
-                            </div>
-                            <div className="bg-black/20 p-2.5 rounded-lg border border-white/5">
-                              <span className="text-[9px] uppercase tracking-wider text-gray-300 block font-bold">Total Applied</span>
-                              <span className="text-sm font-black text-red-400">-${parentAccount.totalUsed.toFixed(2)}</span>
-                            </div>
-                          </div>
+                        <div className="text-left sm:text-right">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-emerald-200 block mb-1">Available Balance</span>
+                          <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">${parentAccount.currentBalance.toFixed(2)}</span>
                         </div>
                       </div>
 
@@ -1469,10 +2104,8 @@ export default function App() {
                           </div>
                         )}
                       </div>
-
-                    </div>
+                    </>
                   )}
-
                 </div>
               )}
 
@@ -1494,7 +2127,7 @@ export default function App() {
                           <input 
                             required 
                             type="email"
-                            placeholder="e.g. vallarioc@gmail.com"
+                            placeholder="e.g. leader@gmail.com"
                             value={leaderEmailInput}
                             onChange={(e) => setLeaderEmailInput(e.target.value)}
                             className="w-full p-3.5 bg-gray-50 border border-gray-200 text-sm focus:border-[#BE1E2D] outline-none"
@@ -1577,7 +2210,7 @@ export default function App() {
                           <div>
                             <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Logged By</label>
                             <input 
-                              disabled
+                              disabled 
                               value={`${activeLeader.name} (${activeLeader.role})`}
                               className="w-full p-4 bg-gray-100 border border-gray-200 text-gray-600 text-sm font-semibold outline-none cursor-not-allowed"
                             />
@@ -1643,7 +2276,7 @@ export default function App() {
                             required 
                             value={txDescription} 
                             onChange={(e) => setTxDescription(e.target.value)}
-                            placeholder="e.g. October Sequassen Fall Campout (Paid via Form)" 
+                            placeholder="e.g. October Sequassen Fall Campout" 
                             className="w-full p-4 bg-gray-50 border border-gray-200 text-gray-900 text-sm focus:border-[#1D3A6C] outline-none"
                           />
                         </div>
@@ -1725,7 +2358,7 @@ export default function App() {
                     <div className="bg-gray-50 p-12 text-center border border-gray-100">
                       <CheckCircle size={40} className="text-green-600 mx-auto mb-3" />
                       <h4 className="text-lg font-black uppercase tracking-tight text-gray-900">Audit Journal Complete</h4>
-                      <p className="text-xs text-gray-500 max-w-md mx-auto mt-1">All posted debits and credits have been reconciled. Click "Dispatch CFO Memo" above to send the monthly report to Oliver Gloe.</p>
+                      <p className="text-xs text-gray-500 max-w-md mx-auto mt-1">All posted debits and credits have been reconciled.</p>
                     </div>
                   ) : (
                     <div className="border border-gray-200 overflow-x-auto">
@@ -1794,7 +2427,7 @@ export default function App() {
           <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
             <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
                <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Clinics</h2>
-               <button onClick={() => setCurrentPage('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
             </div>
             
             <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
@@ -1868,7 +2501,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20">
           
           <div className="lg:col-span-1">
-             <div className="flex items-center space-x-4 mb-6 cursor-pointer" onClick={() => setCurrentPage('home')}>
+             <div className="flex items-center space-x-4 mb-6 cursor-pointer" onClick={() => { setCurrentPage('home'); window.scrollTo(0,0); }}>
                 <div className="w-20 h-20 rounded-none flex items-center justify-center p-0.5">
                    <img src="/images/logo.png" className="w-full h-full object-contain" alt="Logo" />
                 </div>
@@ -1887,7 +2520,7 @@ export default function App() {
                {navLinks.map(page => (
                  <li key={page.id} className="hover:text-white text-gray-400 cursor-pointer transition-colors uppercase font-bold tracking-wider text-xs" onClick={() => { setCurrentPage(page.id); window.scrollTo(0,0); }}>{page.label}</li>
                ))}
-               <li><a href="https://venmo.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:underline uppercase font-bold tracking-wider text-xs">Sustaining Fund</a></li>
+               <li><a href="https://venmo.com/u/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:underline uppercase font-bold tracking-wider text-xs">Sustaining Fund</a></li>
              </ul>
           </div>
 
@@ -1913,8 +2546,8 @@ export default function App() {
              <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Command Hub</h4>
              <p className="text-gray-400 mb-6 text-sm font-light leading-relaxed">Access secure documents and ledgers.</p>
              <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="w-full p-4 bg-white/5 hover:bg-white hover:text-black font-black uppercase tracking-[0.2em] text-[10px] transition-colors rounded-none flex items-center justify-center space-x-2">
-               <Lock size={12}/>
-               <span>Member Login</span>
+                <Lock size={12}/>
+                <span>Member Login</span>
              </button>
           </div>
         </div>
@@ -1924,6 +2557,106 @@ export default function App() {
            <p>Unionville, Connecticut</p>
         </div>
       </footer>
+
+      {/* --- SCOUT LANYARD QR CARD MODAL --- */}
+      {showLanyardModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setShowLanyardModal(false)}></div>
+          <div className="relative bg-white w-full max-w-2xl p-8 sm:p-10 shadow-2xl rounded-none border-t-8 border-[#143d23] animate-in zoom-in-95 duration-200">
+            <button onClick={() => setShowLanyardModal(false)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors">
+              <X size={24}/>
+            </button>
+            
+            <div className="text-center mb-8">
+              <span className="text-[#BE1E2D] font-black uppercase tracking-[0.25em] text-[10px] block mb-1">Scout Canvassing Kit</span>
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-gray-900">QR Code Lanyard Generator</h3>
+              <p className="text-gray-500 text-xs sm:text-sm mt-1">Print these QR codes for the double-sided scout badge lanyards[cite: 1].</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
+              {/* QR 1: Website */}
+              <div className="bg-gray-50 p-6 border border-gray-200 text-center flex flex-col items-center">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#143d23] mb-3">Front: Wreath Order Store</span>
+                <div className="w-48 h-48 bg-white p-2 border border-gray-200 shadow-sm flex items-center justify-center mb-3">
+                  <img 
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Ftroop170.org" 
+                    alt="Storefront QR" 
+                    className="w-full h-full"
+                  />
+                </div>
+                <p className="text-[11px] text-gray-500 font-bold">Points directly to troop170.org</p>
+              </div>
+
+              {/* QR 2: Venmo */}
+              <div className="bg-blue-50/50 p-6 border border-blue-200 text-center flex flex-col items-center">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#008CFF] mb-3">Back: Direct Venmo</span>
+                <div className="w-48 h-48 bg-white p-2 border border-blue-200 shadow-sm flex items-center justify-center mb-3">
+                  <img 
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fvenmo.com%2FTroop170Unionville" 
+                    alt="Venmo QR" 
+                    className="w-full h-full"
+                  />
+                </div>
+                <p className="text-[11px] text-blue-900 font-bold">@Troop170Unionville</p>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button 
+                type="button" 
+                onClick={() => {
+                  const printWin = window.open('', '_blank');
+                  if (!printWin) {
+                    alert("Please allow pop-ups to print the lanyard cards.");
+                    return;
+                  }
+                  printWin.document.write(`
+                    <html>
+                      <head>
+                        <title>Troop 170 - Lanyard QR Codes</title>
+                        <style>
+                          body { font-family: sans-serif; text-align: center; padding: 40px; }
+                          .qr-container { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
+                          .card { border: 2px dashed #333; padding: 20px; width: 220px; }
+                          h3 { margin-top: 0; font-size: 14px; text-transform: uppercase; }
+                          p { font-size: 11px; margin-bottom: 0; }
+                        </style>
+                      </head>
+                      <body>
+                        <h2>TROOP 170 WREATH SALE LANYARD CARDS</h2>
+                        <div class="qr-container">
+                          <div class="card">
+                            <h3>Front: Order Store</h3>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Ftroop170.org" width="180" height="180" />
+                            <p>Scan to place online order</p>
+                          </div>
+                          <div class="card">
+                            <h3>Back: Troop Venmo</h3>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fvenmo.com%2FTroop170Unionville" width="180" height="180" />
+                            <p>@Troop170Unionville</p>
+                          </div>
+                        </div>
+                        <script>window.onload = () => { window.print(); }</script>
+                      </body>
+                    </html>
+                  `);
+                  printWin.document.close();
+                }}
+                className="flex-1 py-3.5 bg-[#143d23] hover:bg-[#0e2b19] text-white font-black uppercase tracking-widest text-xs transition-colors flex items-center justify-center space-x-2"
+              >
+                <Printer size={16}/> <span>Print Lanyard Cards</span>
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setShowLanyardModal(false)} 
+                className="px-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-black uppercase tracking-widest text-xs transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* REGISTRATION MODAL */}
       {selectedBadge && (
