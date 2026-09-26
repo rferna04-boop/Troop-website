@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Tent, Lock, ArrowUpRight, MapPin, Mail, Calendar, Phone, 
   Users, Compass, CheckCircle, Clock, 
   MessageCircle, ExternalLink, Medal, Flame, Heart, Key, 
   FileText, Smartphone, CreditCard, ShieldCheck, Download, 
-  LogOut, BookOpen, X, Search, Printer, Snowflake, Mountain, 
+  LogOut, BookOpen, X, Printer, Snowflake, Mountain, 
   Facebook, Sun, Quote, Image as ImageIcon,
-  Utensils, ShoppingBag, QrCode, Copy, Check
+Utensils, ShoppingBag, QrCode, Copy, Check,
+  PlusCircle, MinusCircle, AlertCircle, RefreshCw, ChevronRight, Shield,
+  ClipboardCheck, Send
 } from 'lucide-react';
+
+// SET YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE:
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7tNBzEsbBF3DoKrmIhrAwjvqMyM91rbzi81-Rr48BHIKiqmJp0o56P9AYc787vR8B/exec";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -22,11 +27,6 @@ export default function App() {
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
-  // SCOUT DOLLAR SEARCH STATE
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeResult, setActiveResult] = useState(null);
-  const [hasSearched, setHasSearched] = useState(false);
-
   // JOIN FORM STATE
   const [joinSuccess, setJoinSuccess] = useState(false);
 
@@ -36,7 +36,7 @@ export default function App() {
     setOpenArchiveId(prev => prev === id ? null : id);
   };
 
-  // --- WREATH STOREFRONT STATE ---
+// --- WREATH STOREFRONT STATE ---
   // Deployed Google Apps Script Web App URL:
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCynuJmNFE8m19REtdu1J5YM5m3C5RPtr5fOf9qBSSzak9lsISXJq5HK2KWQMCw1u2/exec";
   
@@ -64,6 +64,294 @@ export default function App() {
   const [wreathError, setWreathError] = useState('');
   const [copiedMemo, setCopiedMemo] = useState(false);
   const [showLanyardModal, setShowLanyardModal] = useState(false);
+
+  // ========================================================
+  // SCOUT DOLLARS: PARENT & LEADER & AUDIT SYSTEM STATE
+  // ========================================================
+  const [scoutDollarMode, setScoutDollarMode] = useState('parent'); // 'parent', 'leader', 'audit'
+  
+  // Parent Search State
+  const [parentScoutId, setParentScoutId] = useState('');
+  const [parentPin, setParentPin] = useState('');
+  const [parentAccount, setParentAccount] = useState(null);
+  const [parentTransactions, setParentTransactions] = useState([]);
+  const [parentLoading, setParentLoading] = useState(false);
+  const [parentError, setParentError] = useState('');
+
+  // Leader Admin State (Individual Auth)
+  const [leaderAuthUnlocked, setLeaderAuthUnlocked] = useState(false);
+  const [leaderEmailInput, setLeaderEmailInput] = useState('');
+  const [leaderPinInput, setLeaderPinInput] = useState('');
+  const [activeLeader, setActiveLeader] = useState(null);
+  const [leaderAuthError, setLeaderAuthError] = useState('');
+  
+  // Leader Transaction Form State
+  const [scoutList, setScoutList] = useState([]);
+  const [selectedScoutId, setSelectedScoutId] = useState('');
+  const [txType, setTxType] = useState('DEBIT');
+  const [txAmount, setTxAmount] = useState('');
+  const [txCategory, setTxCategory] = useState('Campout');
+  const [txDescription, setTxDescription] = useState('');
+  const [txLoading, setTxLoading] = useState(false);
+  const [txMessage, setTxMessage] = useState(null);
+
+  // Treasurer Audit Queue State
+  const [auditData, setAuditData] = useState({
+    totalTroopLiability: 0,
+    cumulativeCredits: 0,
+    cumulativeDebits: 0,
+    pendingTransactions: []
+  });
+  const [selectedTxIds, setSelectedTxIds] = useState([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditFeedback, setAuditFeedback] = useState(null);
+
+  // Fetch Parent Balance & Ledger
+  const handleParentLookup = async (e) => {
+    e.preventDefault();
+    setParentLoading(true);
+    setParentError('');
+    setParentAccount(null);
+
+    try {
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'getBalance',
+          scoutId: parentScoutId.trim().toUpperCase(),
+          pin: String(parentPin).trim()
+        })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setParentAccount(data.account);
+        setParentTransactions(data.transactions || []);
+      } else {
+        setParentError(data.error || 'Invalid Scout ID or Family PIN.');
+      }
+    } catch (err) {
+      setParentError('Unable to connect to Scout Dollar server: ' + err.message);
+    } finally {
+      setParentLoading(false);
+    }
+  };
+
+  // Fetch Scout Roster for Leader Dropdown
+  const fetchScoutRoster = useCallback(async (email, pin) => {
+    try {
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'getScouts',
+          leaderEmail: email,
+          leaderPin: pin
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.scouts) {
+        setScoutList(data.scouts);
+        setSelectedScoutId(prev => prev || (data.scouts[0] ? data.scouts[0].scoutId : ''));
+      }
+    } catch (err) {
+      console.error("Could not fetch scouts:", err);
+    }
+  }, []);
+
+  // Fetch Pending Audit Queue
+  const fetchAuditQueue = useCallback(async (email, pin) => {
+    setAuditLoading(true);
+    try {
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'getPendingAudit',
+          leaderEmail: email,
+          leaderPin: pin
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAuditData({
+          totalTroopLiability: data.totalTroopLiability || 0,
+          cumulativeCredits: data.cumulativeCredits || 0,
+          cumulativeDebits: data.cumulativeDebits || 0,
+          pendingTransactions: data.pendingTransactions || []
+        });
+        setSelectedTxIds((data.pendingTransactions || []).map(tx => tx.txId));
+      }
+    } catch (err) {
+      console.error("Could not fetch audit queue:", err);
+    } finally {
+      setAuditLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (leaderAuthUnlocked && currentPage === 'scoutDollars' && activeLeader) {
+      fetchScoutRoster(activeLeader.email, leaderPinInput);
+      fetchAuditQueue(activeLeader.email, leaderPinInput);
+    }
+  }, [leaderAuthUnlocked, currentPage, activeLeader, leaderPinInput, fetchScoutRoster, fetchAuditQueue]);
+
+  // Submit Leader Login
+  const handleLeaderLogin = async (e) => {
+    e.preventDefault();
+    setTxLoading(true);
+    setLeaderAuthError('');
+
+    try {
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'verifyLeader',
+          email: leaderEmailInput.trim().toLowerCase(),
+          pin: leaderPinInput.trim()
+        })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setActiveLeader(data.leader);
+        setLeaderAuthUnlocked(true);
+        fetchScoutRoster(leaderEmailInput.trim().toLowerCase(), leaderPinInput.trim());
+        fetchAuditQueue(leaderEmailInput.trim().toLowerCase(), leaderPinInput.trim());
+      } else {
+        setLeaderAuthError(data.error || 'Invalid leader email or PIN.');
+      }
+    } catch (err) {
+      setLeaderAuthError('Connection error to server.');
+    } finally {
+      setTxLoading(false);
+    }
+  };
+
+  // Submit Leader Transaction
+  const handleLeaderSubmit = async (e) => {
+    e.preventDefault();
+    setTxLoading(true);
+    setTxMessage(null);
+
+    const amountNum = parseFloat(txAmount);
+    const chosenScout = scoutList.find(s => s.scoutId === selectedScoutId);
+
+    if (!selectedScoutId) {
+      setTxMessage({ type: 'error', text: 'Please select a scout.' });
+      setTxLoading(false);
+      return;
+    }
+
+    if (txType === 'DEBIT' && chosenScout && amountNum > chosenScout.balance) {
+      setTxMessage({ type: 'error', text: `Insufficient funds! Available: $${chosenScout.balance.toFixed(2)}, Requested: $${amountNum.toFixed(2)}` });
+      setTxLoading(false);
+      return;
+    }
+
+    try {
+      const payload = {
+        action: 'recordTransaction',
+        leaderEmail: activeLeader.email,
+        leaderPin: leaderPinInput.trim(),
+        scoutId: selectedScoutId,
+        type: txType,
+        amount: amountNum,
+        category: txCategory,
+        description: txDescription
+      };
+
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setTxMessage({ type: 'success', text: data.message });
+        setTxAmount('');
+        setTxDescription('');
+        fetchScoutRoster(activeLeader.email, leaderPinInput.trim());
+        fetchAuditQueue(activeLeader.email, leaderPinInput.trim());
+      } else {
+        setTxMessage({ type: 'error', text: data.error || 'Transaction failed to post.' });
+      }
+    } catch (err) {
+      setTxMessage({ type: 'error', text: 'Server communication error.' });
+    } finally {
+      setTxLoading(false);
+    }
+  };
+
+  // Treasurer: Approve & Reconcile Selected Transactions
+  const handleReconcileSelected = async () => {
+    if (selectedTxIds.length === 0) return;
+    setAuditLoading(true);
+    setAuditFeedback(null);
+
+    try {
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'reconcileBatch',
+          leaderEmail: activeLeader.email,
+          leaderPin: leaderPinInput.trim(),
+          txIds: selectedTxIds
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAuditFeedback({ type: 'success', text: data.message });
+        fetchAuditQueue(activeLeader.email, leaderPinInput.trim());
+      } else {
+        setAuditFeedback({ type: 'error', text: data.error || 'Reconciliation failed.' });
+      }
+    } catch (err) {
+      setAuditFeedback({ type: 'error', text: 'Connection error while reconciling.' });
+    } finally {
+      setAuditLoading(false);
+    }
+  };
+
+  // Treasurer: Dispatch CFO Memorandum Email
+  const handleDispatchCfo = async () => {
+    if (!window.confirm("Send the official Monthly Reconciliation Memorandum to Oliver Gloe (CFO) and Michelle Guerrerra?")) return;
+    setAuditLoading(true);
+    setAuditFeedback(null);
+
+    try {
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'dispatchCfoMemo',
+          leaderEmail: activeLeader.email,
+          leaderPin: leaderPinInput.trim()
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAuditFeedback({ type: 'success', text: data.message });
+      } else {
+        setAuditFeedback({ type: 'error', text: data.error || 'Failed to dispatch memo.' });
+      }
+    } catch (err) {
+      setAuditFeedback({ type: 'error', text: 'Server communication error.' });
+    } finally {
+      setAuditLoading(false);
+    }
+  };
+
+  const selectedScoutObj = scoutList.find(s => s.scoutId === selectedScoutId);
+  const isFinanceOfficer = activeLeader && (
+    activeLeader.role.toLowerCase().includes('treasurer') || 
+    activeLeader.role.toLowerCase().includes('cfo') || 
+    activeLeader.role.toLowerCase().includes('admin')
+  );
 
   const darkBg = "#0B0F19";
 
@@ -268,7 +556,7 @@ export default function App() {
       milestones: ['Summer Camp', 'Eagle Work Parties', 'Sea Base Prep'],
       heroImg: '/images/scout-corner/2026-07-hero.jpg',
       heroFallback: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80',
-      summary: "July was a month of adventure, service, and continued preparation for the exciting opportunities ahead. Scouts spent time building skills and memories at summer camp, supporting one another through Eagle Scout projects, and preparing for the upcoming Sea Base adventure. Throughout the month, the troop continued to demonstrate the importance of leadership, teamwork, and service.\n\nOne of the month's biggest highlights was summer camp. Scouts had the opportunity to spend time outdoors, learn new skills, work toward advancement, and enjoy the traditions and experiences that make summer camp such an important part of Scouting. The week provided Scouts with opportunities to challenge themselves, strengthen friendships, and grow more independent while participating in a variety of activities. Reflecting on the experience, one Scout shared, \"Summer camp is one of my favorite parts of Scouting because you get to learn new things while spending the week with your friends.\"\n\nJuly was also an active month for service, with multiple Scouts continuing to work toward their Eagle Scout rank by planning and completing their Eagle projects. The troop supported these efforts through two work parties, giving fellow Scouts, leaders, and families the opportunity to contribute their time and skills. These projects provided valuable leadership experiences for the Scouts organizing them while also demonstrating the Scouting spirit of service to others. As one Scout remarked, \"It's great being able to help with an Eagle project because you know that your work is making a difference and helping someone in the community.\"\n\nWith Sea Base quickly approaching, Scouts and families also continued preparing for the upcoming high-adventure experience. The trip has given Scouts something exciting to look forward to while encouraging them to work together, prepare responsibly, and make the most of the opportunities ahead. The months of planning and fundraising are coming together as the group gets closer to setting out on this adventure. One Scout summed up the excitement by saying, \"We've been preparing for Sea Base for a long time, so it's exciting to know that the adventure is finally getting closer.\"\n\nOverall, July was a month filled with adventure, service, and anticipation. From the excitement of summer camp to the hard work taking place on Eagle projects and the final preparations for Sea Base, Scouts continued to grow as leaders, teammates, and members of their community. The experiences of July helped build both individual confidence and troop spirit while setting the stage for even more memorable adventures in the months ahead.",
+      summary: "July was a month of adventure, service, and continued preparation for the exciting opportunities ahead. Scouts spent time building skills and memories at summer camp, supporting one another through Eagle Scout projects, and preparing for the upcoming Sea Base adventure. Throughout the month, the troop continued to demonstrate the importance of leadership, teamwork, and service.",
       quote: "Summer camp is one of my favorite parts of Scouting because you get to learn new things while spending the week with your friends.",
       scoutName: "Troop 170 Scout",
       scoutRank: "Summer Camper",
@@ -290,7 +578,7 @@ export default function App() {
       milestones: ['Court of Honor & Picnic', '2 New Eagle Scouts', 'Sea Base Fundraisers'],
       heroImg: '/images/scout-corner/2026-04-gal1.jpeg',
       heroFallback: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80',
-      summary: "June was a month of celebration, advancement, and preparation for exciting summer adventures. Scouts had the opportunity to recognize major achievements, continue working toward their individual goals, and support the troop through several successful fundraising events.\n\nOne of the month's major highlights was the June Court of Honor and annual troop picnic. The Court of Honor recognized Scouts for their hard work, dedication, and accomplishments in advancement, celebrating merit badges, rank advancements, and other achievements earned throughout the year. Following the ceremony, Scouts, families, and leaders gathered for the annual picnic, enjoying an afternoon of fun, games, good food, and fellowship. The event provided an excellent opportunity to celebrate the troop's successes while strengthening the sense of community among troop families. As one Scout shared, \"It's always exciting to see everyone's hard work pay off, and celebrating together at the picnic makes it even more special.\"\n\nThe troop also celebrated a significant milestone as Andrew Tabol and Devyaan Bordoloi were honored at their Eagle Scout Court of Honor. This memorable ceremony recognized their years of dedication, leadership, and service that culminated in earning Scouting's highest rank. Their accomplishments serve as an inspiration to younger Scouts as they continue working toward their own goals. Reflecting on the ceremony, one Scout remarked, \"Seeing two Scouts earn Eagle reminds me that if I keep working hard, I can get there too.\"\n\nWith the arrival of summer, the troop began its summer meeting schedule, placing a greater emphasis on individualized advancement. These meetings gave Scouts the opportunity to focus on their personal goals, complete advancement requirements, and receive one-on-one guidance from troop leaders. This flexible approach allowed each Scout to make meaningful progress at their own pace while continuing to build valuable Scouting skills. One Scout commented, \"I like being able to work on the things I need most because it helps me keep moving forward.\"\n\nThroughout the month, the troop also held multiple restaurant fundraising events to help support Scouts preparing for the upcoming Sea Base adventure. These fundraisers brought together Scouts, families, and members of the community while helping offset the cost of this exciting high-adventure experience. The strong participation and support demonstrated the troop's commitment to helping Scouts achieve memorable opportunities through teamwork and community involvement. As one Scout put it, \"Every fundraiser gets us one step closer to Sea Base, and it's great seeing everyone pitch in to make it happen.\"\n\nOverall, June was a month filled with celebration, personal achievement, and preparation for future adventures. From recognizing advancements and honoring new Eagle Scouts to beginning summer meetings and supporting Sea Base through fundraising, the troop continued to demonstrate the values of leadership, service, and fellowship that define the Scouting program.",
+      summary: "June was a month of celebration, advancement, and preparation for exciting summer adventures. Scouts had the opportunity to recognize major achievements, continue working toward their individual goals, and support the troop through several successful fundraising events.",
       quote: "Seeing two Scouts earn Eagle reminds me that if I keep working hard, I can get there too.",
       scoutName: "Troop 170 Scout",
       scoutRank: "Court of Honor Attendee",
@@ -312,7 +600,7 @@ export default function App() {
       milestones: ['150 Meals Packed', 'Sea Base Fundraiser', 'Merit Badge Push'],
       heroImg: '/images/scout-corner/2026-04-gal1.jpeg',
       heroFallback: 'https://images.unsplash.com/photo-1533240332313-0cb49f471b75?auto=format&fit=crop&w=1200&q=80',
-      summary: "April was a meaningful and engaging month for the troop, combining service, skill-building, and preparation for exciting future adventures.\n\nOne of the most impactful events of the month was the troop’s meal-packing service project, where Scouts came together to prepare meals for those in need. This hands-on effort emphasized the importance of giving back to the community and demonstrated how small actions can make a big difference. Scouts worked efficiently as a team, showing dedication and compassion throughout the event. “Being at the meal packing event not only helped us but it helped many people in need. It saved [and changed] people’s lives. Packing meals felt amazing” said Gabe, a Scout present at the event.\n\nAnother highlight was the University of Cooking campout, which gave Scouts the opportunity to expand their culinary skills in a fun and interactive outdoor setting. Patrols planned menus, prepared meals, and explored new cooking techniques beyond the basics. The campout encouraged creativity and teamwork while helping Scouts build confidence in their abilities. It was both an educational and enjoyable experience for everyone involved.\n\nIn addition, the troop made strong progress in fundraising efforts to support the upcoming Sea Base high adventure trip. “Although it may seem like a boring experience, it was interesting and a great way to interact with the community” said Gabe, a Scout present at the event. Through these fundraisers, Scouts showed initiative and commitment toward reaching their goals, working together to make this exciting opportunity possible.\n\nThroughout the month, troop meetings continued to focus on developing important skills and preparing Scouts for future activities and advancement. Many Scouts also continued working toward merit badges, further broadening their knowledge and experiences.\n\nOverall, April was a well-balanced month filled with service, learning, and forward-looking efforts, highlighting the troop’s dedication to teamwork, growth, and adventure.",
+      summary: "April was a meaningful and engaging month for the troop, combining service, skill-building, and preparation for exciting future adventures.",
       quote: "Being at the meal packing event not only helped us but it helped many people in need. It saved [and changed] people’s lives. Packing meals felt amazing.",
       scoutName: "Gabe",
       scoutRank: "Scout",
@@ -334,7 +622,7 @@ export default function App() {
       milestones: ['42 Nights Camping', 'Wilderness Survival', '12 Miles Hiked'],
       heroImg: '/images/scout-corner/2026-03-hero.jpg',
       heroFallback: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80',
-      summary: "March was an active and productive month for the troop with lots of adventures, learning, and achievement recognition.\n\nSome of the most notable events were the Cabin and Lean-to Camping Trip at Camp Sequassen where the Scouts could experience outdoor camping life in late winter. This event gave the opportunity to learn useful camping skills, cooperate within patrols, and enjoy the associated with spending time in nature. “It was a very entertaining and unique camp out and we had a lot of fun and learned many skills!” said one of the Scouts who preferred not to be named.\n\nFurthermore, the Court of Honor took place which celebrated all the work done by the members of the troop throughout this month. Scouts were awarded for earning new ranks, completing merit badges, and other achievements during their Scouting journey.\n\nThe month of March saw a number of meetings take place with an emphasis on developing skills and knowledge among the troop. The meetings involved different subjects that helped the Scouts to develop as leaders and increase their outdoorsmanship and readiness.\n\nMoreover, some of the Scouts made good progress in earning merit badges, thereby improving themselves in various fields.\n\nMarch was indeed a very balanced month that included everything from adventure, development, and education.",
+      summary: "March was an active and productive month for the troop with lots of adventures, learning, and achievement recognition.",
       quote: "It was a very entertaining and unique camp out and we had a lot of fun and learned many skills!",
       scoutName: "Anonymous Scout",
       scoutRank: "Troop 170 Member",
@@ -368,13 +656,6 @@ export default function App() {
     { id: 102, name: "Citizenship in the Nation", date: "Monday, Oct 23", time: "6:00 PM - 7:00 PM", counselor: "Mr. Johnson", status: "Open", img: "https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&w=800&q=80" },
     { id: 103, name: "Personal Management", date: "Monday, Nov 6", time: "6:00 PM - 7:00 PM", counselor: "Mrs. Davis", status: "Waitlist", img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80" },
     { id: 104, name: "Environmental Science", date: "Saturday, Nov 11", time: "10:00 AM - 3:00 PM", counselor: "Mr. Thompson", status: "Full", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80" }
-  ];
-
-  const scoutAccounts = [
-    { id: 1, name: "Alexander T.", balance: 145.50, lastTransaction: "Holiday Wreath Sales (+ $120.00)", date: "Dec 15, 2025" },
-    { id: 2, name: "Benjamin C.", balance: 85.00, lastTransaction: "Spring Can Drive (+ $85.00)", date: "Mar 02, 2026" },
-    { id: 3, name: "Carter H.", balance: 320.25, lastTransaction: "Summer Camp Deposit (- $150.00)", date: "Feb 20, 2026" },
-    { id: 4, name: "Daniel W.", balance: 12.00, lastTransaction: "Weekend Campout Fee (- $25.00)", date: "Jan 10, 2026" },
   ];
 
   const gearListsData = [
@@ -465,7 +746,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col font-sans bg-white text-gray-900 selection:bg-[#BE1E2D] selection:text-white">
       
-      {/* --- AGENCY NAVIGATION --- */}
+      {/* NAVIGATION */}
       <nav className="text-white relative z-50 border-b border-white/10" style={{ backgroundColor: darkBg }}>
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex justify-between h-24 items-center">
@@ -1068,8 +1349,6 @@ export default function App() {
         {/* --- SCOUT CORNER (AUGUST SPOTLIGHT + ACCORDION ARCHIVES) --- */}
         {currentPage === 'scoutCorner' && (
           <div className="bg-gray-50 pb-32 animate-in fade-in duration-700 min-h-screen">
-            
-            {/* Header */}
             <div className="relative pt-32 pb-32 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
               <div className="absolute inset-0 z-0">
                 <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80" alt="Mountains" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
@@ -1090,8 +1369,6 @@ export default function App() {
             </div>
 
             <div className="max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 relative -mt-10 z-20">
-              
-              {/* HISTORIAN PROFILE CARD */}
               <div className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.08)] mb-14 flex flex-col md:flex-row items-center gap-8 border border-gray-100 relative z-30">
                 <img 
                   src="/images/scout-corner/sheldon.jpg" 
@@ -1108,7 +1385,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* FEATURED SPOTLIGHT POST (AUGUST 2026) */}
               <div className="mb-20">
                 <div className="flex items-center space-x-3 mb-6">
                   <span className="w-3 h-3 bg-[#BE1E2D] rounded-full animate-ping"></span>
@@ -1142,7 +1418,6 @@ export default function App() {
                       {featuredEntry.summary}
                     </p>
 
-                    {/* Spotlight Quote */}
                     <div className="bg-gray-50 rounded-2xl p-8 relative border border-gray-200/80 mb-10">
                       <div className="absolute -top-4 -left-3 w-10 h-10 bg-[#BE1E2D] rounded-full flex items-center justify-center shadow-lg">
                         <Quote size={18} className="text-white" />
@@ -1164,7 +1439,6 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Spotlight Gallery */}
                     {featuredEntry.gallery?.length > 0 && (
                       <div className="pt-6 border-t border-gray-100">
                         <span className="text-[11px] font-black tracking-widest uppercase text-gray-400 flex items-center mb-4">
@@ -1203,7 +1477,6 @@ export default function App() {
                 <div className="space-y-4">
                   {pastEntries.map(entry => {
                     const isOpen = openArchiveId === entry.id;
-
                     return (
                       <div 
                         key={entry.id} 
@@ -1522,7 +1795,7 @@ export default function App() {
           </div>
         )}
 
-        {/* --- MEMBER PORTAL --- */}
+        {/* --- MEMBER PORTAL DASHBOARD (ALL CARDS RESTORED) --- */}
         {currentPage === 'portal' && (
           <div className="min-h-screen bg-gray-50 animate-in fade-in duration-500">
             {!isLoggedIn ? (
@@ -1577,6 +1850,7 @@ export default function App() {
                 </div>
                 
                 <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                   {/* CARD 1: BAND APP */}
                    <div className="bg-gradient-to-br from-white to-green-50 border border-green-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-green-600 mb-6 shadow-sm"><Smartphone size={24}/></div>
@@ -1588,6 +1862,7 @@ export default function App() {
                       </a>
                    </div>
 
+                   {/* CARD 2: HEALTH FORMS */}
                    <div className="bg-gradient-to-br from-white to-red-50 border border-red-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-[#BE1E2D] mb-6 shadow-sm"><FileText size={24}/></div>
@@ -1599,6 +1874,7 @@ export default function App() {
                       </a>
                    </div>
 
+                   {/* CARD 3: GEAR HUB */}
                    <div className="bg-gradient-to-br from-white to-amber-50 border border-amber-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-amber-600 mb-6 shadow-sm"><Tent size={24}/></div>
@@ -1610,6 +1886,7 @@ export default function App() {
                       </button>
                    </div>
 
+                   {/* CARD 4: CLINICS */}
                    <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-purple-600 mb-6 shadow-sm"><Medal size={24}/></div>
@@ -1621,17 +1898,19 @@ export default function App() {
                       </button>
                    </div>
 
+                   {/* CARD 5: SCOUT DOLLARS */}
                    <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-[#1D3A6C] mb-6 shadow-sm"><CreditCard size={24}/></div>
                          <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Scout Dollars</h3>
-                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Securely check individual fundraising balances.</p>
+                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Check live family balances, leader transaction entry, and treasurer audits.</p>
                       </div>
                       <button onClick={() => { setCurrentPage('scoutDollars'); setHasSearched(false); setSearchQuery(''); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
                         <span>Access Ledger</span><Search size={14}/>
                       </button>
                    </div>
                    
+                   {/* CARD 6: UNIVERSITY OF COOKING */}
                    <div className="bg-gradient-to-br from-white to-orange-50 border border-orange-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-orange-600 mb-6 shadow-sm"><Utensils size={24}/></div>
@@ -1643,6 +1922,7 @@ export default function App() {
                       </a>
                    </div>
                    
+                   {/* CARD 7: FAMILY HANDBOOK */}
                    <div className="bg-gradient-to-br from-white to-indigo-50 border border-indigo-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-indigo-600 mb-6 shadow-sm"><BookOpen size={24}/></div>
@@ -1654,6 +1934,7 @@ export default function App() {
                       </a>
                    </div>
 
+                   {/* CARD 8: SCOUT LIFE MAGAZINE */}
                    <div className="group relative bg-[#161B22] rounded-3xl p-8 border border-white/5 hover:border-[#BE1E2D]/50 transition-all duration-500 overflow-hidden lg:col-span-2">
                      <div className="absolute -right-8 -top-8 text-white/5 group-hover:text-[#BE1E2D]/10 transition-colors duration-500 pointer-events-none">
                        <BookOpen size={160} />
@@ -1686,12 +1967,505 @@ export default function App() {
           </div>
         )}
 
+        {/* --- DYNAMIC ROOM: SCOUT DOLLARS (WITH TREASURER AUDIT QUEUE) --- */}
+        {currentPage === 'scoutDollars' && (
+          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
+            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Gear Hub</h2>
+               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+            </div>
+
+            <div className="max-w-4xl mx-auto px-6 -mt-8 relative z-20">
+              
+              {/* 1. FAMILY MOBILE ACCOUNT CARD */}
+              {scoutDollarMode === 'parent' && (
+                <div>
+                  <form onSubmit={handleParentLookup} className="bg-white p-6 shadow-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-12 gap-4 rounded-none mb-8">
+                    <div className="sm:col-span-5">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Scout ID</label>
+                      <input 
+                        required 
+                        value={parentScoutId} 
+                        onChange={(e) => setParentScoutId(e.target.value.toUpperCase())}
+                        placeholder="e.g. S-105" 
+                        className="w-full p-3.5 bg-gray-50 border border-gray-200 text-gray-900 font-bold uppercase text-sm focus:border-[#1D3A6C] outline-none"
+                      />
+                    </div>
+                    <div className="sm:col-span-4">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Family PIN</label>
+                      <input 
+                        required 
+                        type="password"
+                        maxLength={6}
+                        value={parentPin} 
+                        onChange={(e) => setParentPin(e.target.value)}
+                        placeholder="4-digit PIN" 
+                        className="w-full p-3.5 bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm focus:border-[#1D3A6C] outline-none"
+                      />
+                    </div>
+                    <div className="sm:col-span-3 flex items-end">
+                      <button 
+                        type="submit" 
+                        disabled={parentLoading}
+                        className="w-full p-3.5 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors flex items-center justify-center space-x-2"
+                      >
+                        {parentLoading ? <RefreshCw size={16} className="animate-spin" /> : <span>View Balance</span>}
+                      </button>
+                    </div>
+                  </form>
+
+        {/* --- DYNAMIC ROOM: LEDGER --- */}
+        {currentPage === 'scoutDollars' && (
+          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
+            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Ledger</h2>
+               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+            </div>
+            
+            <div className="max-w-3xl mx-auto px-6 -mt-10 relative z-20">
+               <form className="flex shadow-lg bg-white rounded-none border border-gray-100" onSubmit={(e) => { e.preventDefault(); const res = scoutAccounts.find(s => s.name.toLowerCase() === searchQuery.trim().toLowerCase()); setActiveResult(res || null); setHasSearched(true); }}>
+                  <div className="flex items-center pl-6 text-gray-400"><Search size={24}/></div>
+                  <input className="flex-grow p-6 text-xl font-light outline-none text-gray-900" placeholder="Exact Registered Name..." value={searchQuery} onChange={(e) => {setSearchQuery(e.target.value); setHasSearched(false);}} />
+                  <button type="submit" className="bg-[#1D3A6C] text-white px-8 font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors">Search</button>
+               </form>
+               
+               {hasSearched && (
+                 <div className="mt-12 animate-in slide-in-from-bottom duration-500">
+                   {activeResult ? (
+                     <div className="bg-white p-10 shadow-xl border-l-[12px] border-green-500 flex flex-col sm:flex-row justify-between items-center rounded-none">
+                        <div className="text-center sm:text-left mb-8 sm:mb-0">
+                           <h3 className="text-3xl font-black tracking-tight uppercase mb-4 text-gray-900">{activeResult.name}</h3>
+                           <p className="inline-flex items-center space-x-2 bg-gray-50 px-3 py-1.5 text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-4 border border-gray-100">
+                             <Clock size={12}/> <span>Updated: {activeResult.date}</span>
+                           </p>
+                           <p className="text-gray-600 text-sm italic">"{activeResult.lastTransaction}"</p>
+                        </div>
+
+                        <div className="mt-8 flex flex-col sm:flex-row sm:items-end justify-between border-t border-white/10 pt-6 gap-6">
+                          <div>
+                            <span className="block text-[10px] uppercase tracking-[0.25em] text-green-300 font-black mb-1">Available Scout Dollars</span>
+                            <div className="text-4xl sm:text-5xl font-black text-white tracking-tighter">
+                              ${parentAccount.currentBalance.toFixed(2)}
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4 text-right sm:text-left">
+                            <div className="bg-black/20 p-2.5 rounded-lg border border-white/5">
+                              <span className="text-[9px] uppercase tracking-wider text-gray-300 block font-bold">Total Earned</span>
+                              <span className="text-sm font-black text-green-400">+${parentAccount.totalEarned.toFixed(2)}</span>
+                            </div>
+                            <div className="bg-black/20 p-2.5 rounded-lg border border-white/5">
+                              <span className="text-[9px] uppercase tracking-wider text-gray-300 block font-bold">Total Applied</span>
+                              <span className="text-sm font-black text-red-400">-${parentAccount.totalUsed.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Transaction Feed */}
+                      <div className="bg-white shadow-xl border border-gray-100 p-8 rounded-none">
+                        <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                          <div>
+                            <h4 className="text-xl font-black uppercase tracking-tight text-gray-900">Activity Journal</h4>
+                            <p className="text-xs text-gray-400">Chronological history of credits and debits</p>
+                          </div>
+                          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-100 px-3 py-1">
+                            {parentTransactions.length} Transactions
+                          </span>
+                        </div>
+
+                        {parentTransactions.length === 0 ? (
+                          <p className="text-gray-400 text-center py-8 text-sm italic">No transaction records on file yet.</p>
+                        ) : (
+                          <div className="divide-y divide-gray-100">
+                            {parentTransactions.map(tx => {
+                              const isCredit = tx.type === 'CREDIT';
+                              return (
+                                <div key={tx.txId} className="py-4 flex items-center justify-between hover:bg-gray-50/80 px-2 transition-colors">
+                                  <div className="flex items-center space-x-4">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isCredit ? 'bg-green-50 text-green-600' : 'bg-red-50 text-[#BE1E2D]'}`}>
+                                      {isCredit ? <PlusCircle size={20} /> : <MinusCircle size={20} />}
+                                    </div>
+                                    <div>
+                                      <p className="font-bold text-sm text-gray-900 leading-snug">{tx.description || tx.category}</p>
+                                      <div className="flex items-center space-x-2 text-[10px] text-gray-400 uppercase tracking-wider font-semibold mt-0.5">
+                                        <span>{tx.date}</span>
+                                        <span>•</span>
+                                        <span className="text-[#1D3A6C]">{tx.category}</span>
+                                        <span>•</span>
+                                        <span>Ref: {tx.txId}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="text-right">
+                                    <span className={`text-base font-black tracking-tight ${isCredit ? 'text-green-600' : 'text-gray-900'}`}>
+                                      {isCredit ? `+$${tx.amount.toFixed(2)}` : `-$${tx.amount.toFixed(2)}`}
+                                    </span>
+                                    <span className="block text-[9px] uppercase tracking-widest text-gray-400 font-bold mt-0.5">{tx.auditStatus}</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                    </div>
+                  )}
+
+                </div>
+              )}
+
+              {/* 2. LEADER TRANSACTION HUB */}
+              {scoutDollarMode === 'leader' && (
+                <div className="bg-white shadow-2xl border-t-8 border-[#BE1E2D] p-8 md:p-10 rounded-none animate-in fade-in duration-300">
+                  
+                  {!leaderAuthUnlocked ? (
+                    <div className="max-w-md mx-auto text-center py-6">
+                      <div className="w-16 h-16 bg-red-50 text-[#BE1E2D] flex items-center justify-center mx-auto mb-4">
+                        <Lock size={30} />
+                      </div>
+                      <h3 className="text-2xl font-black uppercase tracking-tight text-gray-900 mb-2">Leader Sign-In</h3>
+                      <p className="text-gray-500 text-xs mb-6">Enter your authorized email and unique leader PIN.</p>
+                      
+                      <form onSubmit={handleLeaderLogin} className="space-y-4 text-left">
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Leader Email</label>
+                          <input 
+                            required 
+                            type="email"
+                            placeholder="e.g. vallarioc@gmail.com"
+                            value={leaderEmailInput}
+                            onChange={(e) => setLeaderEmailInput(e.target.value)}
+                            className="w-full p-3.5 bg-gray-50 border border-gray-200 text-sm focus:border-[#BE1E2D] outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Personal Leader PIN</label>
+                          <input 
+                            required 
+                            type="password"
+                            maxLength={8}
+                            placeholder="••••"
+                            value={leaderPinInput}
+                            onChange={(e) => setLeaderPinInput(e.target.value)}
+                            className="w-full p-3.5 bg-gray-50 border border-gray-200 text-sm font-bold tracking-widest focus:border-[#BE1E2D] outline-none"
+                          />
+                        </div>
+
+                        {leaderAuthError && (
+                          <p className="text-red-500 text-xs font-bold uppercase tracking-wider text-center">{leaderAuthError}</p>
+                        )}
+
+                        <button 
+                          type="submit" 
+                          disabled={txLoading}
+                          className="w-full p-4 bg-[#BE1E2D] text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors flex justify-center items-center space-x-2"
+                        >
+                          {txLoading ? <RefreshCw size={16} className="animate-spin" /> : <span>Sign In as Leader</span>}
+                        </button>
+                      </form>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
+                        <div>
+                          <div className="inline-flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-[#BE1E2D] mb-1">
+                            <ShieldCheck size={14} /> <span>Session: {activeLeader.name} ({activeLeader.role})</span>
+                          </div>
+                          <h3 className="text-2xl font-black uppercase tracking-tight text-gray-900">Record Transaction</h3>
+                        </div>
+                        <button 
+                          onClick={() => { setLeaderAuthUnlocked(false); setActiveLeader(null); setLeaderPinInput(''); }} 
+                          className="text-[10px] uppercase font-bold text-gray-400 hover:text-gray-700 tracking-wider"
+                        >
+                          Lock Session
+                        </button>
+                      </div>
+
+                      {txMessage && (
+                        <div className={`p-4 mb-6 text-sm font-bold flex items-center space-x-3 ${txMessage.type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-500' : 'bg-red-50 text-red-800 border-l-4 border-red-500'}`}>
+                          {txMessage.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                          <span>{txMessage.text}</span>
+                        </div>
+                      )}
+
+                      <form onSubmit={handleLeaderSubmit} className="space-y-6">
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Select Scout</label>
+                            <select 
+                              value={selectedScoutId} 
+                              onChange={(e) => setSelectedScoutId(e.target.value)}
+                              className="w-full p-4 bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm focus:border-[#1D3A6C] outline-none"
+                            >
+                              {scoutList.map(s => (
+                                <option key={s.scoutId} value={s.scoutId}>
+                                  {s.fullName} ({s.scoutId}) - ${s.balance.toFixed(2)} Available
+                                </option>
+                              ))}
+                            </select>
+                            {selectedScoutObj && (
+                              <p className="text-xs text-gray-500 mt-2">
+                                Available Balance: <strong className="text-green-600 font-black">${selectedScoutObj.balance.toFixed(2)}</strong>
+                              </p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Logged By</label>
+                            <input 
+                              disabled
+                              value={`${activeLeader.name} (${activeLeader.role})`}
+                              className="w-full p-4 bg-gray-100 border border-gray-200 text-gray-600 text-sm font-semibold outline-none cursor-not-allowed"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Transaction Type</label>
+                          <div className="grid grid-cols-2 gap-4">
+                            <button
+                              type="button"
+                              onClick={() => setTxType('DEBIT')}
+                              className={`p-4 border font-black uppercase tracking-widest text-xs flex items-center justify-center space-x-2 ${txType === 'DEBIT' ? 'bg-red-50 border-[#BE1E2D] text-[#BE1E2D]' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+                            >
+                              <MinusCircle size={16} /> <span>Withdrawal (Debit)</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setTxType('CREDIT')}
+                              className={`p-4 border font-black uppercase tracking-widest text-xs flex items-center justify-center space-x-2 ${txType === 'CREDIT' ? 'bg-green-50 border-green-600 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+                            >
+                              <PlusCircle size={16} /> <span>Deposit (Credit)</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Amount ($ USD)</label>
+                            <input 
+                              required 
+                              type="number" 
+                              step="0.01" 
+                              min="0.01"
+                              value={txAmount} 
+                              onChange={(e) => setTxAmount(e.target.value)}
+                              placeholder="55.00" 
+                              className="w-full p-4 bg-gray-50 border border-gray-200 text-gray-900 font-black text-lg focus:border-[#1D3A6C] outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Category</label>
+                            <select 
+                              value={txCategory} 
+                              onChange={(e) => setTxCategory(e.target.value)}
+                              className="w-full p-4 bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm focus:border-[#1D3A6C] outline-none"
+                            >
+                              <option value="Campout">Campout</option>
+                              <option value="Summer Camp">Summer Camp</option>
+                              <option value="High Adventure">High Adventure</option>
+                              <option value="Wreaths">Wreath Fundraiser</option>
+                              <option value="Fundraiser">General Fundraiser</option>
+                              <option value="Dues">Troop Dues</option>
+                              <option value="Equipment">Scout Equipment / Gear</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Event Reference / Description</label>
+                          <input 
+                            required 
+                            value={txDescription} 
+                            onChange={(e) => setTxDescription(e.target.value)}
+                            placeholder="e.g. October Sequassen Fall Campout (Paid via Form)" 
+                            className="w-full p-4 bg-gray-50 border border-gray-200 text-gray-900 text-sm focus:border-[#1D3A6C] outline-none"
+                          />
+                        </div>
+
+                        <button 
+                          type="submit" 
+                          disabled={txLoading}
+                          className="w-full p-5 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors flex items-center justify-center space-x-2"
+                        >
+                          {txLoading ? <RefreshCw size={16} className="animate-spin" /> : <span>Post Entry to Master Ledger</span>}
+                        </button>
+
+                      </form>
+                    </div>
+                  )}
+
+                </div>
+              )}
+
+              {/* 3. TREASURER AUDIT & CFO RECONCILIATION QUEUE */}
+              {scoutDollarMode === 'audit' && isFinanceOfficer && (
+                <div className="bg-white shadow-2xl border-t-8 border-[#1D3A6C] p-8 md:p-10 rounded-none animate-in fade-in duration-300">
+                  
+                  {/* Top Financial Dashboard */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 pb-8 border-b border-gray-100 text-center">
+                    <div className="bg-blue-50 p-6 border border-blue-100">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#1D3A6C] block mb-1">Total Restricted Liability</span>
+                      <span className="text-3xl font-black text-[#1D3A6C]">${auditData.totalTroopLiability.toFixed(2)}</span>
+                    </div>
+                    <div className="bg-green-50 p-6 border border-green-100">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-green-700 block mb-1">Cumulative Credits Earned</span>
+                      <span className="text-3xl font-black text-green-700">+${auditData.cumulativeCredits.toFixed(2)}</span>
+                    </div>
+                    <div className="bg-red-50 p-6 border border-red-100">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#BE1E2D] block mb-1">Cumulative Debits Applied</span>
+                      <span className="text-3xl font-black text-[#BE1E2D]">-${auditData.cumulativeDebits.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+                    <div>
+                      <h3 className="text-2xl font-black uppercase tracking-tight text-gray-900">Pending Audit Queue</h3>
+                      <p className="text-xs text-gray-500">Unreconciled transactions awaiting Treasurer validation</p>
+                    </div>
+                    
+                    <div className="flex space-x-3">
+                      <button 
+                        onClick={handleReconcileSelected}
+                        disabled={auditLoading || selectedTxIds.length === 0}
+                        className="px-5 py-3 bg-green-700 text-white font-black uppercase tracking-widest text-xs hover:bg-green-800 transition-colors flex items-center space-x-2 disabled:opacity-40 rounded-none"
+                      >
+                        <CheckCircle size={15} />
+                        <span>Validate Selected ({selectedTxIds.length})</span>
+                      </button>
+                      <button 
+                        onClick={handleDispatchCfo}
+                        disabled={auditLoading}
+                        className="px-5 py-3 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors flex items-center space-x-2 rounded-none"
+                      >
+                        <Send size={15} />
+                        <span>Dispatch CFO Memo</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {auditFeedback && (
+                    <div className={`p-4 mb-6 text-sm font-bold flex items-center space-x-3 ${auditFeedback.type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-500' : 'bg-red-50 text-red-800 border-l-4 border-red-500'}`}>
+                      {auditFeedback.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                      <span>{auditFeedback.text}</span>
+                    </div>
+                  )}
+
+                  {auditLoading ? (
+                    <div className="py-12 text-center text-gray-400 flex items-center justify-center space-x-3">
+                      <RefreshCw className="animate-spin" size={24} />
+                      <span className="font-bold text-sm">Syncing audit journal with master sheet...</span>
+                    </div>
+                  ) : auditData.pendingTransactions.length === 0 ? (
+                    <div className="bg-gray-50 p-12 text-center border border-gray-100">
+                      <CheckCircle size={40} className="text-green-600 mx-auto mb-3" />
+                      <h4 className="text-lg font-black uppercase tracking-tight text-gray-900">Audit Journal Complete</h4>
+                      <p className="text-xs text-gray-500 max-w-md mx-auto mt-1">All posted debits and credits have been reconciled. Click "Dispatch CFO Memo" above to send the monthly report to Oliver Gloe.</p>
+                    </div>
+                  ) : (
+                    <div className="border border-gray-200 overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 uppercase font-black tracking-wider">
+                            <th className="p-3 w-10 text-center">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedTxIds.length === auditData.pendingTransactions.length}
+                                onChange={(e) => {
+                                  if (e.target.checked) setSelectedTxIds(auditData.pendingTransactions.map(t => t.txId));
+                                  else setSelectedTxIds([]);
+                                }}
+                              />
+                            </th>
+                            <th className="p-3">Date</th>
+                            <th className="p-3">Scout</th>
+                            <th className="p-3">Type</th>
+                            <th className="p-3">Amount</th>
+                            <th className="p-3">Category</th>
+                            <th className="p-3">Description</th>
+                            <th className="p-3">Recorded By</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {auditData.pendingTransactions.map(tx => {
+                            const isSelected = selectedTxIds.includes(tx.txId);
+                            const isCredit = tx.type === 'CREDIT';
+                            return (
+                              <tr key={tx.txId} className={`hover:bg-blue-50/50 ${isSelected ? 'bg-blue-50/20' : ''}`}>
+                                <td className="p-3 text-center">
+                                  <input 
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                      if (e.target.checked) setSelectedTxIds(prev => [...prev, tx.txId]);
+                                      else setSelectedTxIds(prev => prev.filter(id => id !== tx.txId));
+                                    }}
+                                  />
+                                </td>
+                                <td className="p-3 font-mono text-gray-600">{tx.date}</td>
+                                <td className="p-3 font-bold text-gray-900">{tx.scoutName}</td>
+                                <td className={`p-3 font-black ${isCredit ? 'text-green-600' : 'text-[#BE1E2D]'}`}>{tx.type}</td>
+                                <td className="p-3 font-black text-gray-900">${tx.amount.toFixed(2)}</td>
+                                <td className="p-3 text-gray-600">{tx.category}</td>
+                                <td className="p-3 text-gray-700 italic max-w-xs">{tx.description}</td>
+                                <td className="p-3 text-[11px] text-gray-500 font-semibold">{tx.recordedBy}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                </div>
+              )}
+
+            </div>
+          </div>
+        )}
+
+        {/* --- DYNAMIC ROOM: CLINICS --- */}
+        {currentPage === 'meritBadges' && (
+          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
+            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Clinics</h2>
+               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+            </div>
+            
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
+               {upcomingBadges.map(badge => (
+                 <div key={badge.id} className="bg-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] group flex flex-col justify-between rounded-none border-b-4 border-purple-800 hover:-translate-y-1 transition-transform">
+                    <div className="relative h-48 overflow-hidden">
+                       <img src={badge.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={badge.name} />
+                       <div className="absolute top-4 right-4 bg-[#BE1E2D] text-white px-3 py-1 font-black uppercase tracking-widest text-[9px] shadow-md">{badge.status}</div>
+                    </div>
+                    <div className="p-8">
+                       <h3 className="text-xl font-black uppercase tracking-tight mb-6 text-gray-900 leading-tight">{badge.name}</h3>
+                       <div className="space-y-3 mb-8 text-gray-600 font-bold uppercase tracking-wider text-[10px]">
+                          <div className="flex items-center space-x-3"><Calendar size={14} className="text-[#1D3A6C]"/> <span>{badge.date}</span></div>
+                          <div className="flex items-center space-x-3"><Clock size={14} className="text-[#1D3A6C]"/> <span>{badge.time}</span></div>
+                          <div className="flex items-center space-x-3"><Users size={14} className="text-[#1D3A6C]"/> <span>{badge.counselor}</span></div>
+                       </div>
+                       <button onClick={() => { setSelectedBadge(badge); setRegistrationSuccess(false); }} className="w-full p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-[10px] hover:bg-gray-900 transition-colors rounded-none">Register Scout</button>
+                    </div>
+                 </div>
+               ))}
+            </div>
+          </div>
+        )}
+
         {/* --- DYNAMIC ROOM: GEAR HUB --- */}
         {currentPage === 'gearLists' && (
           <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
             <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
                <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Gear Hub</h2>
-               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+               <button onClick={() => setCurrentPage('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
             </div>
             
             <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
@@ -1721,80 +2495,6 @@ export default function App() {
                            ))}
                          </div>
                        )}
-                    </div>
-                 </div>
-               ))}
-            </div>
-          </div>
-        )}
-
-        {/* --- DYNAMIC ROOM: LEDGER --- */}
-        {currentPage === 'scoutDollars' && (
-          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
-            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
-               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Ledger</h2>
-               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
-            </div>
-            
-            <div className="max-w-3xl mx-auto px-6 -mt-10 relative z-20">
-               <form className="flex shadow-lg bg-white rounded-none border border-gray-100" onSubmit={(e) => { e.preventDefault(); const res = scoutAccounts.find(s => s.name.toLowerCase() === searchQuery.trim().toLowerCase()); setActiveResult(res || null); setHasSearched(true); }}>
-                  <div className="flex items-center pl-6 text-gray-400"><Search size={24}/></div>
-                  <input className="flex-grow p-6 text-xl font-light outline-none text-gray-900" placeholder="Exact Registered Name..." value={searchQuery} onChange={(e) => {setSearchQuery(e.target.value); setHasSearched(false);}} />
-                  <button type="submit" className="bg-[#1D3A6C] text-white px-8 font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors">Search</button>
-               </form>
-               
-               {hasSearched && (
-                 <div className="mt-12 animate-in slide-in-from-bottom duration-500">
-                   {activeResult ? (
-                     <div className="bg-white p-10 shadow-xl border-l-[12px] border-green-500 flex flex-col sm:flex-row justify-between items-center rounded-none">
-                        <div className="text-center sm:text-left mb-8 sm:mb-0">
-                           <h3 className="text-3xl font-black tracking-tight uppercase mb-4 text-gray-900">{activeResult.name}</h3>
-                           <p className="inline-flex items-center space-x-2 bg-gray-50 px-3 py-1.5 text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-4 border border-gray-100">
-                             <Clock size={12}/> <span>Updated: {activeResult.date}</span>
-                           </p>
-                           <p className="text-gray-600 text-sm italic">"{activeResult.lastTransaction}"</p>
-                        </div>
-                        <div className="text-center sm:text-right bg-green-50 p-8 border border-green-100 min-w-[200px] rounded-none">
-                           <span className="block text-green-800 font-black uppercase tracking-widest text-[10px] mb-2">Available Balance</span>
-                           <span className="text-5xl font-black text-green-600 tracking-tighter">${activeResult.balance.toFixed(2)}</span>
-                        </div>
-                     </div>
-                   ) : (
-                    <div className="bg-white p-16 text-center shadow-xl border-t-[12px] border-[#BE1E2D] rounded-none">
-                       <div className="w-16 h-16 bg-red-50 flex items-center justify-center mx-auto mb-6 rounded-full"><Lock size={24} className="text-[#BE1E2D]"/></div>
-                       <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-gray-900">Record Locked</h3>
-                       <p className="text-gray-500 text-sm max-w-sm mx-auto">For privacy, you must search the exact spelling of the registered name (e.g. "Alexander T.").</p>
-                    </div>
-                   )}
-                 </div>
-               )}
-            </div>
-          </div>
-        )}
-
-        {/* --- DYNAMIC ROOM: CLINICS --- */}
-        {currentPage === 'meritBadges' && (
-          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
-            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
-               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Clinics</h2>
-               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
-            </div>
-            
-            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
-               {upcomingBadges.map(badge => (
-                 <div key={badge.id} className="bg-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] group flex flex-col justify-between rounded-none border-b-4 border-purple-800 hover:-translate-y-1 transition-transform">
-                    <div className="relative h-48 overflow-hidden">
-                       <img src={badge.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={badge.name} />
-                       <div className="absolute top-4 right-4 bg-[#BE1E2D] text-white px-3 py-1 font-black uppercase tracking-widest text-[9px] shadow-md">{badge.status}</div>
-                    </div>
-                    <div className="p-8">
-                       <h3 className="text-xl font-black uppercase tracking-tight mb-6 text-gray-900 leading-tight">{badge.name}</h3>
-                       <div className="space-y-3 mb-8 text-gray-600 font-bold uppercase tracking-wider text-[10px]">
-                          <div className="flex items-center space-x-3"><Calendar size={14} className="text-[#1D3A6C]"/> <span>{badge.date}</span></div>
-                          <div className="flex items-center space-x-3"><Clock size={14} className="text-[#1D3A6C]"/> <span>{badge.time}</span></div>
-                          <div className="flex items-center space-x-3"><Users size={14} className="text-[#1D3A6C]"/> <span>{badge.counselor}</span></div>
-                       </div>
-                       <button onClick={() => { setSelectedBadge(badge); setRegistrationSuccess(false); }} className="w-full p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-[10px] hover:bg-gray-900 transition-colors rounded-none">Register Scout</button>
                     </div>
                  </div>
                ))}
