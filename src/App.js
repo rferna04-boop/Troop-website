@@ -142,7 +142,7 @@ export default function App() {
     }
   };
 
-  // Fetch Parent Balance & Ledger
+  // Fetch Parent Balance & Ledger (with robust Scout Name fallback)
   const handleParentLookup = async (e) => {
     e.preventDefault();
     setParentLoading(true);
@@ -162,7 +162,26 @@ export default function App() {
       const data = await res.json();
 
       if (data.success) {
-        setParentAccount(data.account);
+        // Resolve scout name across all potential GAS payload formats
+        const resolvedName = 
+          data.account?.scoutName || 
+          data.account?.fullName || 
+          data.account?.name || 
+          data.scoutName || 
+          data.fullName || 
+          data.name || 
+          '';
+
+        const resolvedBalance = 
+          typeof data.account?.currentBalance === 'number' ? data.account.currentBalance :
+          typeof data.account?.balance === 'number' ? data.account.balance :
+          typeof data.balance === 'number' ? data.balance : 0;
+
+        setParentAccount({
+          ...data.account,
+          scoutName: resolvedName,
+          currentBalance: resolvedBalance
+        });
         setParentTransactions(data.transactions || []);
       } else {
         setParentError(data.error || 'Invalid Scout ID or Family PIN.');
@@ -2159,8 +2178,12 @@ export default function App() {
                       <div className="bg-[#143d23] text-white p-6 sm:p-10 shadow-xl mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                           <span className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-200 block mb-1">Scout Account</span>
-                          <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">{parentAccount.scoutName || parentScoutId}</h3>
-                          <p className="text-xs text-emerald-100 mt-1">Troop 170 General Ledger System</p>
+                          <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
+                            {parentAccount.scoutName || parentAccount.fullName || parentAccount.name || "Troop 170 Scout"}
+                          </h3>
+                          <p className="text-xs text-emerald-100 mt-1">
+                            ID: <span className="font-mono font-bold">{parentAccount.scoutId || parentScoutId}</span> • Troop 170 General Ledger
+                          </p>
                         </div>
                         <div className="text-left sm:text-right">
                           <span className="text-[10px] font-black uppercase tracking-widest text-emerald-200 block mb-1">Available Balance</span>
