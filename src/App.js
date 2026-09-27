@@ -7,8 +7,8 @@ import {
   LogOut, BookOpen, X, Printer, Snowflake, Mountain, 
   Facebook, Sun, Quote, Image as ImageIcon,
   Utensils, ShoppingBag, QrCode, Copy, Check,
-  PlusCircle, MinusCircle, AlertCircle, RefreshCw, ChevronRight, Shield,
-  ClipboardCheck, Send
+  PlusCircle, MinusCircle, AlertCircle, RefreshCw,
+  Send, Menu
 } from 'lucide-react';
 
 // SET YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE:
@@ -16,6 +16,7 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7tNBzEsbBF3DoKrmI
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeProgram, setActiveProgram] = useState(0);
   
   // PORTAL AUTHENTICATION STATE
@@ -104,6 +105,13 @@ export default function App() {
   const [selectedTxIds, setSelectedTxIds] = useState([]);
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditFeedback, setAuditFeedback] = useState(null);
+
+  // Navigation Helper
+  const navigateTo = (pageId) => {
+    setCurrentPage(pageId);
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Fetch Parent Balance & Ledger
   const handleParentLookup = async (e) => {
@@ -415,12 +423,12 @@ export default function App() {
   const SCOUT_ROSTER = [
     "General Troop 170 Fund / Don't Know",
     "Aadhav C.", "Aarnav S.", "Adam S.", "Alexander F.", "Andrew H.", "Andrew S.", "Andrew T.",
-    "Ayan S.", "Bennett L.", "Carter O.", "Chiru Abhinav M.", "Christopher H.", "Connor N.",
-    "Daniel G.", "Devin N.", "Devlin M.", "Devyaan B.", "Divij A.", "Doug P.", "Gabriel C.",
-    "Gabriel M.", "Jack M.", "Jackson K.", "Jacob S.", "James D.", "James M.", "John H.",
-    "Ketann S.", "Kiernan W.", "Liam M.", "Lucas G.", "Luke W.", "Mason T.", "Nathan C.",
-    "Nathaniel D.", "Nicholas B.", "Oliver M.", "Parker F.", "Phillip V.", "Pranav Tej M.",
-    "Reyansh B.", "Rithvik G.", "Riyan P.", "Ronan B.", "Ryan D.", "Sebastian C.", "Seth K.",
+    "Ayan S.", "Bennett L.", "Carter O.", "Chiru M.", "Christopher H.", "Claire B." , "Connor N.",
+    "Devin N.", "Devlin M.", "Devyaan B.", "Divij A.", "Doug P.", "Evelyn F." , "Gabriel C.",
+    "Gabriel M.", "Jack H." , "Jack M.", "Jackson K.", "Jack P.", "Jacob S.", "James D.", "James M.", "John H.",
+    "Ketann S.", "Kiernan W.", "Lucas Gu.", "Liam M.", "Lucas Gl.", "Luke W.", "Mason T.", "Nathan C.",
+    "Nathaniel D.", "Nicholas B.", "Oliver M.", "Parker F." , "Pranav Tej M.",
+    "Reyansh B.", "Ricky G." , "Rithvik G.", "Riyan P.", "Ronan B.", "Ryan D.", "Sebastian C.", "Seth K.",
     "Shaurya K.", "Sheldon H.", "Theo A.", "Toshan N.", "Wesley F.", "Yveson H."
   ];
 
@@ -481,7 +489,7 @@ export default function App() {
 
     if (totalUnits === 0) {
       setWreathError("Please select at least one wreath before submitting your order.");
-      window.scrollTo({ top: 400, behavior: 'smooth' });
+      window.scrollTo({ top: 300, behavior: 'smooth' });
       return;
     }
 
@@ -704,7 +712,7 @@ export default function App() {
         <head>
           <title>Troop 170 - ${list.title}</title>
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 40px; max-w: 800px; margin: auto; color: #111; } 
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 40px; max-width: 800px; margin: auto; color: #111; } 
             h1 { color: #1D3A6C; border-bottom: 3px solid #BE1E2D; padding-bottom: 10px; text-transform: uppercase; font-weight: 900; letter-spacing: -0.05em; margin-bottom: 5px; }
             p.desc { color: #666; font-size: 14px; margin-bottom: 30px; font-style: italic; }
             .footer { margin-top: 50px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; font-weight: bold; letter-spacing: 0.05em; }
@@ -746,30 +754,32 @@ export default function App() {
     <div className="min-h-screen flex flex-col font-sans bg-white text-gray-900 selection:bg-[#BE1E2D] selection:text-white">
       
       {/* NAVIGATION */}
-      <nav className="text-white relative z-50 border-b border-white/10" style={{ backgroundColor: darkBg }}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="flex justify-between h-24 items-center">
+      <nav className="text-white sticky top-0 z-50 border-b border-white/10" style={{ backgroundColor: darkBg }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
+          <div className="flex justify-between h-20 sm:h-24 items-center">
             
-            <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => { setCurrentPage('home'); window.scrollTo(0,0); }}>
-              <div className="w-20 h-20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-                <img src="/images/logo.png" className="w-full h-full object-contain" alt="Logo" />
+            {/* Logo */}
+            <div className="flex items-center space-x-3 sm:space-x-4 cursor-pointer group" onClick={() => navigateTo('home')}>
+              <div className="w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                <img src="/images/logo.png" className="w-full h-full object-contain" alt="Troop 170 Logo" />
               </div>
               <div>
-                <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">Troop 170</h1>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mt-1">Unionville, CT</p>
+                <h1 className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">Troop 170</h1>
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mt-1">Unionville, CT</p>
               </div>
             </div>
 
-            <div className="hidden md:flex space-x-8 items-center text-base font-bold uppercase tracking-wider text-gray-300">
+            {/* Desktop Navigation Links */}
+            <div className="hidden md:flex space-x-6 lg:space-x-8 items-center text-sm lg:text-base font-bold uppercase tracking-wider text-gray-300">
               {navLinks.map(page => (
                 <button 
                   key={page.id} 
-                  onClick={() => { setCurrentPage(page.id); window.scrollTo(0,0); }} 
-                  className={`hover:text-white transition-colors relative ${currentPage === page.id ? 'text-white border-b-2 border-[#BE1E2D] pb-1' : ''}`}
+                  onClick={() => navigateTo(page.id)} 
+                  className={`hover:text-white transition-colors relative py-1 ${currentPage === page.id ? 'text-white border-b-2 border-[#BE1E2D]' : ''}`}
                 >
                   {page.label}
                   {page.id === 'wreaths' && (
-                    <span className="absolute -top-3 -right-6 bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full uppercase tracking-widest font-black animate-pulse">
+                    <span className="absolute -top-2 -right-6 bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full uppercase tracking-widest font-black animate-pulse">
                       Sale
                     </span>
                   )}
@@ -778,55 +788,110 @@ export default function App() {
               <a href="https://venmo.com/u/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:text-blue-400 transition-colors flex items-center space-x-1.5">
                 <Heart size={16}/><span>Donate</span>
               </a>
-              <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="flex items-center space-x-2 px-5 py-2.5 bg-white text-gray-900 hover:bg-[#BE1E2D] hover:text-white transition-all duration-300 shadow-md rounded-none font-black text-sm tracking-widest">
-                <Lock size={16}/><span>Member Login</span>
+              <button onClick={() => navigateTo('portal')} className="flex items-center space-x-2 px-5 py-2.5 bg-white text-gray-900 hover:bg-[#BE1E2D] hover:text-white transition-all duration-300 shadow-md font-black text-xs uppercase tracking-widest">
+                <Lock size={15}/><span>Member Login</span>
+              </button>
+            </div>
+
+            {/* Mobile Navigation Toggle */}
+            <div className="flex items-center space-x-2 md:hidden">
+              <button 
+                onClick={() => navigateTo('wreaths')}
+                className="bg-red-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded mr-1"
+              >
+                Wreaths
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2.5 text-gray-300 hover:text-white focus:outline-none"
+                aria-label="Toggle navigation menu"
+              >
+                {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
               </button>
             </div>
 
           </div>
         </div>
+
+        {/* Mobile Slide-Out Tray */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#070b13] border-t border-white/10 px-6 py-6 space-y-4">
+            <div className="flex flex-col space-y-3">
+              {navLinks.map(page => (
+                <button
+                  key={page.id}
+                  onClick={() => navigateTo(page.id)}
+                  className={`flex items-center justify-between py-2 text-left text-sm font-black uppercase tracking-widest ${currentPage === page.id ? 'text-[#BE1E2D]' : 'text-gray-200'}`}
+                >
+                  <span>{page.label}</span>
+                  {page.id === 'wreaths' && (
+                    <span className="bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">LIVE</span>
+                  )}
+                </button>
+              ))}
+              <a 
+                href="https://venmo.com/u/Troop170Unionville" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center space-x-2 py-2 text-[#008CFF] font-black uppercase text-sm tracking-widest"
+              >
+                <Heart size={16}/><span>Donate via Venmo</span>
+              </a>
+            </div>
+            <div className="pt-4 border-t border-white/10">
+              <button
+                onClick={() => navigateTo('portal')}
+                className="w-full py-3.5 bg-white text-gray-900 font-black text-xs uppercase tracking-widest flex items-center justify-center space-x-2 shadow-lg"
+              >
+                <Lock size={14} />
+                <span>Member Login / Portal</span>
+              </button>
+            </div>
+          </div>
+        )}
       </nav>
 
       <main className="flex-grow">
         
         {/* --- HOME PAGE --- */}
         {currentPage === 'home' && (
-          <div className="animate-in fade-in duration-700">
-            <div className="relative pt-32 pb-40 lg:pt-48 lg:pb-56 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
+          <div>
+            <div className="relative pt-24 pb-28 sm:pt-32 sm:pb-40 lg:pt-48 lg:pb-56 px-4 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
               <div className="absolute inset-0 z-0">
                 <img src="/images/hero.jpg" alt="Scouts" className="w-full h-full object-cover object-[100%_70%] -scale-x-100 opacity-90" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-[#0B0F19]/80 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-[#0B0F19]/85 to-transparent"></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-transparent"></div>
               </div>
               <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-start">
                 
                 {/* Wreath Sale Announcement Banner */}
                 <div 
-                  onClick={() => { setCurrentPage('wreaths'); window.scrollTo(0,0); }}
-                  className="cursor-pointer mb-6 inline-flex items-center space-x-3 bg-emerald-900/80 border border-emerald-400/40 hover:bg-emerald-800/90 text-white px-5 py-2.5 rounded-full transition-all group shadow-lg"
+                  onClick={() => navigateTo('wreaths')}
+                  className="cursor-pointer mb-6 inline-flex items-center space-x-2 sm:space-x-3 bg-emerald-900/80 border border-emerald-400/40 hover:bg-emerald-800/90 text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition-all group shadow-lg max-w-full"
                 >
-                  <ShoppingBag size={16} className="text-emerald-300 group-hover:scale-110 transition-transform" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">Annual Holiday Wreath Sale Is Live!</span>
-                  <ArrowUpRight size={14} className="text-emerald-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ShoppingBag size={16} className="text-emerald-300 group-hover:scale-110 transition-transform shrink-0" />
+                  <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-100 truncate">Annual Holiday Wreath Sale Is Live!</span>
+                  <ArrowUpRight size={14} className="text-emerald-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
                 </div>
 
-                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-none mb-8 shadow-inner border border-white/5">
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-none mb-6 sm:mb-8 shadow-inner border border-white/5">
                   <Compass size={14} className="text-[#BE1E2D]" />
-                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white">Established 1956</span>
+                  <span className="text-[9px] sm:text-[10px] font-black tracking-[0.3em] uppercase text-white">Established 1956</span>
                 </div>
-                <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-8 uppercase max-w-4xl">
+                <h2 className="text-4xl sm:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[0.95] sm:leading-[0.9] mb-6 sm:mb-8 uppercase max-w-4xl">
                   Transform Youth <br/>
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Into Leaders</span>
                 </h2>
-                <p className="text-lg sm:text-xl text-gray-400 font-light max-w-2xl leading-relaxed mb-12">
+                <p className="text-base sm:text-xl text-gray-400 font-light max-w-2xl leading-relaxed mb-8 sm:mb-12">
                   Drive character development, boost outdoor skills, and maximize personal growth. We craft engaging, year-round scouting strategies that deliver measurable results.
                 </p>
-                <div className="flex flex-wrap gap-4">
-                  <button onClick={() => { setCurrentPage('wreaths'); window.scrollTo(0,0); }} className="px-10 py-5 bg-[#BE1E2D] text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(190,30,45,0.4)] group flex items-center space-x-4 rounded-none">
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                  <button onClick={() => navigateTo('wreaths')} className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 bg-[#BE1E2D] text-white font-black text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(190,30,45,0.4)] group flex items-center justify-center space-x-4 rounded-none">
                     <span>Order Holiday Wreaths</span>
-                    <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   </button>
-                  <button onClick={() => { setCurrentPage('join'); window.scrollTo(0,0); }} className="px-8 py-5 bg-white/10 text-white font-black text-sm tracking-[0.2em] uppercase hover:bg-white/20 transition-all border border-white/20 rounded-none">
+                  <button onClick={() => navigateTo('join')} className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-5 bg-white/10 text-white font-black text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-white/20 transition-all border border-white/20 rounded-none text-center">
                     <span>Schedule Visit</span>
                   </button>
                 </div>
@@ -835,17 +900,17 @@ export default function App() {
 
             {/* Impact Strip */}
             <div className="bg-white border-b border-gray-100 relative z-20 shadow-xl">
-              <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-16">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+              <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-12 sm:py-16">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-10">
                    {[
                      { val: "60+", label: "Years Serving Unionville" },
                      { val: "120+", label: "Eagle Scout Legacy" },
                      { val: "140+", label: "Merit Badges Offered" },
                      { val: "12+", label: "Annual Outdoor Trips" }
                    ].map((stat, idx) => (
-                     <div key={idx} className="group border-l-4 border-gray-100 pl-6 hover:border-[#1D3A6C] transition-colors duration-300">
-                        <div className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter group-hover:text-[#BE1E2D] transition-colors">{stat.val}</div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mt-2">{stat.label}</p>
+                     <div key={idx} className="border-l-4 border-gray-100 pl-4 sm:pl-6 hover:border-[#1D3A6C] transition-colors duration-300">
+                        <div className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tighter hover:text-[#BE1E2D] transition-colors">{stat.val}</div>
+                        <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mt-2">{stat.label}</p>
                      </div>
                    ))}
                 </div>
@@ -853,25 +918,25 @@ export default function App() {
             </div>
 
             {/* Program Grid */}
-            <div className="bg-gray-50 py-32">
-                <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
-                     <h3 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] text-gray-900">
+            <div className="bg-gray-50 py-20 sm:py-32">
+                <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 sm:mb-20 gap-6 sm:gap-8">
+                     <h3 className="text-3xl sm:text-6xl font-black tracking-tighter uppercase leading-[0.95] sm:leading-[0.9] text-gray-900">
                         Driven By <br/> <span className="text-[#1D3A6C]">Adventure</span>
                      </h3>
-                     <p className="text-gray-500 text-lg font-light leading-relaxed max-w-md">
+                     <p className="text-gray-500 text-base sm:text-lg font-light leading-relaxed max-w-md">
                         Select a focus area to explore how we transform young scouts into confident community leaders.
                      </p>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-20">
                      <div className="lg:col-span-7">
-                        <div className="relative h-[500px] lg:h-[700px] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] rounded-none group">
+                        <div className="relative h-[380px] sm:h-[500px] lg:h-[700px] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] rounded-none group">
                            <img src={programsList[activeProgram].img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={programsList[activeProgram].title} />
-                           <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19]/90 via-[#0B0F19]/20 to-transparent flex flex-col justify-end p-10 lg:p-16">
-                              <span className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]">Focus Area 0{activeProgram + 1}</span>
-                              <h4 className="text-3xl lg:text-5xl font-black uppercase tracking-tighter mb-4 text-white leading-none">{programsList[activeProgram].title}</h4>
-                              <p className="text-lg font-light text-gray-300 max-w-lg leading-relaxed">{programsList[activeProgram].desc}</p>
+                           <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19]/90 via-[#0B0F19]/30 to-transparent flex flex-col justify-end p-6 sm:p-10 lg:p-16">
+                              <span className="font-black uppercase tracking-[0.3em] text-[10px] mb-2 sm:mb-3 text-[#BE1E2D]">Focus Area 0{activeProgram + 1}</span>
+                              <h4 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter mb-2 sm:mb-4 text-white leading-none">{programsList[activeProgram].title}</h4>
+                              <p className="text-sm sm:text-lg font-light text-gray-300 max-w-lg leading-relaxed">{programsList[activeProgram].desc}</p>
                            </div>
                         </div>
                      </div>
@@ -883,13 +948,13 @@ export default function App() {
                             <button 
                               key={program.id} 
                               onClick={() => setActiveProgram(index)} 
-                              className={`w-full text-left p-8 transition-all duration-300 rounded-none border-l-4 ${isActive ? 'bg-white border-[#BE1E2D] shadow-xl translate-x-2' : 'bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-300'}`}
+                              className={`w-full text-left p-4 sm:p-6 lg:p-8 transition-all duration-300 rounded-none border-l-4 ${isActive ? 'bg-white border-[#BE1E2D] shadow-xl sm:translate-x-2' : 'bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-300'}`}
                             >
                               <div className="flex justify-between items-center">
                                  <div>
-                                   <h5 className={`text-xl lg:text-2xl font-black uppercase tracking-tighter ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{program.title}</h5>
+                                   <h5 className={`text-lg sm:text-xl lg:text-2xl font-black uppercase tracking-tighter ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{program.title}</h5>
                                  </div>
-                                 <span className={`font-black text-lg ${isActive ? 'text-[#1D3A6C]' : 'text-gray-300'}`}>0{index+1}</span>
+                                 <span className={`font-black text-base sm:text-lg ${isActive ? 'text-[#1D3A6C]' : 'text-gray-300'}`}>0{index+1}</span>
                               </div>
                             </button>
                           );
@@ -903,29 +968,29 @@ export default function App() {
 
         {/* --- HOLIDAY WREATH STOREFRONT PAGE --- */}
         {currentPage === 'wreaths' && (
-          <div className="bg-gray-50 pb-32 animate-in fade-in duration-500 min-h-screen">
+          <div className="bg-gray-50 pb-24 sm:pb-32 min-h-screen">
             {/* Header Hero */}
-            <div className="relative pt-24 pb-28 px-6 sm:px-8 lg:px-12 text-center text-white overflow-hidden" style={{ backgroundColor: "#0e2b19" }}>
+            <div className="relative pt-20 pb-24 sm:pt-24 sm:pb-28 px-4 sm:px-8 lg:px-12 text-center text-white overflow-hidden" style={{ backgroundColor: "#0e2b19" }}>
               <div className="absolute inset-0 z-0 opacity-25">
                 <img src="/images/wreaths/24Decorated.jpg" alt="Evergreen Wreaths" className="w-full h-full object-cover blur-sm" />
               </div>
               <div className="absolute inset-0 bg-gradient-to-b from-[#0e2b19]/90 via-[#0e2b19]/85 to-gray-50"></div>
 
               <div className="relative z-10 max-w-4xl mx-auto">
-                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 border border-white/15">
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full mb-6 border border-white/15">
                   <Flame size={14} className="text-amber-400" />
-                  <span className="text-[10px] font-black tracking-[0.25em] uppercase text-emerald-100">Troop 170's Primary Annual Fundraiser</span>
+                  <span className="text-[9px] sm:text-[10px] font-black tracking-[0.25em] uppercase text-emerald-100">Troop 170&apos;s Primary Annual Fundraiser</span>
                 </div>
-                <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white mb-6">
+                <h1 className="text-3xl sm:text-6xl font-black uppercase tracking-tight text-white mb-4 sm:mb-6">
                   Annual Holiday Wreath Sale
                 </h1>
-                <p className="text-lg sm:text-xl text-emerald-100/90 font-light max-w-2xl mx-auto leading-relaxed mb-8">
-                  Fragrant, fresh-cut Maine balsam fir wreaths hand-delivered directly to your porch by our Scouts. Every wreath sold directly funds summer camp, high adventure treks (Philmont, Sea Base), and essential outdoor troop equipment[cite: 1].
+                <p className="text-base sm:text-xl text-emerald-100/90 font-light max-w-2xl mx-auto leading-relaxed mb-8">
+                  Fragrant, fresh-cut Maine balsam fir wreaths hand-delivered directly to your porch by our Scouts. Every wreath sold directly funds summer camp, high adventure treks (Philmont, Sea Base), and essential outdoor troop equipment.
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
                   <button 
                     onClick={() => setShowLanyardModal(true)} 
-                    className="inline-flex items-center space-x-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-black uppercase tracking-widest border border-white/20 transition-colors"
+                    className="inline-flex items-center space-x-2 px-5 py-3 bg-white/10 hover:bg-white/20 text-white text-xs font-black uppercase tracking-widest border border-white/20 transition-colors"
                   >
                     <QrCode size={16} />
                     <span>Scout QR Lanyard Kit</span>
@@ -935,34 +1000,34 @@ export default function App() {
             </div>
 
             {/* ORDER PROCESSOR OR CONFIRMATION SCREEN */}
-            <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 -mt-10 relative z-20">
+            <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 -mt-6 sm:-mt-10 relative z-20">
               
               {wreathSubmittedOrder ? (
                 /* --- ORDER CONFIRMED RECEIPT VIEW --- */
-                <div className="bg-white rounded-none border-t-8 border-[#143d23] p-8 sm:p-12 shadow-2xl animate-in zoom-in-95 duration-300">
-                  <div className="text-center pb-8 border-b border-gray-100 mb-8">
-                    <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle size={36} />
+                <div className="bg-white rounded-none border-t-8 border-[#143d23] p-6 sm:p-12 shadow-2xl">
+                  <div className="text-center pb-6 sm:pb-8 border-b border-gray-100 mb-6 sm:mb-8">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle size={32} />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#143d23]">Order Successfully Placed</span>
-                    <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mt-1 mb-2">Thank You for Supporting Troop 170!</h2>
-                    <p className="text-gray-500 text-sm max-w-md mx-auto">A confirmation receipt has been dispatched to <strong>{wreathSubmittedOrder.email}</strong>.</p>
+                    <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mt-1 mb-2">Thank You for Supporting Troop 170!</h2>
+                    <p className="text-gray-500 text-xs sm:text-sm max-w-md mx-auto">A confirmation receipt has been dispatched to <strong>{wreathSubmittedOrder.email}</strong>.</p>
                   </div>
 
                   {/* Summary Card */}
-                  <div className="bg-gray-50 p-6 sm:p-8 border border-gray-200 mb-8">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-gray-200 gap-4">
+                  <div className="bg-gray-50 p-5 sm:p-8 border border-gray-200 mb-6 sm:mb-8">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-gray-200 gap-3">
                       <div>
                         <span className="text-[10px] uppercase tracking-widest font-black text-gray-400 block">Unique Receipt / Order Number</span>
-                        <span className="text-3xl font-black text-[#143d23] tracking-tight">{wreathSubmittedOrder.receiptId}</span>
+                        <span className="text-2xl sm:text-3xl font-black text-[#143d23] tracking-tight">{wreathSubmittedOrder.receiptId}</span>
                       </div>
                       <div className="text-left sm:text-right">
                         <span className="text-[10px] uppercase tracking-widest font-black text-gray-400 block">Total Due</span>
-                        <span className="text-3xl font-black text-[#BE1E2D]">${wreathSubmittedOrder.totalCost}</span>
+                        <span className="text-2xl sm:text-3xl font-black text-[#BE1E2D]">${wreathSubmittedOrder.totalCost}</span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 pt-6 text-sm">
                       <div>
                         <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Supporter</span>
                         <strong className="text-gray-900">{wreathSubmittedOrder.supporterName}</strong>
@@ -985,27 +1050,27 @@ export default function App() {
 
                   {/* DYNAMIC 3-WAY PAYMENT INSTRUCTIONS */}
                   {wreathSubmittedOrder.paymentMethod === 'Venmo' ? (
-                    <div className="bg-blue-50 border-2 border-[#008CFF]/30 p-8 mb-8 text-gray-800">
-                      <div className="flex items-center space-x-3 mb-4">
-                        <Smartphone className="text-[#008CFF]" size={28} />
-                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Action Required: Complete Venmo Payment</h3>
+                    <div className="bg-blue-50 border-2 border-[#008CFF]/30 p-6 sm:p-8 mb-6 sm:mb-8 text-gray-800">
+                      <div className="flex items-center space-x-3 mb-3">
+                        <Smartphone className="text-[#008CFF] shrink-0" size={26} />
+                        <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">Action Required: Complete Venmo</h3>
                       </div>
-                      <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-                        To guarantee your wreaths are reserved and routed to the wholesale roster, please transfer <strong>${wreathSubmittedOrder.totalCost}</strong> to our troop's official Venmo account: <strong>@Troop170Unionville</strong>.
+                      <p className="text-xs sm:text-sm text-gray-600 mb-5 leading-relaxed">
+                        To guarantee your wreaths are reserved and routed to the wholesale roster, please transfer <strong>${wreathSubmittedOrder.totalCost}</strong> to our troop&apos;s official Venmo account: <strong>@Troop170Unionville</strong>.
                       </p>
 
-                      <div className="bg-white p-4 border border-blue-200 mb-6">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-900 block mb-1">
-                          Required Venmo Memo Note (Used for Back-Office Reconciliation):
+                      <div className="bg-white p-4 border border-blue-200 mb-5">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-900 block mb-2">
+                          Required Venmo Memo Note:
                         </span>
-                        <div className="flex items-center justify-between gap-4">
-                          <code className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1.5 rounded">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                          <code className="text-xs sm:text-sm font-bold text-gray-900 bg-gray-100 px-3 py-2 rounded break-all">
                             Wreath - {wreathSubmittedOrder.receiptId} - {wreathCustomer.lastName.trim()}
                           </code>
                           <button
                             type="button"
                             onClick={() => handleCopyText(`Wreath - ${wreathSubmittedOrder.receiptId} - ${wreathCustomer.lastName.trim()}`)}
-                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#008CFF] hover:bg-blue-600 text-white text-xs font-bold uppercase tracking-wider transition-colors"
+                            className="inline-flex items-center justify-center space-x-1.5 px-4 py-2.5 bg-[#008CFF] hover:bg-blue-600 text-white text-xs font-bold uppercase tracking-wider transition-colors shrink-0"
                           >
                             {copiedMemo ? <Check size={14}/> : <Copy size={14}/>}
                             <span>{copiedMemo ? 'Copied' : 'Copy Memo'}</span>
@@ -1017,23 +1082,23 @@ export default function App() {
                         href="https://venmo.com/u/Troop170Unionville" 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="inline-flex items-center justify-center space-x-3 w-full py-4 bg-[#008CFF] hover:bg-blue-600 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-lg"
+                        className="inline-flex items-center justify-center space-x-3 w-full py-4 bg-[#008CFF] hover:bg-blue-600 text-white font-black uppercase tracking-widest text-xs sm:text-sm transition-colors shadow-lg"
                       >
                         <span>Open @Troop170Unionville on Venmo</span>
                         <ExternalLink size={16} />
                       </a>
                     </div>
                   ) : wreathSubmittedOrder.paymentMethod === 'Check' ? (
-                    <div className="bg-slate-50 border-2 border-slate-300 p-8 mb-8 text-gray-800">
+                    <div className="bg-slate-50 border-2 border-slate-300 p-6 sm:p-8 mb-6 sm:mb-8 text-gray-800">
                       <div className="flex items-center space-x-3 mb-3">
-                        <FileText className="text-[#1D3A6C]" size={28} />
-                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Check Payment Instructions</h3>
+                        <FileText className="text-[#1D3A6C] shrink-0" size={26} />
+                        <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">Check Payment Instructions</h3>
                       </div>
-                      <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                      <p className="text-xs sm:text-sm text-gray-700 leading-relaxed mb-4">
                         Please make your check payable to <strong>Troop 170</strong> in the amount of <strong>${wreathSubmittedOrder.totalCost}</strong>.
                       </p>
                       <div className="bg-white p-4 border border-slate-200 mb-4">
-                        <p className="text-xs text-gray-700 m-0">
+                        <p className="text-xs text-gray-700 m-0 break-all">
                           <strong>Required on Memo Line:</strong> <code className="bg-gray-100 px-2 py-0.5 font-bold">Wreath - {wreathSubmittedOrder.receiptId} - {wreathSubmittedOrder.scoutName}</code>
                         </p>
                       </div>
@@ -1043,21 +1108,21 @@ export default function App() {
                       </p>
                     </div>
                   ) : (
-                    <div className="bg-amber-50 border-2 border-amber-300 p-8 mb-8 text-gray-800">
+                    <div className="bg-amber-50 border-2 border-amber-300 p-6 sm:p-8 mb-6 sm:mb-8 text-gray-800">
                       <div className="flex items-center space-x-3 mb-3">
-                        <CreditCard className="text-amber-700" size={28} />
-                        <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Cash Payment Collected With Order</h3>
+                        <CreditCard className="text-amber-700 shrink-0" size={26} />
+                        <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">Cash Payment Collected With Order</h3>
                       </div>
-                      <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                      <p className="text-xs sm:text-sm text-gray-700 leading-relaxed mb-4">
                         Please provide <strong>${wreathSubmittedOrder.totalCost}</strong> in cash directly to Scout <strong>{wreathSubmittedOrder.scoutName}</strong> now that your order has been entered.
                       </p>
                       <p className="text-xs text-amber-900 bg-amber-100/80 p-3 border border-amber-200">
-                        <strong>Important:</strong> Provide receipt number <strong>{wreathSubmittedOrder.receiptId}</strong> to the Scout so they can write it on their sealed troop cash collection envelope[cite: 1].
+                        <strong>Important:</strong> Provide receipt number <strong>{wreathSubmittedOrder.receiptId}</strong> to the Scout so they can write it on their sealed troop cash collection envelope.
                       </p>
                     </div>
                   )}
 
-                  <div className="text-center pt-4">
+                  <div className="text-center pt-2">
                     <button
                       onClick={() => {
                         setWreathSubmittedOrder(null);
@@ -1079,7 +1144,7 @@ export default function App() {
                           paymentMethod: 'Venmo',
                         });
                       }}
-                      className="px-8 py-3 bg-gray-900 hover:bg-black text-white font-black uppercase tracking-widest text-xs transition-colors"
+                      className="w-full sm:w-auto px-8 py-3.5 bg-gray-900 hover:bg-black text-white font-black uppercase tracking-widest text-xs transition-colors"
                     >
                       Place Another Order
                     </button>
@@ -1087,27 +1152,27 @@ export default function App() {
                 </div>
               ) : (
                 /* --- ORDER FORM & STOREFRONT CATALOG --- */
-                <form onSubmit={handleWreathOrderSubmit} className="space-y-12 pb-16">
+                <form onSubmit={handleWreathOrderSubmit} className="space-y-8 sm:space-y-12 pb-16">
                   
                   {wreathError && (
-                    <div className="bg-red-50 border-l-4 border-[#BE1E2D] p-4 text-red-700 text-sm font-bold shadow-md">
+                    <div className="bg-red-50 border-l-4 border-[#BE1E2D] p-4 text-red-700 text-xs sm:text-sm font-bold shadow-md">
                       {wreathError}
                     </div>
                   )}
 
                   {/* Section 1: Catalog */}
-                  <div className="bg-white p-8 sm:p-12 shadow-xl border-t-8 border-[#143d23]">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 pb-4 border-b border-gray-100 gap-4">
+                  <div className="bg-white p-5 sm:p-10 lg:p-12 shadow-xl border-t-8 border-[#143d23]">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 pb-4 border-b border-gray-100 gap-3">
                       <div>
                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 01</span>
-                        <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900">Select Wreath Sizes & Styles</h2>
+                        <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-gray-900">Select Wreath Sizes & Styles</h2>
                       </div>
-                      <div className="bg-emerald-50 px-4 py-2 text-emerald-900 font-bold text-xs uppercase tracking-wider border border-emerald-100">
+                      <div className="bg-emerald-50 px-3.5 py-1.5 text-emerald-900 font-bold text-xs uppercase tracking-wider border border-emerald-100 w-full sm:w-auto text-center">
                         Selected: <span className="font-black text-base text-[#143d23]">{calculateWreathTotalUnits()}</span> Items
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                       {WREATH_PRODUCTS.map(product => {
                         const qty = wreathQuantities[product.id];
                         return (
@@ -1117,7 +1182,7 @@ export default function App() {
                               qty > 0 ? 'border-[#143d23] shadow-lg ring-2 ring-[#143d23]/20' : 'border-gray-200 hover:border-gray-300'
                             }`}
                           >
-                            <div className="relative h-64 bg-gray-50 overflow-hidden">
+                            <div className="relative h-56 sm:h-64 bg-gray-50 overflow-hidden">
                               <img 
                                 src={product.img} 
                                 alt={product.title}
@@ -1129,11 +1194,11 @@ export default function App() {
                               </div>
                             </div>
 
-                            <div className="p-6 flex flex-col justify-between flex-grow">
+                            <div className="p-5 sm:p-6 flex flex-col justify-between flex-grow">
                               <div>
                                 <div className="flex justify-between items-baseline mb-2">
-                                  <h3 className="text-lg font-black uppercase tracking-tight text-gray-900">{product.title}</h3>
-                                  <span className="text-2xl font-black text-[#143d23]">${product.price}</span>
+                                  <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-gray-900">{product.title}</h3>
+                                  <span className="text-xl sm:text-2xl font-black text-[#143d23]">${product.price}</span>
                                 </div>
                                 <p className="text-gray-500 text-xs leading-relaxed mb-6 font-light">
                                   {product.desc}
@@ -1141,26 +1206,29 @@ export default function App() {
                               </div>
 
                               <div className="flex items-center justify-between bg-gray-50 p-2 border border-gray-200">
-                                <span className="text-[10px] uppercase font-black tracking-wider text-gray-500 pl-2">Quantity:</span>
+                                <span className="text-[10px] uppercase font-black tracking-wider text-gray-500 pl-1">Quantity:</span>
                                 <div className="flex items-center space-x-1">
                                   <button
                                     type="button"
                                     onClick={() => updateWreathQty(product.id, -1)}
-                                    className="w-8 h-8 bg-white border border-gray-300 hover:bg-gray-100 flex items-center justify-center font-black text-gray-700 text-base"
+                                    className="w-11 h-11 bg-white border border-gray-300 hover:bg-gray-100 flex items-center justify-center font-black text-gray-700 text-lg active:scale-95 touch-manipulation"
+                                    aria-label="Decrease quantity"
                                   >
                                     -
                                   </button>
                                   <input 
                                     type="text" 
+                                    inputMode="numeric"
                                     pattern="[0-9]*"
                                     value={qty}
                                     onChange={(e) => setWreathDirectQty(product.id, e.target.value)}
-                                    className="w-12 h-8 text-center font-black text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#143d23]"
+                                    className="w-12 h-11 text-center font-black text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#143d23]"
                                   />
                                   <button
                                     type="button"
                                     onClick={() => updateWreathQty(product.id, 1)}
-                                    className="w-8 h-8 bg-white border border-gray-300 hover:bg-gray-100 flex items-center justify-center font-black text-gray-700 text-base"
+                                    className="w-11 h-11 bg-white border border-gray-300 hover:bg-gray-100 flex items-center justify-center font-black text-gray-700 text-lg active:scale-95 touch-manipulation"
+                                    aria-label="Increase quantity"
                                   >
                                     +
                                   </button>
@@ -1174,11 +1242,11 @@ export default function App() {
                   </div>
 
                   {/* Section 2: Customer & Delivery Information */}
-                  <div className="bg-white p-8 sm:p-12 shadow-xl border-t-8 border-[#1D3A6C]">
+                  <div className="bg-white p-5 sm:p-10 lg:p-12 shadow-xl border-t-8 border-[#1D3A6C]">
                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 02</span>
-                    <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-8">Porch Delivery & Supporter Details</h2>
+                    <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-6 sm:mb-8">Porch Delivery & Supporter Details</h2>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">First Name *</label>
                         <input 
@@ -1187,7 +1255,7 @@ export default function App() {
                           value={wreathCustomer.firstName}
                           onChange={(e) => setWreathCustomer({...wreathCustomer, firstName: e.target.value})}
                           placeholder="Jane"
-                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                          className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm"
                         />
                       </div>
                       <div>
@@ -1198,21 +1266,21 @@ export default function App() {
                           value={wreathCustomer.lastName}
                           onChange={(e) => setWreathCustomer({...wreathCustomer, lastName: e.target.value})}
                           placeholder="Smith"
-                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                          className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm"
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
                       <div>
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Email Address (For Order Receipt) *</label>
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Email (For Order Receipt) *</label>
                         <input 
                           required 
                           type="email" 
                           value={wreathCustomer.email}
                           onChange={(e) => setWreathCustomer({...wreathCustomer, email: e.target.value})}
                           placeholder="jane@example.com"
-                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                          className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm"
                         />
                       </div>
                       <div>
@@ -1223,12 +1291,12 @@ export default function App() {
                           value={wreathCustomer.phone}
                           onChange={(e) => setWreathCustomer({...wreathCustomer, phone: e.target.value})}
                           placeholder="(860) 555-0199"
-                          className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                          className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm"
                         />
                       </div>
                     </div>
 
-                    <div className="mb-6">
+                    <div className="mb-4 sm:mb-6">
                       <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Porch Hand-Delivery Address (Street, Town, Zip) *</label>
                       <input 
                         required 
@@ -1236,35 +1304,35 @@ export default function App() {
                         value={wreathCustomer.address}
                         onChange={(e) => setWreathCustomer({...wreathCustomer, address: e.target.value})}
                         placeholder="e.g. 42 Main St, Unionville, CT 06085"
-                        className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors"
+                        className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Which Scout Should Receive Credit for This Sale? *</label>
+                      <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Which Scout Should Receive Credit? *</label>
                       <select 
                         value={wreathCustomer.scoutName}
                         onChange={(e) => setWreathCustomer({...wreathCustomer, scoutName: e.target.value})}
-                        className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none font-bold text-sm"
+                        className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none font-bold text-sm"
                       >
                         {SCOUT_ROSTER.map((name, i) => (
                           <option key={i} value={name}>{name}</option>
                         ))}
                       </select>
-                      <p className="text-xs text-gray-400 mt-2 font-light">
+                      <p className="text-[11px] text-gray-400 mt-2 font-light">
                         The selected Scout will receive Scout Dollar credits toward summer camp and high adventure treks.
                       </p>
                     </div>
                   </div>
 
-                  {/* Section 3: Payment Choice (VENMO, CHECK, CASH) */}
-                  <div className="bg-white p-8 sm:p-12 shadow-xl border-t-8 border-gray-900">
+                  {/* Section 3: Payment Choice */}
+                  <div className="bg-white p-5 sm:p-10 lg:p-12 shadow-xl border-t-8 border-gray-900">
                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 03</span>
-                    <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-6">Payment Method</h2>
+                    <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-6">Payment Method</h2>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
                       {/* VENMO */}
-                      <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Venmo' ? 'border-[#008CFF] bg-blue-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
+                      <label className={`p-4 sm:p-6 border-2 cursor-pointer transition-all flex items-start space-x-3 sm:space-x-4 ${wreathCustomer.paymentMethod === 'Venmo' ? 'border-[#008CFF] bg-blue-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
                         <input 
                           type="radio" 
                           name="paymentMethod" 
@@ -1274,7 +1342,7 @@ export default function App() {
                           className="mt-1"
                         />
                         <div>
-                          <strong className="block text-gray-900 text-base uppercase font-black">Venmo</strong>
+                          <strong className="block text-gray-900 text-sm sm:text-base uppercase font-black">Venmo</strong>
                           <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                             @Troop170Unionville. Enter your receipt number into the Venmo memo line.
                           </p>
@@ -1282,7 +1350,7 @@ export default function App() {
                       </label>
 
                       {/* CHECK */}
-                      <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Check' ? 'border-[#1D3A6C] bg-slate-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                      <label className={`p-4 sm:p-6 border-2 cursor-pointer transition-all flex items-start space-x-3 sm:space-x-4 ${wreathCustomer.paymentMethod === 'Check' ? 'border-[#1D3A6C] bg-slate-50' : 'border-gray-200 hover:border-gray-300'}`}>
                         <input 
                           type="radio" 
                           name="paymentMethod" 
@@ -1292,15 +1360,15 @@ export default function App() {
                           className="mt-1"
                         />
                         <div>
-                          <strong className="block text-gray-900 text-base uppercase font-black">Check</strong>
+                          <strong className="block text-gray-900 text-sm sm:text-base uppercase font-black">Check</strong>
                           <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                            Payable to "Troop 170" with receipt # and scout name on the memo line.
+                            Payable to &quot;Troop 170&quot; with receipt # and scout name on the memo line.
                           </p>
                         </div>
                       </label>
 
                       {/* CASH */}
-                      <label className={`p-6 border-2 cursor-pointer transition-all flex items-start space-x-4 ${wreathCustomer.paymentMethod === 'Cash' ? 'border-[#143d23] bg-emerald-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
+                      <label className={`p-4 sm:p-6 border-2 cursor-pointer transition-all flex items-start space-x-3 sm:space-x-4 ${wreathCustomer.paymentMethod === 'Cash' ? 'border-[#143d23] bg-emerald-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
                         <input 
                           type="radio" 
                           name="paymentMethod" 
@@ -1310,7 +1378,7 @@ export default function App() {
                           className="mt-1"
                         />
                         <div>
-                          <strong className="block text-gray-900 text-base uppercase font-black">Cash to Scout</strong>
+                          <strong className="block text-gray-900 text-sm sm:text-base uppercase font-black">Cash to Scout</strong>
                           <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                             Cash given directly to Scout when placing your order today.
                           </p>
@@ -1319,19 +1387,21 @@ export default function App() {
                     </div>
 
                     {/* Submit Bar */}
-                    <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-6">
+                    <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-6">
                       <div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block">Total Due</span>
-                        <span className="text-4xl font-black text-[#143d23]">
-                          ${calculateWreathTotal()}
-                        </span>
-                        <span className="text-xs text-gray-500 font-bold ml-2">({calculateWreathTotalUnits()} Wreaths)</span>
+                        <div className="flex items-baseline">
+                          <span className="text-3xl sm:text-4xl font-black text-[#143d23]">
+                            ${calculateWreathTotal()}
+                          </span>
+                          <span className="text-xs text-gray-500 font-bold ml-2">({calculateWreathTotalUnits()} Wreaths)</span>
+                        </div>
                       </div>
 
                       <button
                         type="submit"
                         disabled={wreathLoading}
-                        className="w-full sm:w-auto px-12 py-5 bg-[#143d23] hover:bg-[#0e2b19] text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl transition-all disabled:opacity-50"
+                        className="w-full sm:w-auto px-10 py-4 sm:py-5 bg-[#143d23] hover:bg-[#0e2b19] text-white font-black text-xs sm:text-sm uppercase tracking-[0.2em] shadow-xl transition-all disabled:opacity-50 text-center"
                       >
                         {wreathLoading ? 'Processing...' : `Confirm & Place Order`}
                       </button>
@@ -1347,105 +1417,105 @@ export default function App() {
 
         {/* --- SCOUT CORNER (AUGUST SPOTLIGHT + ACCORDION ARCHIVES) --- */}
         {currentPage === 'scoutCorner' && (
-          <div className="bg-gray-50 pb-32 animate-in fade-in duration-700 min-h-screen">
-            <div className="relative pt-32 pb-32 px-6 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
+          <div className="bg-gray-50 pb-24 sm:pb-32 min-h-screen">
+            <div className="relative pt-24 pb-24 sm:pt-32 sm:pb-32 px-4 sm:px-8 lg:px-12 overflow-hidden" style={{ backgroundColor: darkBg }}>
               <div className="absolute inset-0 z-0">
                 <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80" alt="Mountains" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19] via-[#0B0F19]/80 to-[#f9fafb]"></div>
               </div>
               <div className="relative z-10 max-w-4xl mx-auto text-center">
-                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full mb-6 border border-white/10">
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full mb-6 border border-white/10">
                   <Flame size={16} className="text-[#BE1E2D]" />
-                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white">The Historian's Dispatch</span>
+                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white">The Historian&apos;s Dispatch</span>
                 </div>
-                <h2 className="text-5xl sm:text-7xl font-black text-white tracking-tighter uppercase mb-6 drop-shadow-lg">
+                <h2 className="text-4xl sm:text-7xl font-black text-white tracking-tighter uppercase mb-4 sm:mb-6 drop-shadow-lg">
                   Scout Corner
                 </h2>
-                <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">
-                  A living chronicle of Troop 170's monthly adventures, service projects, and scout reflections.
+                <p className="text-base sm:text-xl text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">
+                  A living chronicle of Troop 170&apos;s monthly adventures, service projects, and scout reflections.
                 </p>
               </div>
             </div>
 
-            <div className="max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 relative -mt-10 z-20">
-              <div className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.08)] mb-14 flex flex-col md:flex-row items-center gap-8 border border-gray-100 relative z-30">
+            <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-12 relative -mt-6 sm:-mt-10 z-20">
+              <div className="bg-white rounded-2xl p-6 sm:p-10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.08)] mb-10 sm:mb-14 flex flex-col md:flex-row items-center gap-6 sm:gap-8 border border-gray-100 relative z-30">
                 <img 
                   src="/images/scout-corner/sheldon.jpg" 
                   onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=400&q=80'; }} 
                   alt="Sheldon H." 
-                  className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover shadow-lg border-4 border-gray-50 shrink-0" 
+                  className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full object-cover shadow-lg border-4 border-gray-50 shrink-0" 
                 />
                 <div className="text-center md:text-left">
-                  <h3 className="text-3xl font-black uppercase tracking-tight text-gray-900 mb-2">Meet Sheldon H.</h3>
-                  <p className="text-[#1D3A6C] font-bold uppercase tracking-widest text-xs mb-4">Troop 170 Historian</p>
-                  <p className="text-gray-600 leading-relaxed font-serif text-lg">
+                  <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-gray-900 mb-1 sm:mb-2">Meet Sheldon H.</h3>
+                  <p className="text-[#1D3A6C] font-bold uppercase tracking-widest text-[11px] sm:text-xs mb-3">Troop 170 Historian</p>
+                  <p className="text-gray-600 leading-relaxed font-serif text-base sm:text-lg">
                     Tasked with preserving the legacy of Troop 170, Sheldon documents our monthly adventures, high-adventure treks, and service projects. The Scout Corner is his vision—a living digital archive of our journey, told by the scouts who live it.
                   </p>
                 </div>
               </div>
 
-              <div className="mb-20">
+              <div className="mb-14 sm:mb-20">
                 <div className="flex items-center space-x-3 mb-6">
-                  <span className="w-3 h-3 bg-[#BE1E2D] rounded-full animate-ping"></span>
+                  <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#BE1E2D] rounded-full animate-ping"></span>
                   <span className="font-black uppercase tracking-[0.25em] text-xs text-[#BE1E2D]">Latest Dispatch • Featured</span>
                 </div>
 
                 <article className="bg-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden border border-gray-100 group">
-                  <div className="relative h-80 sm:h-96 overflow-hidden">
+                  <div className="relative h-64 sm:h-96 overflow-hidden">
                     <img 
                       src={featuredEntry.heroImg} 
                       onError={(e) => { e.target.onerror = null; e.target.src = featuredEntry.heroFallback; }}
                       alt={`${featuredEntry.month} Adventure`} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute top-5 left-5 bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-xl flex items-center space-x-2 shadow-md">
-                      <Calendar size={16} className="text-[#BE1E2D]" />
-                      <span className="font-black uppercase tracking-widest text-xs text-gray-900">{featuredEntry.month} {featuredEntry.year}</span>
+                    <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-xl flex items-center space-x-2 shadow-md">
+                      <Calendar size={14} className="text-[#BE1E2D]" />
+                      <span className="font-black uppercase tracking-widest text-[10px] sm:text-xs text-gray-900">{featuredEntry.month} {featuredEntry.year}</span>
                     </div>
                   </div>
 
-                  <div className="p-8 sm:p-12">
-                    <div className="flex flex-wrap gap-2 mb-8 pb-6 border-b border-gray-100">
+                  <div className="p-6 sm:p-12">
+                    <div className="flex flex-wrap gap-2 mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-gray-100">
                       {featuredEntry.milestones.map((stone, i) => (
-                        <span key={i} className="text-xs uppercase tracking-wider font-bold bg-blue-50 text-[#1D3A6C] px-3.5 py-1.5 rounded-lg border border-blue-100">
+                        <span key={i} className="text-[10px] sm:text-xs uppercase tracking-wider font-bold bg-blue-50 text-[#1D3A6C] px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-lg border border-blue-100">
                           {stone}
                         </span>
                       ))}
                     </div>
 
-                    <p className="text-gray-700 leading-relaxed mb-10 font-serif text-lg whitespace-pre-wrap first-letter:text-6xl first-letter:font-black first-letter:text-[#1D3A6C] first-letter:mr-2 first-letter:float-left">
+                    <p className="text-gray-700 leading-relaxed mb-8 sm:mb-10 font-serif text-base sm:text-lg whitespace-pre-wrap first-letter:text-5xl sm:first-letter:text-6xl first-letter:font-black first-letter:text-[#1D3A6C] first-letter:mr-2 first-letter:float-left">
                       {featuredEntry.summary}
                     </p>
 
-                    <div className="bg-gray-50 rounded-2xl p-8 relative border border-gray-200/80 mb-10">
-                      <div className="absolute -top-4 -left-3 w-10 h-10 bg-[#BE1E2D] rounded-full flex items-center justify-center shadow-lg">
-                        <Quote size={18} className="text-white" />
+                    <div className="bg-gray-50 rounded-2xl p-6 sm:p-8 relative border border-gray-200/80 mb-8 sm:mb-10">
+                      <div className="absolute -top-4 -left-2 sm:-left-3 w-8 h-8 sm:w-10 sm:h-10 bg-[#BE1E2D] rounded-full flex items-center justify-center shadow-lg">
+                        <Quote size={16} className="text-white" />
                       </div>
-                      <p className="text-gray-800 italic font-medium leading-relaxed mb-6 mt-2 relative z-10 text-base sm:text-lg">
-                        "{featuredEntry.quote}"
+                      <p className="text-gray-800 italic font-medium leading-relaxed mb-6 mt-1 sm:mt-2 relative z-10 text-sm sm:text-lg">
+                        &ldquo;{featuredEntry.quote}&rdquo;
                       </p>
                       <div className="flex items-center space-x-4 border-t border-gray-200/80 pt-4">
                         <img 
                           src={featuredEntry.scoutImg} 
                           onError={(e) => { e.target.onerror = null; e.target.src = featuredEntry.scoutFallback; }}
                           alt={featuredEntry.scoutName} 
-                          className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
                         />
                         <div>
-                          <p className="font-black text-gray-900 text-sm uppercase tracking-tight">{featuredEntry.scoutName}</p>
-                          <p className="text-[#1D3A6C] text-[11px] font-bold uppercase tracking-widest">{featuredEntry.scoutRank}</p>
+                          <p className="font-black text-gray-900 text-xs sm:text-sm uppercase tracking-tight">{featuredEntry.scoutName}</p>
+                          <p className="text-[#1D3A6C] text-[10px] sm:text-[11px] font-bold uppercase tracking-widest">{featuredEntry.scoutRank}</p>
                         </div>
                       </div>
                     </div>
 
                     {featuredEntry.gallery?.length > 0 && (
                       <div className="pt-6 border-t border-gray-100">
-                        <span className="text-[11px] font-black tracking-widest uppercase text-gray-400 flex items-center mb-4">
+                        <span className="text-[10px] sm:text-[11px] font-black tracking-widest uppercase text-gray-400 flex items-center mb-4">
                           <ImageIcon size={15} className="mr-2"/> Dispatch Photos
                         </span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {featuredEntry.gallery.map((imgSrc, i) => (
-                            <div key={i} className="h-56 rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50">
+                            <div key={i} className="h-48 sm:h-56 rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50">
                               <img 
                                 src={imgSrc} 
                                 alt={`Action shot ${i}`} 
@@ -1462,13 +1532,13 @@ export default function App() {
               </div>
 
               {/* ACCORDION ARCHIVES */}
-              <div className="mt-20">
-                <div className="border-t border-gray-200 pt-12 mb-8 flex items-center justify-between">
+              <div className="mt-14 sm:mt-20">
+                <div className="border-t border-gray-200 pt-8 sm:pt-12 mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <h4 className="text-2xl font-black uppercase tracking-tight text-gray-900">Trail Archives</h4>
-                    <p className="text-gray-500 text-sm font-light mt-1">Explore previous months and past troop recaps.</p>
+                    <h4 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-gray-900">Trail Archives</h4>
+                    <p className="text-gray-500 text-xs sm:text-sm font-light mt-0.5">Explore previous months and past troop recaps.</p>
                   </div>
-                  <span className="text-xs font-bold uppercase tracking-widest bg-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full">
+                  <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full w-fit">
                     {pastEntries.length} Past Dispatches
                   </span>
                 </div>
@@ -1484,29 +1554,29 @@ export default function App() {
                         <button
                           type="button"
                           onClick={() => toggleArchive(entry.id)}
-                          className="w-full p-6 sm:p-7 flex items-center justify-between text-left transition-colors hover:bg-gray-50/70"
+                          className="w-full p-5 sm:p-7 flex items-center justify-between text-left transition-colors hover:bg-gray-50/70"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 gap-2">
                             <div className="flex items-center space-x-3">
-                              <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1D3A6C] flex items-center justify-center font-black">
-                                <Calendar size={18} />
+                              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-blue-50 text-[#1D3A6C] flex items-center justify-center font-black shrink-0">
+                                <Calendar size={16} />
                               </div>
-                              <span className="text-xl font-black uppercase tracking-tight text-gray-900">
+                              <span className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">
                                 {entry.month} {entry.year}
                               </span>
                             </div>
                             <div className="flex flex-wrap gap-1.5">
                               {entry.milestones.map((stone, i) => (
-                                <span key={i} className="text-[10px] uppercase tracking-wider font-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-md">
+                                <span key={i} className="text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">
                                   {stone}
                                 </span>
                               ))}
                             </div>
                           </div>
                           
-                          <div className="ml-4 w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 shrink-0">
+                          <div className="ml-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 shrink-0">
                             <svg 
-                              className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+                              className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
                               fill="none" 
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1517,8 +1587,8 @@ export default function App() {
                         </button>
 
                         {isOpen && (
-                          <div className="px-6 sm:px-8 pb-8 pt-2 border-t border-gray-100 animate-in fade-in duration-300">
-                            <div className="relative h-64 rounded-xl overflow-hidden mb-8 mt-4 border border-gray-100">
+                          <div className="px-5 sm:px-8 pb-6 sm:pb-8 pt-2 border-t border-gray-100">
+                            <div className="relative h-48 sm:h-64 rounded-xl overflow-hidden mb-6 sm:mb-8 mt-4 border border-gray-100">
                               <img 
                                 src={entry.heroImg} 
                                 alt={`${entry.month} Adventure`}
@@ -1527,20 +1597,20 @@ export default function App() {
                               />
                             </div>
 
-                            <p className="text-gray-700 leading-relaxed mb-8 font-serif text-base sm:text-lg whitespace-pre-wrap">
+                            <p className="text-gray-700 leading-relaxed mb-6 sm:mb-8 font-serif text-sm sm:text-lg whitespace-pre-wrap">
                               {entry.summary}
                             </p>
 
-                            <div className="bg-gray-50 rounded-xl p-6 relative border border-gray-200/80 mb-6">
-                              <p className="text-gray-800 italic font-medium leading-relaxed mb-4 text-sm sm:text-base">
-                                "{entry.quote}"
+                            <div className="bg-gray-50 rounded-xl p-5 sm:p-6 relative border border-gray-200/80 mb-6">
+                              <p className="text-gray-800 italic font-medium leading-relaxed mb-4 text-xs sm:text-base">
+                                &ldquo;{entry.quote}&rdquo;
                               </p>
                               <div className="flex items-center space-x-3 border-t border-gray-200 pt-3">
                                 <img 
                                   src={entry.scoutImg} 
                                   alt={entry.scoutName} 
                                   onError={(e) => { e.target.onerror = null; e.target.src = entry.scoutFallback; }}
-                                  className="w-10 h-10 rounded-full object-cover border border-white shadow-sm"
+                                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border border-white shadow-sm shrink-0" 
                                 />
                                 <div>
                                   <p className="font-black text-gray-900 text-xs uppercase tracking-tight">{entry.scoutName}</p>
@@ -1556,7 +1626,7 @@ export default function App() {
                                 </span>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                   {entry.gallery.map((imgSrc, i) => (
-                                    <div key={i} className="h-44 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                                    <div key={i} className="h-40 sm:h-44 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
                                       <img 
                                         src={imgSrc} 
                                         alt={`Archive shot ${i}`} 
@@ -1582,51 +1652,51 @@ export default function App() {
 
         {/* --- ABOUT PAGE --- */}
         {currentPage === 'about' && (
-          <div className="bg-white animate-in fade-in duration-700">
-            <div className="relative py-40 lg:py-56 px-6 text-center overflow-hidden" style={{ backgroundColor: darkBg }}>
+          <div className="bg-white">
+            <div className="relative py-28 sm:py-40 lg:py-56 px-4 sm:px-6 text-center overflow-hidden" style={{ backgroundColor: darkBg }}>
                <div className="absolute inset-0 z-0">
                  <img src="/images/about.jpg" alt="Scouts in action" className="w-full h-full object-cover opacity-70" />
                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-[#0B0F19]"></div>
                </div>
                <div className="relative z-10 max-w-4xl mx-auto">
-                  <div className="inline-flex items-center space-x-2 bg-white/5 px-4 py-1.5 mb-8 shadow-inner border border-white/10 rounded-none">
+                  <div className="inline-flex items-center space-x-2 bg-white/5 px-3.5 py-1.5 mb-6 sm:mb-8 shadow-inner border border-white/10 rounded-none">
                     <Compass size={14} className="text-[#BE1E2D]" />
-                    <span className="font-black tracking-[0.3em] uppercase text-[10px] text-white">Our Mission</span>
+                    <span className="font-black tracking-[0.3em] uppercase text-[9px] sm:text-[10px] text-white">Our Mission</span>
                   </div>
-                  <h2 className="text-3xl md:text-5xl font-light italic font-serif leading-[1.3] text-white drop-shadow-xl">
-                    "To enhance character, promote self-discovery, and challenge Scouts to grow in leadership, fitness, and service through exceptional outdoor experiences."
+                  <h2 className="text-2xl sm:text-4xl md:text-5xl font-light italic font-serif leading-[1.3] text-white drop-shadow-xl px-2">
+                    &ldquo;To enhance character, promote self-discovery, and challenge Scouts to grow in leadership, fitness, and service through exceptional outdoor experiences.&rdquo;
                   </h2>
                </div>
             </div>
 
-            <div className="py-32 px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto">
-               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+            <div className="py-20 sm:py-32 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto">
+               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center">
                  <div className="lg:col-span-5">
-                    <h3 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase mb-6 leading-none text-gray-900">A Legacy of <br/><span className="text-[#1D3A6C]">Excellence</span></h3>
-                    <div className="w-16 h-2 bg-[#BE1E2D] mb-8"></div>
-                    <p className="text-lg text-gray-500 font-light leading-relaxed mb-10">
+                    <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tighter uppercase mb-4 sm:mb-6 leading-none text-gray-900">A Legacy of <br/><span className="text-[#1D3A6C]">Excellence</span></h3>
+                    <div className="w-16 h-2 bg-[#BE1E2D] mb-6 sm:mb-8"></div>
+                    <p className="text-base sm:text-lg text-gray-500 font-light leading-relaxed mb-8 sm:mb-10">
                       Founded in 1956 and rechartered in 1962, Troop 170 has been the standard for youth leadership in Unionville for decades. We are a scout-led organization where the youth plan the adventure and adults provide the mentorship.
                     </p>
-                    <div className="space-y-6">
-                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-yellow-500 hover:shadow-md transition-shadow">
-                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">The Road to Eagle</p>
-                         <p className="text-gray-500 text-sm">A strong legacy of guiding scouts to the prestigious Eagle Scout rank through mentorship and service.</p>
+                    <div className="space-y-4 sm:space-y-6">
+                       <div className="bg-gray-50 p-5 sm:p-6 shadow-sm border-l-4 border-yellow-500 hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-base sm:text-lg uppercase tracking-tight mb-1">The Road to Eagle</p>
+                         <p className="text-gray-500 text-xs sm:text-sm">A strong legacy of guiding scouts to the prestigious Eagle Scout rank through mentorship and service.</p>
                        </div>
-                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
-                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">Philmont High Adventure</p>
-                         <p className="text-gray-500 text-sm">Rugged backcountry trekking in the mountains of New Mexico.</p>
+                       <div className="bg-gray-50 p-5 sm:p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-base sm:text-lg uppercase tracking-tight mb-1">Philmont High Adventure</p>
+                         <p className="text-gray-500 text-xs sm:text-sm">Rugged backcountry trekking in the mountains of New Mexico.</p>
                        </div>
-                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
-                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">Sea Base Florida</p>
-                         <p className="text-gray-500 text-sm">Deep-sea sailing and tropical island survival in the Florida Keys.</p>
+                       <div className="bg-gray-50 p-5 sm:p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-base sm:text-lg uppercase tracking-tight mb-1">Sea Base Florida</p>
+                         <p className="text-gray-500 text-xs sm:text-sm">Deep-sea sailing and tropical island survival in the Florida Keys.</p>
                        </div>
-                       <div className="bg-gray-50 p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
-                         <p className="font-black text-gray-900 text-lg uppercase tracking-tight mb-1">Maine High Adventure</p>
-                         <p className="text-gray-500 text-sm">Canoeing and wilderness survival in the rugged backcountry of Maine.</p>
+                       <div className="bg-gray-50 p-5 sm:p-6 shadow-sm border-l-4 border-[#1D3A6C] hover:shadow-md transition-shadow">
+                         <p className="font-black text-gray-900 text-base sm:text-lg uppercase tracking-tight mb-1">Maine High Adventure</p>
+                         <p className="text-gray-500 text-xs sm:text-sm">Canoeing and wilderness survival in the rugged backcountry of Maine.</p>
                        </div>
                     </div>
                  </div>
-                 <div className="lg:col-span-7 relative h-[500px] lg:h-[650px] mt-10 lg:mt-0">
+                 <div className="lg:col-span-7 relative h-[380px] sm:h-[500px] lg:h-[650px] mt-8 lg:mt-0">
                     <img src="/images/legacy2.jpg" className="absolute top-0 right-0 w-4/5 h-3/4 object-cover shadow-[0_20px_50px_-10px_rgba(0,0,0,0.3)] z-10 rounded-none" alt="Hiking" />
                     <div className="absolute bottom-0 left-0 w-2/3 h-3/5 bg-white p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.4)] z-20 rounded-none">
                        <img src="/images/legacy1.jpg" className="w-full h-full object-cover" alt="Sailing" />
@@ -1635,24 +1705,24 @@ export default function App() {
                </div>
             </div>
 
-            <div className="bg-[#050B14] py-32 px-6 text-center border-t border-gray-800">
+            <div className="bg-[#050B14] py-20 sm:py-32 px-4 sm:px-6 text-center border-t border-gray-800">
               <div className="max-w-3xl mx-auto relative z-10">
-                <div className="w-16 h-16 mx-auto bg-[#BE1E2D] flex items-center justify-center text-white mb-8 shadow-xl rounded-none">
-                  <Heart size={28} />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto bg-[#BE1E2D] flex items-center justify-center text-white mb-6 sm:mb-8 shadow-xl rounded-none">
+                  <Heart size={26} />
                 </div>
-                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase mb-6 leading-none">Support Us</h2>
-                <p className="text-lg text-gray-400 mb-12 font-light leading-relaxed">
+                <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tighter uppercase mb-4 sm:mb-6 leading-none">Support Us</h2>
+                <p className="text-base sm:text-lg text-gray-400 mb-8 sm:mb-12 font-light leading-relaxed">
                   Help sustain our 60-year legacy. Your contributions directly fund critical equipment upkeep and high-adventure scholarships for scouts in need.
                 </p>
                 
-                <a href="https://venmo.com/u/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col sm:flex-row items-center sm:space-x-6 bg-[#008CFF] hover:bg-blue-600 px-10 py-6 font-black text-white text-xl transition-all shadow-xl group rounded-none">
+                <a href="https://venmo.com/u/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col sm:flex-row items-center sm:space-x-6 bg-[#008CFF] hover:bg-blue-600 px-6 py-5 sm:px-10 sm:py-6 font-black text-white text-base sm:text-xl transition-all shadow-xl group rounded-none w-full sm:w-auto justify-center">
                   <span>DONATE VIA VENMO</span>
-                  <span className="bg-white/20 px-4 py-1 mt-2 sm:mt-0 text-[10px] tracking-[0.2em] uppercase rounded-none">@Troop170Unionville</span>
+                  <span className="bg-white/20 px-3 py-1 mt-2 sm:mt-0 text-[10px] tracking-[0.2em] uppercase rounded-none">@Troop170Unionville</span>
                 </a>
 
-                <div className="mt-16 pt-10 border-t border-white/10 text-gray-500">
-                  <p className="font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-[#BE1E2D]">Prefer to mail a check?</p>
-                  <p className="text-md font-light italic leading-relaxed">
+                <div className="mt-12 sm:mt-16 pt-8 sm:pt-10 border-t border-white/10 text-gray-500">
+                  <p className="font-black uppercase tracking-[0.3em] text-[10px] mb-2 sm:mb-3 text-[#BE1E2D]">Prefer to mail a check?</p>
+                  <p className="text-sm sm:text-md font-light italic leading-relaxed">
                     First Church of Christ<br/>
                     ATTN: Troop 170 Treasurer<br/>
                     61 Main St, Unionville, CT 06085
@@ -1665,52 +1735,52 @@ export default function App() {
 
         {/* --- JOIN PAGE --- */}
         {currentPage === 'join' && (
-          <div className="bg-gray-50 pb-32 animate-in fade-in duration-700">
-            <div className="bg-[#0B0F19] text-white py-32 lg:py-60 px-6 text-center relative overflow-hidden">
+          <div className="bg-gray-50 pb-24 sm:pb-32">
+            <div className="bg-[#0B0F19] text-white py-24 sm:py-32 lg:py-60 px-4 sm:px-6 text-center relative overflow-hidden">
                <div className="absolute inset-0 opacity-30"><img src="/images/join.jpg" className="w-full h-full object-cover" alt="Campfire" /></div>
                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0B0F19]"></div>
-               <h2 className="relative z-10 text-5xl lg:text-7xl font-black uppercase tracking-tighter mb-4 leading-none">Start The Trail</h2>
-               <p className="relative z-10 text-lg font-light text-gray-300 max-w-2xl mx-auto">Boys and girls ages 11-17 are welcome to join year-round.</p>
+               <h2 className="relative z-10 text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tighter mb-4 leading-none">Start The Trail</h2>
+               <p className="relative z-10 text-base sm:text-lg font-light text-gray-300 max-w-2xl mx-auto">Boys and girls ages 11-17 are welcome to join year-round.</p>
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-16 relative z-20 mb-24">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 -mt-10 sm:-mt-16 relative z-20 mb-16 sm:mb-24">
                <div className="bg-white grid grid-cols-1 lg:grid-cols-5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] rounded-none">
                  
-                 <div className="lg:col-span-2 bg-[#050B14] text-white p-10 lg:p-14 flex flex-col justify-between">
+                 <div className="lg:col-span-2 bg-[#050B14] text-white p-6 sm:p-10 lg:p-14 flex flex-col justify-between">
                     <div>
-                       <h3 className="text-3xl font-black uppercase tracking-tight mb-10 leading-none">Visit A Meeting</h3>
-                       <div className="space-y-8">
-                          <div className="flex items-start space-x-5">
-                            <Clock className="text-[#BE1E2D] shrink-0" size={32}/> 
+                       <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight mb-6 sm:mb-10 leading-none">Visit A Meeting</h3>
+                       <div className="space-y-6 sm:space-y-8">
+                          <div className="flex items-start space-x-4 sm:space-x-5">
+                            <Clock className="text-[#BE1E2D] shrink-0" size={28}/> 
                             <div>
-                              <p className="font-black text-lg uppercase tracking-tight mb-1">Monday Evenings</p>
-                              <p className="text-gray-400 text-sm">During the school year (Sept-May)</p>
+                              <p className="font-black text-base sm:text-lg uppercase tracking-tight mb-1">Monday Evenings</p>
+                              <p className="text-gray-400 text-xs sm:text-sm">During the school year (Sept-May)</p>
                             </div>
                           </div>
-                          <div className="flex items-start space-x-5">
-                            <MapPin className="text-[#BE1E2D] shrink-0" size={32}/> 
+                          <div className="flex items-start space-x-4 sm:space-x-5">
+                            <MapPin className="text-[#BE1E2D] shrink-0" size={28}/> 
                             <div>
-                              <p className="font-black text-lg uppercase tracking-tight mb-1">Unionville, CT</p>
-                              <p className="text-gray-400 text-sm italic opacity-80">Exact location shared upon inquiry for youth protection.</p>
+                              <p className="font-black text-base sm:text-lg uppercase tracking-tight mb-1">Unionville, CT</p>
+                              <p className="text-gray-400 text-xs sm:text-sm italic opacity-80">Exact location shared upon inquiry for youth protection.</p>
                             </div>
                           </div>
                        </div>
                     </div>
                  </div>
 
-                 <div className="lg:col-span-3 p-10 lg:p-14 flex flex-col justify-center bg-white">
+                 <div className="lg:col-span-3 p-6 sm:p-10 lg:p-14 flex flex-col justify-center bg-white">
                     {joinSuccess ? (
-                      <div className="text-center py-10 animate-in zoom-in duration-500">
-                         <div className="w-16 h-16 bg-green-50 flex items-center justify-center mx-auto mb-6 rounded-none"><CheckCircle size={40} className="text-green-500" /></div>
-                         <h3 className="text-3xl font-black uppercase tracking-tighter text-gray-900 mb-2">Request Received</h3>
-                         <p className="text-gray-500 text-md font-light">The Scoutmaster will contact you shortly.</p>
+                      <div className="text-center py-8 sm:py-10">
+                         <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-50 flex items-center justify-center mx-auto mb-5 rounded-none"><CheckCircle size={36} className="text-green-500" /></div>
+                         <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-gray-900 mb-2">Request Received</h3>
+                         <p className="text-gray-500 text-sm sm:text-md font-light">The Scoutmaster will contact you shortly.</p>
                       </div>
                     ) : (
                       <form 
                         name="join-inquiry" 
                         method="POST" 
                         data-netlify="true" 
-                        className="space-y-6" 
+                        className="space-y-4 sm:space-y-6" 
                         onSubmit={(e) => {
                           e.preventDefault();
                           const form = e.target;
@@ -1729,23 +1799,23 @@ export default function App() {
                         }}
                       >
                         <input type="hidden" name="form-name" value="join-inquiry" />
-                         <h3 className="text-2xl font-black uppercase tracking-tighter text-gray-900 mb-6">Secure Inquiry</h3>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tighter text-gray-900 mb-4 sm:mb-6">Secure Inquiry</h3>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                             <div>
-                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Parent Name</label>
-                              <input required name="parent_name" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="e.g. Jane Doe" />
+                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1.5">Parent Name</label>
+                              <input required name="parent_name" className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none text-sm" placeholder="e.g. Jane Doe" />
                             </div>
                             <div>
-                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Email Address</label>
-                              <input required name="email" type="email" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="jane@example.com" />
+                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1.5">Email Address</label>
+                              <input required name="email" type="email" className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none text-sm" placeholder="jane@example.com" />
                             </div>
                             <div className="md:col-span-2">
-                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Phone Number</label>
-                              <input required name="phone" type="tel" className="w-full p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none" placeholder="(555) 555-5555" />
+                              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1.5">Phone Number</label>
+                              <input required name="phone" type="tel" className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 shadow-inner focus:ring-2 focus:ring-[#1D3A6C] outline-none text-gray-900 rounded-none text-sm" placeholder="(555) 555-5555" />
                             </div>
                          </div>
                          <div className="pt-2">
-                           <button type="submit" className="w-full p-5 bg-[#BE1E2D] text-white font-black uppercase tracking-[0.2em] text-sm shadow-md hover:bg-gray-900 transition-colors rounded-none flex justify-center items-center space-x-2">
+                           <button type="submit" className="w-full p-4 sm:p-5 bg-[#BE1E2D] text-white font-black uppercase tracking-[0.2em] text-xs sm:text-sm shadow-md hover:bg-gray-900 transition-colors rounded-none flex justify-center items-center space-x-2">
                               <span>Request Info / Schedule Visit</span>
                               <ArrowUpRight size={16} />
                            </button>
@@ -1757,24 +1827,24 @@ export default function App() {
                </div>
             </div>
 
-            <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
-               <div className="bg-white p-10 lg:p-14 shadow-[0_20px_50px_-10px_rgba(29,58,108,0.1)] hover:-translate-y-1 transition-transform flex flex-col justify-between group rounded-none border-t-4 border-[#1D3A6C]">
+            <div className="max-w-4xl mx-auto px-4 sm:px-8 lg:px-12">
+               <div className="bg-white p-6 sm:p-10 lg:p-14 shadow-[0_20px_50px_-10px_rgba(29,58,108,0.1)] hover:-translate-y-1 transition-transform flex flex-col justify-between group rounded-none border-t-4 border-[#1D3A6C]">
                   <div>
-                    <div className="flex items-center space-x-4 mb-10">
-                       <div className="bg-blue-50 p-4 text-[#1D3A6C] rounded-none"><CheckCircle size={32} /></div>
-                       <h4 className="text-2xl font-black tracking-tighter uppercase text-gray-900">Onboarding Process</h4>
+                    <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-10">
+                       <div className="bg-blue-50 p-3 sm:p-4 text-[#1D3A6C] rounded-none"><CheckCircle size={28} /></div>
+                       <h4 className="text-xl sm:text-2xl font-black tracking-tighter uppercase text-gray-900">Onboarding Process</h4>
                     </div>
-                    <div className="space-y-8">
+                    <div className="space-y-6 sm:space-y-8">
                        {[
                          ["1", "Observe", "Visit a meeting to see the Patrol Method."], 
                          ["2", "Apply", "Submit the official online application."], 
                          ["3", "Outfit", "Obtain your tan uniform and handbook."]
                        ].map(([num, title, desc]) => (
-                         <div key={num} className="flex items-start space-x-5">
-                            <div className="w-10 h-10 bg-[#1D3A6C] text-white flex items-center justify-center font-black shadow-md shrink-0 text-xl rounded-none">{num}</div>
+                         <div key={num} className="flex items-start space-x-4 sm:space-x-5">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#1D3A6C] text-white flex items-center justify-center font-black shadow-md shrink-0 text-lg sm:text-xl rounded-none">{num}</div>
                             <div>
-                              <p className="font-black text-lg uppercase tracking-tight mb-1 text-gray-900 leading-none">{title}</p>
-                              <p className="text-gray-500 text-sm font-light leading-snug">{desc}</p>
+                              <p className="font-black text-base sm:text-lg uppercase tracking-tight mb-0.5 text-gray-900 leading-none">{title}</p>
+                              <p className="text-gray-500 text-xs sm:text-sm font-light leading-snug">{desc}</p>
                             </div>
                          </div>
                        ))}
@@ -1784,7 +1854,7 @@ export default function App() {
                   href="https://my.scouting.org/VES/OnlineReg/1.0.0/?tu=UF-MB-066taa0170" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="mt-10 w-full flex items-center justify-center space-x-3 p-5 bg-[#BE1E2D] text-white font-black text-sm uppercase tracking-[0.2em] shadow-lg hover:bg-red-800 transition-colors rounded-none"
+                  className="mt-8 sm:mt-10 w-full flex items-center justify-center space-x-3 p-4 sm:p-5 bg-[#BE1E2D] text-white font-black text-xs sm:text-sm uppercase tracking-[0.2em] shadow-lg hover:bg-red-800 transition-colors rounded-none"
                 >
                   <span>Official Application</span>
                   <ExternalLink size={16} />
@@ -1794,19 +1864,19 @@ export default function App() {
           </div>
         )}
 
-        {/* --- MEMBER PORTAL DASHBOARD (ALL CARDS RESTORED) --- */}
+        {/* --- MEMBER PORTAL DASHBOARD --- */}
         {currentPage === 'portal' && (
-          <div className="min-h-screen bg-gray-50 animate-in fade-in duration-500">
+          <div className="min-h-screen bg-gray-50">
             {!isLoggedIn ? (
-              <div className="relative flex flex-col items-center justify-center min-h-screen px-6 overflow-hidden" style={{ backgroundColor: darkBg }}>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#1D3A6C] rounded-full blur-[150px] opacity-30 animate-pulse pointer-events-none"></div>
+              <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-5rem)] px-4 sm:px-6 overflow-hidden" style={{ backgroundColor: darkBg }}>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-[#1D3A6C] rounded-full blur-[120px] sm:blur-[150px] opacity-30 animate-pulse pointer-events-none"></div>
                 
-                <div className="relative z-10 bg-white/10 backdrop-blur-2xl p-12 lg:p-16 shadow-2xl max-w-md w-full border border-white/10 rounded-none">
-                    <div className="w-20 h-20 bg-white/5 flex items-center justify-center mx-auto mb-8 shadow-inner rounded-none">
-                      <ShieldCheck size={40} className="text-white" />
+                <div className="relative z-10 bg-white/10 backdrop-blur-2xl p-6 sm:p-12 lg:p-16 shadow-2xl max-w-md w-full border border-white/10 rounded-none my-10">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/5 flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-inner rounded-none">
+                      <ShieldCheck size={36} className="text-white" />
                     </div>
-                    <h2 className="text-3xl font-black text-white mb-2 tracking-tighter uppercase text-center">Member Login</h2>
-                    <p className="text-gray-400 mb-10 text-sm font-light text-center">Protected resources and ledgers.</p>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tighter uppercase text-center">Member Login</h2>
+                    <p className="text-gray-400 mb-8 sm:mb-10 text-xs sm:text-sm font-light text-center">Protected resources and ledgers.</p>
                     
                     <form onSubmit={(e) => { e.preventDefault(); if (password.toUpperCase() === 'TROOP170') setIsLoggedIn(true); else setLoginError(true); }}>
                       <div className="relative mb-6">
@@ -1817,12 +1887,12 @@ export default function App() {
                           type="password" 
                           value={password} 
                           onChange={(e) => {setPassword(e.target.value); setLoginError(false);}} 
-                          className="w-full pl-12 pr-4 py-4 bg-black/40 text-white text-lg border-0 shadow-inner outline-none focus:ring-2 focus:ring-white/30 rounded-none" 
+                          className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-black/40 text-white text-base sm:text-lg border-0 shadow-inner outline-none focus:ring-2 focus:ring-white/30 rounded-none" 
                           placeholder="Gate Code" 
                         />
                       </div>
                       {loginError && <p className="text-[#ff6b6b] mb-6 font-black animate-bounce uppercase text-[10px] tracking-widest text-center">Access Denied</p>}
-                      <button type="submit" className="w-full py-4 bg-white text-[#1D3A6C] font-black text-sm uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors rounded-none flex justify-center items-center space-x-2">
+                      <button type="submit" className="w-full py-4 bg-white text-[#1D3A6C] font-black text-xs sm:text-sm uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors rounded-none flex justify-center items-center space-x-2">
                         <span>Unlock</span>
                         <ArrowUpRight size={16} />
                       </button>
@@ -1830,31 +1900,31 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              <div className="pb-32">
-                <div className="bg-[#050B14] py-20 px-6 sm:px-8 lg:px-12 relative overflow-hidden shadow-xl mb-16">
+              <div className="pb-24 sm:pb-32">
+                <div className="bg-[#050B14] py-14 sm:py-20 px-4 sm:px-8 lg:px-12 relative overflow-hidden shadow-xl mb-10 sm:mb-16">
                   <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-[#1D3A6C] rounded-full blur-[150px] opacity-30 pointer-events-none"></div>
-                  <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row justify-between items-center">
-                    <div className="text-center md:text-left mb-8 md:mb-0">
-                      <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-none mb-4 shadow-inner border border-white/5">
+                  <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="text-center md:text-left">
+                      <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-none mb-3 sm:mb-4 shadow-inner border border-white/5">
                         <Lock size={12} className="text-green-400" />
                         <span className="text-[9px] font-black tracking-[0.2em] uppercase text-green-400">Secure Protocol Active</span>
                       </div>
-                      <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-2 leading-none">Dashboard</h2>
-                      <p className="text-gray-400 text-lg font-light">Internal Command Center</p>
+                      <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase mb-1 sm:mb-2 leading-none">Dashboard</h2>
+                      <p className="text-gray-400 text-sm sm:text-lg font-light">Internal Command Center</p>
                     </div>
-                    <button onClick={() => setIsLoggedIn(false)} className="px-6 py-3 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black border border-white/10 transition-colors rounded-none flex items-center space-x-2">
+                    <button onClick={() => setIsLoggedIn(false)} className="px-5 py-2.5 sm:px-6 sm:py-3 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black border border-white/10 transition-colors rounded-none flex items-center space-x-2">
                       <span>Log Out</span><LogOut size={14}/>
                     </button>
                   </div>
                 </div>
                 
-                <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                    {/* CARD 1: BAND APP */}
-                   <div className="bg-gradient-to-br from-white to-green-50 border border-green-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                   <div className="bg-gradient-to-br from-white to-green-50 border border-green-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-green-600 mb-6 shadow-sm"><Smartphone size={24}/></div>
-                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Band App</h3>
-                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Calendar updates, photos, and announcements.</p>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Band App</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Calendar updates, photos, and announcements.</p>
                       </div>
                       <a href="https://band.us/n/acabb5kcAfa10" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-green-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
                         <span>Launch App</span><ExternalLink size={14}/>
@@ -1862,11 +1932,11 @@ export default function App() {
                    </div>
 
                    {/* CARD 2: HEALTH FORMS */}
-                   <div className="bg-gradient-to-br from-white to-red-50 border border-red-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                   <div className="bg-gradient-to-br from-white to-red-50 border border-red-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-[#BE1E2D] mb-6 shadow-sm"><FileText size={24}/></div>
-                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Health Forms</h3>
-                         <p className="text-gray-500 text-sm leading-relaxed mb-8">AHMR Parts A, B, and C required for all outings.</p>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Health Forms</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">AHMR Parts A, B, and C required for all outings.</p>
                       </div>
                       <a href="https://www.scouting.org/health-and-safety/ahmr/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-[#BE1E2D] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
                         <span>Download PDF</span><Download size={14}/>
@@ -1874,47 +1944,47 @@ export default function App() {
                    </div>
 
                    {/* CARD 3: GEAR HUB */}
-                   <div className="bg-gradient-to-br from-white to-amber-50 border border-amber-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                   <div className="bg-gradient-to-br from-white to-amber-50 border border-amber-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-amber-600 mb-6 shadow-sm"><Tent size={24}/></div>
-                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Gear Hub</h3>
-                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Print packing checklists for troop adventures.</p>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Gear Hub</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Print packing checklists for troop adventures.</p>
                       </div>
-                      <button onClick={() => { setCurrentPage('gearLists'); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-amber-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                      <button onClick={() => navigateTo('gearLists')} className="flex items-center space-x-2 text-amber-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
                         <span>Open Hub</span><ArrowUpRight size={14}/>
                       </button>
                    </div>
 
                    {/* CARD 4: CLINICS */}
-                   <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                   <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-purple-600 mb-6 shadow-sm"><Medal size={24}/></div>
-                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Clinics</h3>
-                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Schedule and registration for merit badges.</p>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Clinics</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Schedule and registration for merit badges.</p>
                       </div>
-                      <button onClick={() => { setCurrentPage('meritBadges'); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-purple-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                      <button onClick={() => navigateTo('meritBadges')} className="flex items-center space-x-2 text-purple-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
                         <span>View Schedule</span><ArrowUpRight size={14}/>
                       </button>
                    </div>
 
                    {/* CARD 5: SCOUT DOLLARS */}
-                   <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                   <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-[#1D3A6C] mb-6 shadow-sm"><CreditCard size={24}/></div>
-                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Scout Dollars</h3>
-                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Check live family balances, leader transaction entry, and treasurer audits.</p>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Scout Dollars</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Check live family balances, leader transaction entry, and treasurer audits.</p>
                       </div>
-                      <button onClick={() => { setCurrentPage('scoutDollars'); window.scrollTo(0,0); }} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                      <button onClick={() => navigateTo('scoutDollars')} className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
                         <span>Access Ledger</span><ArrowUpRight size={14}/>
                       </button>
                    </div>
                    
                    {/* CARD 6: UNIVERSITY OF COOKING */}
-                   <div className="bg-gradient-to-br from-white to-orange-50 border border-orange-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                   <div className="bg-gradient-to-br from-white to-orange-50 border border-orange-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-orange-600 mb-6 shadow-sm"><Utensils size={24}/></div>
-                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">University of Cooking</h3>
-                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Troop cookbook and University of Cooking planning.</p>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">University of Cooking</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Troop cookbook and University of Cooking planning.</p>
                       </div>
                       <a href="https://sites.google.com/view/troop170universityofcooking/university-of-cooking" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-orange-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
                         <span>Open Site</span><ExternalLink size={14}/>
@@ -1922,11 +1992,11 @@ export default function App() {
                    </div>
                    
                    {/* CARD 7: FAMILY HANDBOOK */}
-                   <div className="bg-gradient-to-br from-white to-indigo-50 border border-indigo-100 p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                   <div className="bg-gradient-to-br from-white to-indigo-50 border border-indigo-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
                          <div className="w-12 h-12 bg-white flex items-center justify-center text-indigo-600 mb-6 shadow-sm"><BookOpen size={24}/></div>
-                         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Family Handbook</h3>
-                         <p className="text-gray-500 text-sm leading-relaxed mb-8">Information for scouts and families on how the troop works.</p>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Family Handbook</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Information for scouts and families on how the troop works.</p>
                       </div>
                       <a href="https://drive.google.com/file/d/1HJXppDP_Hl7XXf9lfFr0HMBWDXLYGnLi/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-indigo-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
                         <span>View Document</span><ExternalLink size={14}/>
@@ -1934,7 +2004,7 @@ export default function App() {
                    </div>
 
                    {/* CARD 8: SCOUT LIFE MAGAZINE */}
-                   <div className="group relative bg-[#161B22] rounded-3xl p-8 border border-white/5 hover:border-[#BE1E2D]/50 transition-all duration-500 overflow-hidden lg:col-span-2">
+                   <div className="group relative bg-[#161B22] rounded-3xl p-6 sm:p-8 border border-white/5 hover:border-[#BE1E2D]/50 transition-all duration-500 overflow-hidden lg:col-span-2">
                      <div className="absolute -right-8 -top-8 text-white/5 group-hover:text-[#BE1E2D]/10 transition-colors duration-500 pointer-events-none">
                        <BookOpen size={160} />
                      </div>
@@ -1944,8 +2014,8 @@ export default function App() {
                          <BookOpen size={24} />
                        </div>
                        
-                       <h3 className="text-2xl font-bold text-white mb-3">Scout Life Magazine</h3>
-                       <p className="text-gray-400 text-sm leading-relaxed mb-8 max-w-lg">
+                       <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3">Scout Life Magazine</h3>
+                       <p className="text-gray-400 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8 max-w-lg">
                          Explore the official magazine of the BSA. Discover project ideas, gear reviews, and stories of scouting adventure.
                        </p>
 
@@ -1953,7 +2023,7 @@ export default function App() {
                          href="https://scoutlife.org" 
                          target="_blank" 
                          rel="noopener noreferrer" 
-                         className="inline-flex items-center space-x-3 bg-white/5 hover:bg-[#BE1E2D] text-white px-6 py-3 rounded-xl transition-all duration-300 font-bold uppercase tracking-wider text-xs"
+                         className="inline-flex items-center space-x-3 bg-white/5 hover:bg-[#BE1E2D] text-white px-5 py-3 rounded-xl transition-all duration-300 font-bold uppercase tracking-wider text-xs"
                        >
                          <span>Read Online</span>
                          <ArrowUpRight size={18} />
@@ -1966,42 +2036,42 @@ export default function App() {
           </div>
         )}
 
-        {/* --- DYNAMIC ROOM: SCOUT DOLLARS (WITH TREASURER AUDIT QUEUE) --- */}
+        {/* --- DYNAMIC ROOM: SCOUT DOLLARS --- */}
         {currentPage === 'scoutDollars' && (
-          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
-            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
-               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Scout Dollar Ledger</h2>
-               <div className="relative z-10 flex justify-center items-center space-x-4 mb-4">
+          <div className="bg-gray-50 min-h-screen pb-24 sm:pb-32">
+            <div className="bg-[#050B14] py-16 sm:py-24 px-4 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-3xl sm:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Scout Dollar Ledger</h2>
+               <div className="relative z-10 flex flex-wrap justify-center items-center gap-2 mb-4">
                  <button 
                    onClick={() => setScoutDollarMode('parent')} 
-                   className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'parent' ? 'bg-[#1D3A6C] text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                   className={`px-3 py-2 sm:px-4 text-[11px] sm:text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'parent' ? 'bg-[#1D3A6C] text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
                  >
                    Family Balance
                  </button>
                  <button 
                    onClick={() => setScoutDollarMode('leader')} 
-                   className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'leader' ? 'bg-[#BE1E2D] text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                   className={`px-3 py-2 sm:px-4 text-[11px] sm:text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'leader' ? 'bg-[#BE1E2D] text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
                  >
                    Leader Entry
                  </button>
                  {isFinanceOfficer && (
                    <button 
                      onClick={() => setScoutDollarMode('audit')} 
-                     className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'audit' ? 'bg-green-700 text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
+                     className={`px-3 py-2 sm:px-4 text-[11px] sm:text-xs font-black uppercase tracking-widest transition-colors ${scoutDollarMode === 'audit' ? 'bg-green-700 text-white' : 'bg-white/10 text-gray-400 hover:text-white'}`}
                    >
                      Treasurer Audit
                    </button>
                  )}
                </div>
-               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+               <button onClick={() => navigateTo('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
             </div>
 
-            <div className="max-w-4xl mx-auto px-6 -mt-8 relative z-20">
+            <div className="max-w-4xl mx-auto px-4 -mt-6 sm:-mt-8 relative z-20">
               
               {/* 1. FAMILY MOBILE ACCOUNT LOOKUP */}
               {scoutDollarMode === 'parent' && (
                 <div>
-                  <form onSubmit={handleParentLookup} className="bg-white p-6 shadow-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-12 gap-4 rounded-none mb-8">
+                  <form onSubmit={handleParentLookup} className="bg-white p-5 sm:p-6 shadow-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 rounded-none mb-6 sm:mb-8">
                     <div className="sm:col-span-5">
                       <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Scout ID</label>
                       <input 
@@ -2017,6 +2087,8 @@ export default function App() {
                       <input 
                         required 
                         type="password"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         maxLength={6}
                         value={parentPin} 
                         onChange={(e) => setParentPin(e.target.value)}
@@ -2036,7 +2108,7 @@ export default function App() {
                   </form>
 
                   {parentError && (
-                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 text-red-700 font-bold text-sm">
+                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 sm:mb-8 text-red-700 font-bold text-xs sm:text-sm">
                       {parentError}
                     </div>
                   )}
@@ -2044,45 +2116,45 @@ export default function App() {
                   {parentAccount && (
                     <>
                       {/* Balance Summary Card */}
-                      <div className="bg-[#143d23] text-white p-8 sm:p-10 shadow-xl mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                      <div className="bg-[#143d23] text-white p-6 sm:p-10 shadow-xl mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                           <span className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-200 block mb-1">Scout Account</span>
-                          <h3 className="text-3xl font-black uppercase tracking-tight">{parentAccount.scoutName || parentScoutId}</h3>
+                          <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">{parentAccount.scoutName || parentScoutId}</h3>
                           <p className="text-xs text-emerald-100 mt-1">Troop 170 General Ledger System</p>
                         </div>
                         <div className="text-left sm:text-right">
                           <span className="text-[10px] font-black uppercase tracking-widest text-emerald-200 block mb-1">Available Balance</span>
-                          <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">${parentAccount.currentBalance.toFixed(2)}</span>
+                          <span className="text-3xl sm:text-5xl font-black text-white tracking-tight">${parentAccount.currentBalance.toFixed(2)}</span>
                         </div>
                       </div>
 
                       {/* Transaction Feed */}
-                      <div className="bg-white shadow-xl border border-gray-100 p-8 rounded-none">
+                      <div className="bg-white shadow-xl border border-gray-100 p-5 sm:p-8 rounded-none">
                         <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
                           <div>
-                            <h4 className="text-xl font-black uppercase tracking-tight text-gray-900">Activity Journal</h4>
+                            <h4 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">Activity Journal</h4>
                             <p className="text-xs text-gray-400">Chronological history of credits and debits</p>
                           </div>
                           <span className="text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-100 px-3 py-1">
-                            {parentTransactions.length} Transactions
+                            {parentTransactions.length} Items
                           </span>
                         </div>
 
                         {parentTransactions.length === 0 ? (
-                          <p className="text-gray-400 text-center py-8 text-sm italic">No transaction records on file yet.</p>
+                          <p className="text-gray-400 text-center py-8 text-xs sm:text-sm italic">No transaction records on file yet.</p>
                         ) : (
                           <div className="divide-y divide-gray-100">
                             {parentTransactions.map(tx => {
                               const isCredit = tx.type === 'CREDIT';
                               return (
-                                <div key={tx.txId} className="py-4 flex items-center justify-between hover:bg-gray-50/80 px-2 transition-colors">
-                                  <div className="flex items-center space-x-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isCredit ? 'bg-green-50 text-green-600' : 'bg-red-50 text-[#BE1E2D]'}`}>
-                                      {isCredit ? <PlusCircle size={20} /> : <MinusCircle size={20} />}
+                                <div key={tx.txId} className="py-4 flex items-center justify-between hover:bg-gray-50/80 px-1 sm:px-2 transition-colors">
+                                  <div className="flex items-center space-x-3 sm:space-x-4">
+                                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${isCredit ? 'bg-green-50 text-green-600' : 'bg-red-50 text-[#BE1E2D]'}`}>
+                                      {isCredit ? <PlusCircle size={18} /> : <MinusCircle size={18} />}
                                     </div>
                                     <div>
-                                      <p className="font-bold text-sm text-gray-900 leading-snug">{tx.description || tx.category}</p>
-                                      <div className="flex items-center space-x-2 text-[10px] text-gray-400 uppercase tracking-wider font-semibold mt-0.5">
+                                      <p className="font-bold text-xs sm:text-sm text-gray-900 leading-snug">{tx.description || tx.category}</p>
+                                      <div className="flex flex-wrap items-center gap-1.5 text-[9px] sm:text-[10px] text-gray-400 uppercase tracking-wider font-semibold mt-0.5">
                                         <span>{tx.date}</span>
                                         <span>•</span>
                                         <span className="text-[#1D3A6C]">{tx.category}</span>
@@ -2092,8 +2164,8 @@ export default function App() {
                                     </div>
                                   </div>
 
-                                  <div className="text-right">
-                                    <span className={`text-base font-black tracking-tight ${isCredit ? 'text-green-600' : 'text-gray-900'}`}>
+                                  <div className="text-right shrink-0 ml-2">
+                                    <span className={`text-sm sm:text-base font-black tracking-tight ${isCredit ? 'text-green-600' : 'text-gray-900'}`}>
                                       {isCredit ? `+$${tx.amount.toFixed(2)}` : `-$${tx.amount.toFixed(2)}`}
                                     </span>
                                     <span className="block text-[9px] uppercase tracking-widest text-gray-400 font-bold mt-0.5">{tx.auditStatus}</span>
@@ -2111,14 +2183,14 @@ export default function App() {
 
               {/* 2. LEADER TRANSACTION HUB */}
               {scoutDollarMode === 'leader' && (
-                <div className="bg-white shadow-2xl border-t-8 border-[#BE1E2D] p-8 md:p-10 rounded-none animate-in fade-in duration-300">
+                <div className="bg-white shadow-2xl border-t-8 border-[#BE1E2D] p-5 sm:p-10 rounded-none">
                   
                   {!leaderAuthUnlocked ? (
-                    <div className="max-w-md mx-auto text-center py-6">
-                      <div className="w-16 h-16 bg-red-50 text-[#BE1E2D] flex items-center justify-center mx-auto mb-4">
-                        <Lock size={30} />
+                    <div className="max-w-md mx-auto text-center py-4 sm:py-6">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-red-50 text-[#BE1E2D] flex items-center justify-center mx-auto mb-4">
+                        <Lock size={26} />
                       </div>
-                      <h3 className="text-2xl font-black uppercase tracking-tight text-gray-900 mb-2">Leader Sign-In</h3>
+                      <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-gray-900 mb-1 sm:mb-2">Leader Sign-In</h3>
                       <p className="text-gray-500 text-xs mb-6">Enter your authorized email and unique leader PIN.</p>
                       
                       <form onSubmit={handleLeaderLogin} className="space-y-4 text-left">
@@ -2139,6 +2211,8 @@ export default function App() {
                           <input 
                             required 
                             type="password"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             maxLength={8}
                             placeholder="••••"
                             value={leaderPinInput}
@@ -2162,12 +2236,12 @@ export default function App() {
                     </div>
                   ) : (
                     <div>
-                      <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 pb-4 border-b border-gray-100 gap-2">
                         <div>
                           <div className="inline-flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-[#BE1E2D] mb-1">
                             <ShieldCheck size={14} /> <span>Session: {activeLeader.name} ({activeLeader.role})</span>
                           </div>
-                          <h3 className="text-2xl font-black uppercase tracking-tight text-gray-900">Record Transaction</h3>
+                          <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-gray-900">Record Transaction</h3>
                         </div>
                         <button 
                           onClick={() => { setLeaderAuthUnlocked(false); setActiveLeader(null); setLeaderPinInput(''); }} 
@@ -2178,21 +2252,21 @@ export default function App() {
                       </div>
 
                       {txMessage && (
-                        <div className={`p-4 mb-6 text-sm font-bold flex items-center space-x-3 ${txMessage.type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-500' : 'bg-red-50 text-red-800 border-l-4 border-red-500'}`}>
-                          {txMessage.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                        <div className={`p-4 mb-6 text-xs sm:text-sm font-bold flex items-center space-x-3 ${txMessage.type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-500' : 'bg-red-50 text-red-800 border-l-4 border-red-500'}`}>
+                          {txMessage.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
                           <span>{txMessage.text}</span>
                         </div>
                       )}
 
-                      <form onSubmit={handleLeaderSubmit} className="space-y-6">
+                      <form onSubmit={handleLeaderSubmit} className="space-y-5 sm:space-y-6">
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                           <div>
                             <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Select Scout</label>
                             <select 
                               value={selectedScoutId} 
                               onChange={(e) => setSelectedScoutId(e.target.value)}
-                              className="w-full p-4 bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm focus:border-[#1D3A6C] outline-none"
+                              className="w-full p-3.5 sm:p-4 bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm focus:border-[#1D3A6C] outline-none"
                             >
                               {scoutList.map(s => (
                                 <option key={s.scoutId} value={s.scoutId}>
@@ -2212,43 +2286,44 @@ export default function App() {
                             <input 
                               disabled 
                               value={`${activeLeader.name} (${activeLeader.role})`}
-                              className="w-full p-4 bg-gray-100 border border-gray-200 text-gray-600 text-sm font-semibold outline-none cursor-not-allowed"
+                              className="w-full p-3.5 sm:p-4 bg-gray-100 border border-gray-200 text-gray-600 text-sm font-semibold outline-none cursor-not-allowed"
                             />
                           </div>
                         </div>
 
                         <div>
                           <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Transaction Type</label>
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-2 gap-3 sm:gap-4">
                             <button
                               type="button"
                               onClick={() => setTxType('DEBIT')}
-                              className={`p-4 border font-black uppercase tracking-widest text-xs flex items-center justify-center space-x-2 ${txType === 'DEBIT' ? 'bg-red-50 border-[#BE1E2D] text-[#BE1E2D]' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+                              className={`p-3.5 sm:p-4 border font-black uppercase tracking-widest text-xs flex items-center justify-center space-x-1.5 sm:space-x-2 ${txType === 'DEBIT' ? 'bg-red-50 border-[#BE1E2D] text-[#BE1E2D]' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
                             >
                               <MinusCircle size={16} /> <span>Withdrawal (Debit)</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => setTxType('CREDIT')}
-                              className={`p-4 border font-black uppercase tracking-widest text-xs flex items-center justify-center space-x-2 ${txType === 'CREDIT' ? 'bg-green-50 border-green-600 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+                              className={`p-3.5 sm:p-4 border font-black uppercase tracking-widest text-xs flex items-center justify-center space-x-1.5 sm:space-x-2 ${txType === 'CREDIT' ? 'bg-green-50 border-green-600 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
                             >
                               <PlusCircle size={16} /> <span>Deposit (Credit)</span>
                             </button>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                           <div>
                             <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Amount ($ USD)</label>
                             <input 
                               required 
                               type="number" 
+                              inputMode="decimal"
                               step="0.01" 
                               min="0.01"
                               value={txAmount} 
                               onChange={(e) => setTxAmount(e.target.value)}
                               placeholder="55.00" 
-                              className="w-full p-4 bg-gray-50 border border-gray-200 text-gray-900 font-black text-lg focus:border-[#1D3A6C] outline-none"
+                              className="w-full p-3.5 sm:p-4 bg-gray-50 border border-gray-200 text-gray-900 font-black text-lg focus:border-[#1D3A6C] outline-none"
                             />
                           </div>
 
@@ -2257,7 +2332,7 @@ export default function App() {
                             <select 
                               value={txCategory} 
                               onChange={(e) => setTxCategory(e.target.value)}
-                              className="w-full p-4 bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm focus:border-[#1D3A6C] outline-none"
+                              className="w-full p-3.5 sm:p-4 bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm focus:border-[#1D3A6C] outline-none"
                             >
                               <option value="Campout">Campout</option>
                               <option value="Summer Camp">Summer Camp</option>
@@ -2277,14 +2352,14 @@ export default function App() {
                             value={txDescription} 
                             onChange={(e) => setTxDescription(e.target.value)}
                             placeholder="e.g. October Sequassen Fall Campout" 
-                            className="w-full p-4 bg-gray-50 border border-gray-200 text-gray-900 text-sm focus:border-[#1D3A6C] outline-none"
+                            className="w-full p-3.5 sm:p-4 bg-gray-50 border border-gray-200 text-gray-900 text-sm focus:border-[#1D3A6C] outline-none"
                           />
                         </div>
 
                         <button 
                           type="submit" 
                           disabled={txLoading}
-                          className="w-full p-5 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors flex items-center justify-center space-x-2"
+                          className="w-full p-4 sm:p-5 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors flex items-center justify-center space-x-2"
                         >
                           {txLoading ? <RefreshCw size={16} className="animate-spin" /> : <span>Post Entry to Master Ledger</span>}
                         </button>
@@ -2298,43 +2373,43 @@ export default function App() {
 
               {/* 3. TREASURER AUDIT & CFO RECONCILIATION QUEUE */}
               {scoutDollarMode === 'audit' && isFinanceOfficer && (
-                <div className="bg-white shadow-2xl border-t-8 border-[#1D3A6C] p-8 md:p-10 rounded-none animate-in fade-in duration-300">
+                <div className="bg-white shadow-2xl border-t-8 border-[#1D3A6C] p-5 sm:p-10 rounded-none">
                   
                   {/* Top Financial Dashboard */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 pb-8 border-b border-gray-100 text-center">
-                    <div className="bg-blue-50 p-6 border border-blue-100">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-gray-100 text-center">
+                    <div className="bg-blue-50 p-4 sm:p-6 border border-blue-100">
                       <span className="text-[10px] font-black uppercase tracking-widest text-[#1D3A6C] block mb-1">Total Restricted Liability</span>
-                      <span className="text-3xl font-black text-[#1D3A6C]">${auditData.totalTroopLiability.toFixed(2)}</span>
+                      <span className="text-2xl sm:text-3xl font-black text-[#1D3A6C]">${auditData.totalTroopLiability.toFixed(2)}</span>
                     </div>
-                    <div className="bg-green-50 p-6 border border-green-100">
+                    <div className="bg-green-50 p-4 sm:p-6 border border-green-100">
                       <span className="text-[10px] font-black uppercase tracking-widest text-green-700 block mb-1">Cumulative Credits Earned</span>
-                      <span className="text-3xl font-black text-green-700">+${auditData.cumulativeCredits.toFixed(2)}</span>
+                      <span className="text-2xl sm:text-3xl font-black text-green-700">+${auditData.cumulativeCredits.toFixed(2)}</span>
                     </div>
-                    <div className="bg-red-50 p-6 border border-red-100">
+                    <div className="bg-red-50 p-4 sm:p-6 border border-red-100">
                       <span className="text-[10px] font-black uppercase tracking-widest text-[#BE1E2D] block mb-1">Cumulative Debits Applied</span>
-                      <span className="text-3xl font-black text-[#BE1E2D]">-${auditData.cumulativeDebits.toFixed(2)}</span>
+                      <span className="text-2xl sm:text-3xl font-black text-[#BE1E2D]">-${auditData.cumulativeDebits.toFixed(2)}</span>
                     </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
                     <div>
-                      <h3 className="text-2xl font-black uppercase tracking-tight text-gray-900">Pending Audit Queue</h3>
+                      <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-gray-900">Pending Audit Queue</h3>
                       <p className="text-xs text-gray-500">Unreconciled transactions awaiting Treasurer validation</p>
                     </div>
                     
-                    <div className="flex space-x-3">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <button 
                         onClick={handleReconcileSelected}
                         disabled={auditLoading || selectedTxIds.length === 0}
-                        className="px-5 py-3 bg-green-700 text-white font-black uppercase tracking-widest text-xs hover:bg-green-800 transition-colors flex items-center space-x-2 disabled:opacity-40 rounded-none"
+                        className="px-4 py-3 bg-green-700 text-white font-black uppercase tracking-widest text-xs hover:bg-green-800 transition-colors flex items-center justify-center space-x-2 disabled:opacity-40 rounded-none"
                       >
                         <CheckCircle size={15} />
-                        <span>Validate Selected ({selectedTxIds.length})</span>
+                        <span>Validate ({selectedTxIds.length})</span>
                       </button>
                       <button 
                         onClick={handleDispatchCfo}
                         disabled={auditLoading}
-                        className="px-5 py-3 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors flex items-center space-x-2 rounded-none"
+                        className="px-4 py-3 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors flex items-center justify-center space-x-2 rounded-none"
                       >
                         <Send size={15} />
                         <span>Dispatch CFO Memo</span>
@@ -2343,54 +2418,47 @@ export default function App() {
                   </div>
 
                   {auditFeedback && (
-                    <div className={`p-4 mb-6 text-sm font-bold flex items-center space-x-3 ${auditFeedback.type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-500' : 'bg-red-50 text-red-800 border-l-4 border-red-500'}`}>
-                      {auditFeedback.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                    <div className={`p-4 mb-6 text-xs sm:text-sm font-bold flex items-center space-x-3 ${auditFeedback.type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-500' : 'bg-red-50 text-red-800 border-l-4 border-red-500'}`}>
+                      {auditFeedback.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
                       <span>{auditFeedback.text}</span>
                     </div>
                   )}
 
                   {auditLoading ? (
                     <div className="py-12 text-center text-gray-400 flex items-center justify-center space-x-3">
-                      <RefreshCw className="animate-spin" size={24} />
-                      <span className="font-bold text-sm">Syncing audit journal with master sheet...</span>
+                      <RefreshCw className="animate-spin" size={20} />
+                      <span className="font-bold text-xs sm:text-sm">Syncing audit journal with master sheet...</span>
                     </div>
                   ) : auditData.pendingTransactions.length === 0 ? (
-                    <div className="bg-gray-50 p-12 text-center border border-gray-100">
-                      <CheckCircle size={40} className="text-green-600 mx-auto mb-3" />
-                      <h4 className="text-lg font-black uppercase tracking-tight text-gray-900">Audit Journal Complete</h4>
+                    <div className="bg-gray-50 p-8 sm:p-12 text-center border border-gray-100">
+                      <CheckCircle size={36} className="text-green-600 mx-auto mb-3" />
+                      <h4 className="text-base sm:text-lg font-black uppercase tracking-tight text-gray-900">Audit Journal Complete</h4>
                       <p className="text-xs text-gray-500 max-w-md mx-auto mt-1">All posted debits and credits have been reconciled.</p>
                     </div>
                   ) : (
-                    <div className="border border-gray-200 overflow-x-auto">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                          <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 uppercase font-black tracking-wider">
-                            <th className="p-3 w-10 text-center">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedTxIds.length === auditData.pendingTransactions.length}
-                                onChange={(e) => {
-                                  if (e.target.checked) setSelectedTxIds(auditData.pendingTransactions.map(t => t.txId));
-                                  else setSelectedTxIds([]);
-                                }}
-                              />
-                            </th>
-                            <th className="p-3">Date</th>
-                            <th className="p-3">Scout</th>
-                            <th className="p-3">Type</th>
-                            <th className="p-3">Amount</th>
-                            <th className="p-3">Category</th>
-                            <th className="p-3">Description</th>
-                            <th className="p-3">Recorded By</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {auditData.pendingTransactions.map(tx => {
-                            const isSelected = selectedTxIds.includes(tx.txId);
-                            const isCredit = tx.type === 'CREDIT';
-                            return (
-                              <tr key={tx.txId} className={`hover:bg-blue-50/50 ${isSelected ? 'bg-blue-50/20' : ''}`}>
-                                <td className="p-3 text-center">
+                    <div>
+                      {/* Mobile Cards (shown under sm) */}
+                      <div className="sm:hidden space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-gray-200">
+                          <label className="flex items-center space-x-2 text-xs font-bold text-gray-700">
+                            <input 
+                              type="checkbox" 
+                              checked={selectedTxIds.length === auditData.pendingTransactions.length}
+                              onChange={(e) => {
+                                if (e.target.checked) setSelectedTxIds(auditData.pendingTransactions.map(t => t.txId));
+                                else setSelectedTxIds([]);
+                              }}
+                            />
+                            <span>Select All ({auditData.pendingTransactions.length})</span>
+                          </label>
+                        </div>
+                        {auditData.pendingTransactions.map(tx => {
+                          const isSelected = selectedTxIds.includes(tx.txId);
+                          const isCredit = tx.type === 'CREDIT';
+                          return (
+                            <div key={tx.txId} className={`p-4 border text-xs ${isSelected ? 'border-[#1D3A6C] bg-blue-50/20' : 'border-gray-200 bg-white'}`}>
+                              <div className="flex items-start justify-between mb-2">
+                                <label className="flex items-center space-x-2 cursor-pointer font-bold text-gray-900">
                                   <input 
                                     type="checkbox"
                                     checked={isSelected}
@@ -2399,19 +2467,75 @@ export default function App() {
                                       else setSelectedTxIds(prev => prev.filter(id => id !== tx.txId));
                                     }}
                                   />
-                                </td>
-                                <td className="p-3 font-mono text-gray-600">{tx.date}</td>
-                                <td className="p-3 font-bold text-gray-900">{tx.scoutName}</td>
-                                <td className={`p-3 font-black ${isCredit ? 'text-green-600' : 'text-[#BE1E2D]'}`}>{tx.type}</td>
-                                <td className="p-3 font-black text-gray-900">${tx.amount.toFixed(2)}</td>
-                                <td className="p-3 text-gray-600">{tx.category}</td>
-                                <td className="p-3 text-gray-700 italic max-w-xs">{tx.description}</td>
-                                <td className="p-3 text-[11px] text-gray-500 font-semibold">{tx.recordedBy}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                                  <span>{tx.scoutName}</span>
+                                </label>
+                                <span className={`font-black ${isCredit ? 'text-green-600' : 'text-[#BE1E2D]'}`}>
+                                  {isCredit ? `+$${tx.amount.toFixed(2)}` : `-$${tx.amount.toFixed(2)}`}
+                                </span>
+                              </div>
+                              <p className="text-gray-600 text-[11px] mb-1"><strong className="text-gray-900">{tx.category}:</strong> {tx.description}</p>
+                              <div className="flex justify-between text-[10px] text-gray-400 mt-2 pt-2 border-t border-gray-100">
+                                <span>{tx.date}</span>
+                                <span>By: {tx.recordedBy}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Desktop Table (shown on sm and up) */}
+                      <div className="hidden sm:block border border-gray-200 overflow-x-auto">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 uppercase font-black tracking-wider">
+                              <th className="p-3 w-10 text-center">
+                                <input 
+                                  type="checkbox" 
+                                  checked={selectedTxIds.length === auditData.pendingTransactions.length}
+                                  onChange={(e) => {
+                                    if (e.target.checked) setSelectedTxIds(auditData.pendingTransactions.map(t => t.txId));
+                                    else setSelectedTxIds([]);
+                                  }}
+                                />
+                              </th>
+                              <th className="p-3">Date</th>
+                              <th className="p-3">Scout</th>
+                              <th className="p-3">Type</th>
+                              <th className="p-3">Amount</th>
+                              <th className="p-3">Category</th>
+                              <th className="p-3">Description</th>
+                              <th className="p-3">Recorded By</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {auditData.pendingTransactions.map(tx => {
+                              const isSelected = selectedTxIds.includes(tx.txId);
+                              const isCredit = tx.type === 'CREDIT';
+                              return (
+                                <tr key={tx.txId} className={`hover:bg-blue-50/50 ${isSelected ? 'bg-blue-50/20' : ''}`}>
+                                  <td className="p-3 text-center">
+                                    <input 
+                                      type="checkbox" 
+                                      checked={isSelected}
+                                      onChange={(e) => {
+                                        if (e.target.checked) setSelectedTxIds(prev => [...prev, tx.txId]);
+                                        else setSelectedTxIds(prev => prev.filter(id => id !== tx.txId));
+                                      }}
+                                    />
+                                  </td>
+                                  <td className="p-3 font-mono text-gray-600">{tx.date}</td>
+                                  <td className="p-3 font-bold text-gray-900">{tx.scoutName}</td>
+                                  <td className={`p-3 font-black ${isCredit ? 'text-green-600' : 'text-[#BE1E2D]'}`}>{tx.type}</td>
+                                  <td className="p-3 font-black text-gray-900">${tx.amount.toFixed(2)}</td>
+                                  <td className="p-3 text-gray-600">{tx.category}</td>
+                                  <td className="p-3 text-gray-700 italic max-w-xs truncate">{tx.description}</td>
+                                  <td className="p-3 text-[11px] text-gray-500 font-semibold">{tx.recordedBy}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   )}
 
@@ -2424,27 +2548,27 @@ export default function App() {
 
         {/* --- DYNAMIC ROOM: CLINICS --- */}
         {currentPage === 'meritBadges' && (
-          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
-            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
-               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Clinics</h2>
-               <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+          <div className="bg-gray-50 min-h-screen pb-24 sm:pb-32">
+            <div className="bg-[#050B14] py-16 sm:py-24 px-4 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-3xl sm:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Clinics</h2>
+               <button onClick={() => navigateTo('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
             </div>
             
-            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 -mt-6 sm:-mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-20">
                {upcomingBadges.map(badge => (
                  <div key={badge.id} className="bg-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] group flex flex-col justify-between rounded-none border-b-4 border-purple-800 hover:-translate-y-1 transition-transform">
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-44 sm:h-48 overflow-hidden">
                        <img src={badge.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={badge.name} />
-                       <div className="absolute top-4 right-4 bg-[#BE1E2D] text-white px-3 py-1 font-black uppercase tracking-widest text-[9px] shadow-md">{badge.status}</div>
+                       <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-[#BE1E2D] text-white px-2.5 py-1 font-black uppercase tracking-widest text-[9px] shadow-md">{badge.status}</div>
                     </div>
-                    <div className="p-8">
-                       <h3 className="text-xl font-black uppercase tracking-tight mb-6 text-gray-900 leading-tight">{badge.name}</h3>
-                       <div className="space-y-3 mb-8 text-gray-600 font-bold uppercase tracking-wider text-[10px]">
+                    <div className="p-6 sm:p-8">
+                       <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight mb-4 sm:mb-6 text-gray-900 leading-tight">{badge.name}</h3>
+                       <div className="space-y-2.5 sm:space-y-3 mb-6 sm:mb-8 text-gray-600 font-bold uppercase tracking-wider text-[10px]">
                           <div className="flex items-center space-x-3"><Calendar size={14} className="text-[#1D3A6C]"/> <span>{badge.date}</span></div>
                           <div className="flex items-center space-x-3"><Clock size={14} className="text-[#1D3A6C]"/> <span>{badge.time}</span></div>
                           <div className="flex items-center space-x-3"><Users size={14} className="text-[#1D3A6C]"/> <span>{badge.counselor}</span></div>
                        </div>
-                       <button onClick={() => { setSelectedBadge(badge); setRegistrationSuccess(false); }} className="w-full p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-[10px] hover:bg-gray-900 transition-colors rounded-none">Register Scout</button>
+                       <button onClick={() => { setSelectedBadge(badge); setRegistrationSuccess(false); }} className="w-full p-3.5 sm:p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-[10px] hover:bg-gray-900 transition-colors rounded-none">Register Scout</button>
                     </div>
                  </div>
                ))}
@@ -2454,19 +2578,19 @@ export default function App() {
 
         {/* --- DYNAMIC ROOM: GEAR HUB --- */}
         {currentPage === 'gearLists' && (
-          <div className="bg-gray-50 min-h-screen pb-32 animate-in slide-in-from-right duration-300">
-            <div className="bg-[#050B14] py-24 px-6 text-center shadow-md relative overflow-hidden">
-               <h2 className="relative z-10 text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Gear Hub</h2>
-               <button onClick={() => setCurrentPage('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
+          <div className="bg-gray-50 min-h-screen pb-24 sm:pb-32">
+            <div className="bg-[#050B14] py-16 sm:py-24 px-4 text-center shadow-md relative overflow-hidden">
+               <h2 className="relative z-10 text-3xl sm:text-5xl font-black text-white tracking-tighter mb-4 uppercase">Gear Hub</h2>
+               <button onClick={() => navigateTo('portal')} className="relative z-10 text-gray-400 hover:text-white uppercase font-black tracking-widest text-[10px] transition-colors">← Return to Vault</button>
             </div>
             
-            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 -mt-6 sm:-mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-20">
                {gearListsData.map(list => (
-                 <div key={list.id} className="bg-white p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] flex flex-col justify-between border-t-4 border-[#1D3A6C] rounded-none">
+                 <div key={list.id} className="bg-white p-6 sm:p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] flex flex-col justify-between border-t-4 border-[#1D3A6C] rounded-none">
                     <div>
-                      <div className="w-12 h-12 bg-gray-50 flex items-center justify-center text-[#1D3A6C] mb-6 shadow-inner">{list.icon}</div>
-                      <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-gray-900">{list.title}</h3>
-                      <p className="text-gray-500 text-sm leading-relaxed mb-8">{list.desc}</p>
+                      <div className="w-12 h-12 bg-gray-50 flex items-center justify-center text-[#1D3A6C] mb-5 sm:mb-6 shadow-inner">{list.icon}</div>
+                      <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight mb-2 text-gray-900">{list.title}</h3>
+                      <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">{list.desc}</p>
                     </div>
                     <div className="flex space-x-2">
                        {list.type === "document" ? (
@@ -2497,17 +2621,17 @@ export default function App() {
       </main>
 
       {/* --- FOOTER --- */}
-      <footer className="bg-[#050B14] text-white pt-24 pb-12 px-6 sm:px-8 lg:px-12 border-t border-white/10">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20">
+      <footer className="bg-[#050B14] text-white pt-16 sm:pt-24 pb-12 px-4 sm:px-8 lg:px-12 border-t border-white/10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12 lg:gap-16 mb-16 sm:mb-20">
           
           <div className="lg:col-span-1">
-             <div className="flex items-center space-x-4 mb-6 cursor-pointer" onClick={() => { setCurrentPage('home'); window.scrollTo(0,0); }}>
-                <div className="w-20 h-20 rounded-none flex items-center justify-center p-0.5">
+             <div className="flex items-center space-x-3 sm:space-x-4 mb-6 cursor-pointer" onClick={() => navigateTo('home')}>
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none flex items-center justify-center p-0.5">
                    <img src="/images/logo.png" className="w-full h-full object-contain" alt="Logo" />
                 </div>
-                <h2 className="text-2xl font-black tracking-tighter uppercase">Troop 170</h2>
+                <h2 className="text-xl sm:text-2xl font-black tracking-tighter uppercase">Troop 170</h2>
              </div>
-             <p className="text-gray-400 text-sm font-light leading-relaxed mb-6 pr-4">Building leaders through outdoor adventure since 1956.</p>
+             <p className="text-gray-400 text-xs sm:text-sm font-light leading-relaxed mb-6 pr-4">Building leaders through outdoor adventure since 1956.</p>
              <div className="flex space-x-4">
                 <a href="https://www.facebook.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 flex items-center justify-center rounded-none hover:bg-[#008CFF] transition-colors"><Facebook size={16}/></a>
                 <a href="mailto:bsatroop170unionville@gmail.com" className="w-10 h-10 bg-white/5 flex items-center justify-center rounded-none hover:bg-[#BE1E2D] transition-colors"><Mail size={16}/></a>
@@ -2515,18 +2639,18 @@ export default function App() {
           </div>
 
           <div>
-             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Navigation</h4>
-             <ul className="space-y-4">
+             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-4 sm:mb-6 text-[#BE1E2D]">Navigation</h4>
+             <ul className="space-y-3 sm:space-y-4">
                {navLinks.map(page => (
-                 <li key={page.id} className="hover:text-white text-gray-400 cursor-pointer transition-colors uppercase font-bold tracking-wider text-xs" onClick={() => { setCurrentPage(page.id); window.scrollTo(0,0); }}>{page.label}</li>
+                 <li key={page.id} className="hover:text-white text-gray-400 cursor-pointer transition-colors uppercase font-bold tracking-wider text-xs" onClick={() => navigateTo(page.id)}>{page.label}</li>
                ))}
                <li><a href="https://venmo.com/u/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:underline uppercase font-bold tracking-wider text-xs">Sustaining Fund</a></li>
              </ul>
           </div>
 
           <div>
-             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Contact</h4>
-             <ul className="space-y-5 text-sm text-gray-400">
+             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-4 sm:mb-6 text-[#BE1E2D]">Contact</h4>
+             <ul className="space-y-4 sm:space-y-5 text-xs sm:text-sm text-gray-400">
                <li className="flex items-start space-x-3">
                  <MapPin className="text-[#BE1E2D] shrink-0 mt-0.5" size={16}/>
                  <p className="leading-tight">First Church of Christ<br/>61 Main St, Unionville, CT 06085</p>
@@ -2543,65 +2667,65 @@ export default function App() {
           </div>
 
           <div>
-             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-6 text-[#BE1E2D]">Command Hub</h4>
-             <p className="text-gray-400 mb-6 text-sm font-light leading-relaxed">Access secure documents and ledgers.</p>
-             <button onClick={() => { setCurrentPage('portal'); window.scrollTo(0,0); }} className="w-full p-4 bg-white/5 hover:bg-white hover:text-black font-black uppercase tracking-[0.2em] text-[10px] transition-colors rounded-none flex items-center justify-center space-x-2">
+             <h4 className="font-black uppercase tracking-[0.2em] text-[10px] mb-4 sm:mb-6 text-[#BE1E2D]">Command Hub</h4>
+             <p className="text-gray-400 mb-5 sm:mb-6 text-xs sm:text-sm font-light leading-relaxed">Access secure documents and ledgers.</p>
+             <button onClick={() => navigateTo('portal')} className="w-full p-3.5 sm:p-4 bg-white/5 hover:bg-white hover:text-black font-black uppercase tracking-[0.2em] text-[10px] transition-colors rounded-none flex items-center justify-center space-x-2">
                 <Lock size={12}/>
                 <span>Member Login</span>
              </button>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-gray-600 text-[10px] font-black uppercase tracking-[0.2em]">
-           <p className="mb-4 md:mb-0">© 2026 Scouting America Troop 170</p>
+        <div className="max-w-7xl mx-auto pt-6 sm:pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center text-gray-600 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-center sm:text-left">
+           <p className="mb-2 sm:mb-0">© 2026 Scouting America Troop 170</p>
            <p>Unionville, Connecticut</p>
         </div>
       </footer>
 
       {/* --- SCOUT LANYARD QR CARD MODAL --- */}
       {showLanyardModal && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setShowLanyardModal(false)}></div>
-          <div className="relative bg-white w-full max-w-2xl p-8 sm:p-10 shadow-2xl rounded-none border-t-8 border-[#143d23] animate-in zoom-in-95 duration-200">
-            <button onClick={() => setShowLanyardModal(false)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="fixed inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setShowLanyardModal(false)}></div>
+          <div className="relative bg-white w-full max-w-2xl p-5 sm:p-10 shadow-2xl rounded-none border-t-8 border-[#143d23] my-8">
+            <button onClick={() => setShowLanyardModal(false)} className="absolute top-4 right-4 sm:top-6 sm:right-6 text-gray-400 hover:text-gray-900 transition-colors">
               <X size={24}/>
             </button>
             
-            <div className="text-center mb-8">
+            <div className="text-center mb-6 sm:mb-8 pr-6 pl-2">
               <span className="text-[#BE1E2D] font-black uppercase tracking-[0.25em] text-[10px] block mb-1">Scout Canvassing Kit</span>
-              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-gray-900">QR Code Lanyard Generator</h3>
-              <p className="text-gray-500 text-xs sm:text-sm mt-1">Print these QR codes for the double-sided scout badge lanyards[cite: 1].</p>
+              <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-gray-900">QR Code Lanyard Generator</h3>
+              <p className="text-gray-500 text-xs sm:text-sm mt-1">Print these QR codes for the double-sided scout badge lanyards.</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 mb-6 sm:mb-8">
               {/* QR 1: Website */}
-              <div className="bg-gray-50 p-6 border border-gray-200 text-center flex flex-col items-center">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[#143d23] mb-3">Front: Wreath Order Store</span>
-                <div className="w-48 h-48 bg-white p-2 border border-gray-200 shadow-sm flex items-center justify-center mb-3">
+              <div className="bg-gray-50 p-4 sm:p-6 border border-gray-200 text-center flex flex-col items-center">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#143d23] mb-2 sm:mb-3">Front: Wreath Store</span>
+                <div className="w-36 h-36 sm:w-48 sm:h-48 bg-white p-2 border border-gray-200 shadow-sm flex items-center justify-center mb-2 sm:mb-3">
                   <img 
                     src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Ftroop170.org" 
                     alt="Storefront QR" 
                     className="w-full h-full"
                   />
                 </div>
-                <p className="text-[11px] text-gray-500 font-bold">Points directly to troop170.org</p>
+                <p className="text-[10px] sm:text-[11px] text-gray-500 font-bold">Points to troop170.org</p>
               </div>
 
               {/* QR 2: Venmo */}
-              <div className="bg-blue-50/50 p-6 border border-blue-200 text-center flex flex-col items-center">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[#008CFF] mb-3">Back: Direct Venmo</span>
-                <div className="w-48 h-48 bg-white p-2 border border-blue-200 shadow-sm flex items-center justify-center mb-3">
+              <div className="bg-blue-50/50 p-4 sm:p-6 border border-blue-200 text-center flex flex-col items-center">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#008CFF] mb-2 sm:mb-3">Back: Direct Venmo</span>
+                <div className="w-36 h-36 sm:w-48 sm:h-48 bg-white p-2 border border-blue-200 shadow-sm flex items-center justify-center mb-2 sm:mb-3">
                   <img 
                     src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fvenmo.com%2FTroop170Unionville" 
                     alt="Venmo QR" 
                     className="w-full h-full"
                   />
                 </div>
-                <p className="text-[11px] text-blue-900 font-bold">@Troop170Unionville</p>
+                <p className="text-[10px] sm:text-[11px] text-blue-900 font-bold">@Troop170Unionville</p>
               </div>
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button 
                 type="button" 
                 onClick={() => {
@@ -2660,41 +2784,41 @@ export default function App() {
 
       {/* REGISTRATION MODAL */}
       {selectedBadge && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setSelectedBadge(null)}></div>
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="fixed inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setSelectedBadge(null)}></div>
           
-          <div className="relative bg-white w-full max-w-lg p-10 shadow-2xl rounded-none border-t-8 border-[#1D3A6C] animate-in zoom-in duration-200">
-            <button onClick={() => setSelectedBadge(null)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors"><X size={24}/></button>
+          <div className="relative bg-white w-full max-w-lg p-6 sm:p-10 shadow-2xl rounded-none border-t-8 border-[#1D3A6C] my-8">
+            <button onClick={() => setSelectedBadge(null)} className="absolute top-4 right-4 sm:top-6 sm:right-6 text-gray-400 hover:text-gray-900 transition-colors"><X size={24}/></button>
             
             {registrationSuccess ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle size={32} className="text-green-500" /></div>
-                <h3 className="text-3xl font-black tracking-tighter uppercase mb-4 text-gray-900">Confirmed</h3>
-                <p className="text-gray-500 text-md mb-8 leading-relaxed">Seat reserved for {selectedBadge.name}.</p>
+              <div className="text-center py-6 sm:py-8">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6"><CheckCircle size={32} className="text-green-500" /></div>
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tighter uppercase mb-3 text-gray-900">Confirmed</h3>
+                <p className="text-gray-500 text-xs sm:text-sm mb-6 sm:mb-8 leading-relaxed">Seat reserved for {selectedBadge.name}.</p>
                 <button onClick={() => setSelectedBadge(null)} className="w-full p-4 bg-gray-900 text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors rounded-none">Close</button>
               </div>
             ) : (
               <form onSubmit={(e) => { e.preventDefault(); setRegistrationSuccess(true); }}>
-                <span className="text-[#BE1E2D] font-black uppercase tracking-[0.2em] text-[10px] mb-3 block">Secure Registration</span>
-                <h3 className="text-3xl font-black tracking-tight uppercase mb-8 leading-tight text-gray-900">{selectedBadge.name}</h3>
+                <span className="text-[#BE1E2D] font-black uppercase tracking-[0.2em] text-[10px] mb-2 block">Secure Registration</span>
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tight uppercase mb-6 leading-tight text-gray-900 pr-6">{selectedBadge.name}</h3>
                 
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                    <div>
-                     <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Scout Name</label>
-                     <input required className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors" placeholder="Full Legal Name" />
+                     <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5">Scout Name</label>
+                     <input required className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm" placeholder="Full Legal Name" />
                    </div>
                    <div>
-                     <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Parent Email</label>
-                     <input required type="email" className="w-full p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors" placeholder="For confirmation" />
+                     <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5">Parent Email</label>
+                     <input required type="email" className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm" placeholder="For confirmation" />
                    </div>
-                   <div className="p-4 bg-blue-50 border-l-4 border-[#1D3A6C]">
-                     <p className="text-[#1D3A6C] font-bold text-xs italic leading-relaxed">"Scouts must obtain a signed Blue Card prior to attending."</p>
+                   <div className="p-3.5 sm:p-4 bg-blue-50 border-l-4 border-[#1D3A6C]">
+                     <p className="text-[#1D3A6C] font-bold text-xs italic leading-relaxed">&ldquo;Scouts must obtain a signed Blue Card prior to attending.&rdquo;</p>
                    </div>
                 </div>
                 
-                <div className="mt-10 flex space-x-4">
-                  <button type="button" onClick={() => setSelectedBadge(null)} className="flex-1 p-4 bg-gray-100 text-gray-600 font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors rounded-none">Cancel</button>
-                  <button type="submit" className="flex-[2] p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors rounded-none shadow-lg">Confirm Seat</button>
+                <div className="mt-8 flex space-x-3 sm:space-x-4">
+                  <button type="button" onClick={() => setSelectedBadge(null)} className="flex-1 p-3.5 sm:p-4 bg-gray-100 text-gray-600 font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors rounded-none">Cancel</button>
+                  <button type="submit" className="flex-[2] p-3.5 sm:p-4 bg-[#1D3A6C] text-white font-black uppercase tracking-widest text-xs hover:bg-gray-900 transition-colors rounded-none shadow-lg">Confirm Seat</button>
                 </div>
               </form>
             )}
@@ -2703,11 +2827,11 @@ export default function App() {
       )}
 
       {/* FLOAT CHAT */}
-      <a href="https://www.facebook.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 w-14 h-14 bg-[#008CFF] rounded-none flex items-center justify-center text-white shadow-lg hover:-translate-y-1 transition-transform z-50 group">
-        <MessageCircle size={24} />
-        <span className="absolute -top-1 -right-1 flex h-4 w-4">
+      <a href="https://www.facebook.com/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 bg-[#008CFF] rounded-none flex items-center justify-center text-white shadow-lg hover:-translate-y-1 transition-transform z-50 group">
+        <MessageCircle size={22} className="sm:w-6 sm:h-6" />
+        <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 sm:h-4 sm:w-4">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-4 w-4 bg-[#BE1E2D] border-2 border-white"></span>
+          <span className="relative inline-flex rounded-full h-3.5 w-3.5 sm:h-4 sm:w-4 bg-[#BE1E2D] border-2 border-white"></span>
         </span>
       </a>
 
