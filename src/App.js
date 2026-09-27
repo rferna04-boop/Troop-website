@@ -78,6 +78,12 @@ export default function App() {
   const [parentLoading, setParentLoading] = useState(false);
   const [parentError, setParentError] = useState('');
 
+  // Parent Support Request Modal State
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [supportSuccess, setSupportSuccess] = useState(false);
+  const [supportLoading, setSupportLoading] = useState(false);
+  const [supportForm, setSupportForm] = useState({ name: '', email: '', description: '' });
+
   // Leader Admin State (Individual Auth)
   const [leaderAuthUnlocked, setLeaderAuthUnlocked] = useState(false);
   const [leaderEmailInput, setLeaderEmailInput] = useState('');
@@ -111,6 +117,29 @@ export default function App() {
     setCurrentPage(pageId);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Submit Scout Dollar Support Form via Netlify Forms
+  const handleSupportSubmit = async (e) => {
+    e.preventDefault();
+    setSupportLoading(true);
+
+    try {
+      await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          "form-name": "scout-dollar-support",
+          ...supportForm
+        }).toString()
+      });
+      setSupportSuccess(true);
+      setSupportForm({ name: '', email: '', description: '' });
+    } catch (err) {
+      alert("Unable to send support request. Please try again or email unionvilletroop170pr@gmail.com directly.");
+    } finally {
+      setSupportLoading(false);
+    }
   };
 
   // Fetch Parent Balance & Ledger
@@ -2071,7 +2100,7 @@ export default function App() {
               {/* 1. FAMILY MOBILE ACCOUNT LOOKUP */}
               {scoutDollarMode === 'parent' && (
                 <div>
-                  <form onSubmit={handleParentLookup} className="bg-white p-5 sm:p-6 shadow-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 rounded-none mb-6 sm:mb-8">
+                  <form onSubmit={handleParentLookup} className="bg-white p-5 sm:p-6 shadow-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 rounded-none mb-4">
                     <div className="sm:col-span-5">
                       <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Scout ID</label>
                       <input 
@@ -2106,6 +2135,17 @@ export default function App() {
                       </button>
                     </div>
                   </form>
+
+                  {/* Need Help Button */}
+                  <div className="text-center mb-6">
+                    <button
+                      type="button"
+                      onClick={() => { setShowSupportModal(true); setSupportSuccess(false); }}
+                      className="text-xs font-bold text-gray-500 hover:text-[#BE1E2D] underline transition-colors"
+                    >
+                      Trouble finding your Scout ID or PIN? Click here for assistance.
+                    </button>
+                  </div>
 
                   {parentError && (
                     <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 sm:mb-8 text-red-700 font-bold text-xs sm:text-sm">
@@ -2681,6 +2721,85 @@ export default function App() {
            <p>Unionville, Connecticut</p>
         </div>
       </footer>
+
+      {/* --- SCOUT DOLLAR ASSISTANCE MODAL --- */}
+      {showSupportModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 overflow-y-auto">
+          <div className="fixed inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setShowSupportModal(false)}></div>
+          <div className="relative bg-white w-full max-w-md p-6 sm:p-8 shadow-2xl border-t-8 border-[#BE1E2D] my-8 z-10">
+            <button onClick={() => setShowSupportModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-900">
+              <X size={22}/>
+            </button>
+
+            {supportSuccess ? (
+              <div className="text-center py-6">
+                <CheckCircle size={36} className="text-green-600 mx-auto mb-3" />
+                <h3 className="text-xl font-black uppercase text-gray-900 mb-1">Request Dispatched</h3>
+                <p className="text-xs text-gray-500 mb-6 leading-relaxed">
+                  A troop leader has been notified at unionvilletroop170pr@gmail.com and will reach out with your credentials shortly.
+                </p>
+                <button
+                  onClick={() => setShowSupportModal(false)}
+                  className="w-full py-3 bg-gray-900 text-white font-black uppercase tracking-widest text-xs"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSupportSubmit} className="space-y-4">
+                <div className="mb-2">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#BE1E2D] block">Account Assistance</span>
+                  <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">Scout Dollar Help</h3>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Your Name *</label>
+                  <input
+                    required
+                    type="text"
+                    value={supportForm.name}
+                    onChange={(e) => setSupportForm({ ...supportForm, name: e.target.value })}
+                    placeholder="e.g. Jane Doe"
+                    className="w-full p-3 bg-gray-50 border border-gray-200 text-sm focus:border-[#BE1E2D] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Contact Email *</label>
+                  <input
+                    required
+                    type="email"
+                    value={supportForm.email}
+                    onChange={(e) => setSupportForm({ ...supportForm, email: e.target.value })}
+                    placeholder="jane@example.com"
+                    className="w-full p-3 bg-gray-50 border border-gray-200 text-sm focus:border-[#BE1E2D] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">How can we help? *</label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={supportForm.description}
+                    onChange={(e) => setSupportForm({ ...supportForm, description: e.target.value })}
+                    placeholder="e.g. I forgot my Scout's ID / need our family PIN reset."
+                    className="w-full p-3 bg-gray-50 border border-gray-200 text-sm focus:border-[#BE1E2D] outline-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={supportLoading}
+                  className="w-full py-3.5 bg-[#BE1E2D] text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors disabled:opacity-50"
+                >
+                  {supportLoading ? "Sending..." : "Submit Support Request"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* --- SCOUT LANYARD QR CARD MODAL --- */}
       {showLanyardModal && (
