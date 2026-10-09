@@ -477,7 +477,7 @@ export default function App() {
     "Ketann S.", "Kiernan W.", "Lucas Gu.", "Liam M.", "Lucas Gl.", "Luke W.", "Mason T.", "Nathan C.",
     "Nathaniel D.", "Nicholas B.", "Oliver M.", "Parker F." , "Pranav Tej M.",
     "Reyansh B.", "Ricky G." , "Rithvik G.", "Riyan P.", "Ronan B.", "Ryan D.", "Sebastian C.", "Seth K.",
-    "Shaurya K.", "Sheldon H.", "Theo A.", "Toshan N.", "Wesley F.", "Yveson H."
+    "Shaurya K.", "Sheldon H.", "Theo A.", "Toshan N.", "Wesley F.", "Yveson H." , "Pack 170", "Pack 68"
   ];
 
   const updateWreathQty = (id, delta) => {
