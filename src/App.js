@@ -474,7 +474,7 @@ export default function App() {
     "Ayan S.", "Bennett L.", "Carter O.", "Chiru M.", "Christopher H.", "Claire B." , "Connor N.",
     "Devin N.", "Devlin M.", "Devyaan B.", "Divij A.", "Doug P.", "Evelyn F." , "Gabriel C.",
     "Gabriel M.", "Jack H." , "Jack M.", "Jackson K.", "Jack P.", "Jacob S.", "James D.", "James M.", "John H.",
-    "Ketann S.", "Kiernan W.", "Lucas Gu.", "Liam M.", "Lucas Gl.", "Luke W.", "Mason T.", "Nathan C.",
+    "Ketann S.", "Kiernan W.", "Lucas Gu.", "Liam M.", "Lucas Gl.", "Luke W.", "Logan S.", "Mason T.", "Nathan C.",
     "Nathaniel D.", "Nicholas B.", "Oliver M.", "Parker F." , "Pranav Tej M.",
     "Reyansh B.", "Ricky G." , "Rithvik G.", "Riyan P.", "Ronan B.", "Ryan D.", "Sebastian C.", "Seth K.",
     "Shaurya K.", "Sheldon H.", "Theo A.", "Toshan N.", "Wesley F.", "Yveson H." , "Pack 170", "Pack 68"
