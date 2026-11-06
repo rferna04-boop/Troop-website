@@ -6,8 +6,7 @@ import {
   FileText, Smartphone, CreditCard, ShieldCheck, Download, 
   LogOut, BookOpen, X, Printer, Snowflake, Mountain, 
   Facebook, Sun, Quote, Image as ImageIcon,
-  Utensils, ShoppingBag, QrCode, Copy, Check,
-  PlusCircle, MinusCircle, AlertCircle, RefreshCw,
+  Utensils, PlusCircle, MinusCircle, AlertCircle, RefreshCw,
   Send, Menu
 } from 'lucide-react';
 
@@ -36,34 +35,6 @@ export default function App() {
   const toggleArchive = (id) => {
     setOpenArchiveId(prev => prev === id ? null : id);
   };
-
-  // --- WREATH STOREFRONT STATE ---
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCynuJmNFE8m19REtdu1J5YM5m3C5RPtr5fOf9qBSSzak9lsISXJq5HK2KWQMCw1u2/exec";
-  
-  const [wreathQuantities, setWreathQuantities] = useState({
-    wreath24Plain: 0,
-    wreath24Dec: 0,
-    wreath30Plain: 0,
-    wreath30Dec: 0,
-    wreath40Plain: 0,
-    wreath40Dec: 0,
-  });
-
-  const [wreathCustomer, setWreathCustomer] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    scoutName: "General Troop 170 Fund / Don't Know",
-    paymentMethod: 'Venmo',
-  });
-
-  const [wreathLoading, setWreathLoading] = useState(false);
-  const [wreathSubmittedOrder, setWreathSubmittedOrder] = useState(null);
-  const [wreathError, setWreathError] = useState('');
-  const [copiedMemo, setCopiedMemo] = useState(false);
-  const [showLanyardModal, setShowLanyardModal] = useState(false);
 
   // ========================================================
   // SCOUT DOLLARS: PARENT & LEADER & AUDIT SYSTEM STATE
@@ -114,6 +85,12 @@ export default function App() {
 
   // Navigation Helper
   const navigateTo = (pageId) => {
+    if (pageId === 'wreaths') {
+      setCurrentPage('home');
+      setMobileMenuOpen(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     setCurrentPage(pageId);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -410,176 +387,6 @@ export default function App() {
 
   const darkBg = "#0B0F19";
 
-  // 2026 Official Pricing & SKU Catalog
-  const WREATH_PRODUCTS = [
-    {
-      id: 'wreath24Plain',
-      size: '24"',
-      title: '24" Classic Undecorated',
-      desc: 'Fresh fragrant balsam fir. Standard front door size to display natural greenery or decorate yourself.',
-      price: 22,
-      img: '/images/wreaths/24Undecorated.jpg',
-      fallback: 'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 'wreath24Dec',
-      size: '24"',
-      title: '24" Deluxe Decorated',
-      desc: 'Fresh balsam fir adorned with natural Maine pinecones and a hand-tied weatherproof red velvet bow.',
-      price: 27,
-      img: '/images/wreaths/24Decorated.jpg',
-      fallback: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 'wreath30Plain',
-      size: '30"',
-      title: '30" Classic Undecorated',
-      desc: 'Full, lush fragrant greenery crafted for larger entry doors, double doors, and broad wall displays.',
-      price: 32,
-      img: '/images/wreaths/30Undecorated.jpg',
-      fallback: 'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 'wreath30Dec',
-      size: '30"',
-      title: '30" Deluxe Decorated',
-      desc: 'Grand 30-inch wreath trimmed with natural pinecones and an accented handcrafted festive red bow.',
-      price: 37,
-      img: '/images/wreaths/30Decorated.jpg',
-      fallback: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 'wreath40Plain',
-      size: '40"',
-      title: '40" Estate Undecorated',
-      desc: 'Substantial estate-scale balsam wreath tailored for chimneys, large exterior gables, and commercial facades.',
-      price: 55,
-      img: '/images/wreaths/40Undecorated.jpg',
-      fallback: 'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 'wreath40Dec',
-      size: '40"',
-      title: '40" Estate Decorated',
-      desc: 'Show-stopping estate centerpiece trimmed with clusters of natural pinecones and an oversized red structural bow.',
-      price: 70,
-      img: '/images/wreaths/40Decorated.jpg',
-      fallback: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'
-    }
-  ];
-
-  const SCOUT_ROSTER = [
-    "General Troop 170 Fund / Don't Know",
-    "Aadhav C.", "Aarnav S.", "Adam S.", "Alexander F.", "Andrew H.", "Andrew S.", "Andrew T.",
-    "Ayan S.", "Bennett L.", "Carter O.", "Chiru M.", "Christopher H.", "Claire B." , "Connor N.",
-    "Devin N.", "Devlin M.", "Devyaan B.", "Divij A.", "Doug P.", "Evelyn F." , "Gabriel C.",
-    "Gabriel M.", "Jack H." , "Jack M.", "Jackson K.", "Jack P.", "Jacob S.", "James D.", "James M.", "John H.",
-    "Ketann S.", "Kiernan W.", "Lucas Gu.", "Liam M.", "Lucas Gl.", "Luke W.", "Logan S.", "Mason T.", "Nathan C.",
-    "Nathaniel D.", "Nicholas B.", "Oliver M.", "Parker F." , "Pranav Tej M.",
-    "Reyansh B.", "Ricky G." , "Rithvik G.", "Riyan P.", "Ronan B.", "Ryan D.", "Sebastian C.", "Seth K.",
-    "Shaurya K.", "Sheldon H.", "Theo A.", "Toshan N.", "Wesley F.", "Yveson H." , "Pack 170", "Pack 68"
-  ];
-
-  const updateWreathQty = (id, delta) => {
-    setWreathQuantities(prev => ({
-      ...prev,
-      [id]: Math.max(0, (parseInt(prev[id], 10) || 0) + delta)
-    }));
-  };
-
-  const setWreathDirectQty = (id, value) => {
-    const sanitized = value.replace(/[^0-9]/g, '');
-    const val = parseInt(sanitized, 10);
-    setWreathQuantities(prev => ({
-      ...prev,
-      [id]: isNaN(val) ? 0 : Math.max(0, val)
-    }));
-  };
-
-  const calculateWreathTotal = () => {
-    return WREATH_PRODUCTS.reduce((sum, item) => sum + ((parseInt(wreathQuantities[item.id], 10) || 0) * item.price), 0);
-  };
-
-  const calculateWreathTotalUnits = () => {
-    return Object.values(wreathQuantities).reduce((sum, qty) => sum + (parseInt(qty, 10) || 0), 0);
-  };
-
-  const handleCopyText = (text) => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => {
-        setCopiedMemo(true);
-        setTimeout(() => setCopiedMemo(false), 2000);
-      }).catch(() => fallbackCopy(text));
-    } else {
-      fallbackCopy(text);
-    }
-  };
-
-  const fallbackCopy = (text) => {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-      document.execCommand('copy');
-      setCopiedMemo(true);
-      setTimeout(() => setCopiedMemo(false), 2000);
-    } catch (err) {
-      console.error('Fallback copy failed', err);
-    }
-    document.body.removeChild(textArea);
-  };
-
-  const handleWreathOrderSubmit = async (e) => {
-    e.preventDefault();
-    const totalDue = calculateWreathTotal();
-    const totalUnits = calculateWreathTotalUnits();
-
-    if (totalUnits === 0) {
-      setWreathError("Please select at least one wreath before submitting your order.");
-      window.scrollTo({ top: 300, behavior: 'smooth' });
-      return;
-    }
-
-    setWreathLoading(true);
-    setWreathError('');
-
-    const clientReceiptId = "TRP-" + Math.floor(1000 + Math.random() * 9000);
-
-    const payload = {
-      ...wreathCustomer,
-      ...wreathQuantities,
-      supporterName: `${wreathCustomer.firstName.trim()} ${wreathCustomer.lastName.trim()}`,
-      totalCost: totalDue,
-      totalUnits: totalUnits,
-      receiptId: clientReceiptId
-    };
-
-    try {
-      if (GOOGLE_SCRIPT_URL) {
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          cache: "no-cache",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload),
-        });
-      }
-
-      setWreathSubmittedOrder({
-        ...payload,
-        receiptId: clientReceiptId
-      });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    } catch (err) {
-      console.error("Submission error:", err);
-      setWreathError("Error submitting your order. Please check your connection or contact the troop.");
-    } finally {
-      setWreathLoading(false);
-    }
-  };
-
   // --- HISTORIAN CMS DATA ---
   const scoutTrailData = [
     {
@@ -792,7 +599,6 @@ export default function App() {
 
   const navLinks = [
     { id: 'home', label: 'Home' },
-    { id: 'wreaths', label: 'Wreath Sale' },
     { id: 'about', label: 'About' },
     { id: 'scoutCorner', label: 'Scout Corner' },
     { id: 'join', label: 'Join' }
@@ -826,11 +632,6 @@ export default function App() {
                   className={`hover:text-white transition-colors relative py-1 ${currentPage === page.id ? 'text-white border-b-2 border-[#BE1E2D]' : ''}`}
                 >
                   {page.label}
-                  {page.id === 'wreaths' && (
-                    <span className="absolute -top-2 -right-6 bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full uppercase tracking-widest font-black animate-pulse">
-                      Sale
-                    </span>
-                  )}
                 </button>
               ))}
               <a href="https://venmo.com/u/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:text-blue-400 transition-colors flex items-center space-x-1.5">
@@ -843,12 +644,6 @@ export default function App() {
 
             {/* Mobile Navigation Toggle */}
             <div className="flex items-center space-x-2 md:hidden">
-              <button 
-                onClick={() => navigateTo('wreaths')}
-                className="bg-red-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded mr-1"
-              >
-                Wreaths
-              </button>
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -873,9 +668,6 @@ export default function App() {
                   className={`flex items-center justify-between py-2 text-left text-sm font-black uppercase tracking-widest ${currentPage === page.id ? 'text-[#BE1E2D]' : 'text-gray-200'}`}
                 >
                   <span>{page.label}</span>
-                  {page.id === 'wreaths' && (
-                    <span className="bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">LIVE</span>
-                  )}
                 </button>
               ))}
               <a 
@@ -913,16 +705,6 @@ export default function App() {
               </div>
               <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-start">
                 
-                {/* Wreath Sale Announcement Banner */}
-                <div 
-                  onClick={() => navigateTo('wreaths')}
-                  className="cursor-pointer mb-6 inline-flex items-center space-x-2 sm:space-x-3 bg-emerald-900/80 border border-emerald-400/40 hover:bg-emerald-800/90 text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition-all group shadow-lg max-w-full"
-                >
-                  <ShoppingBag size={16} className="text-emerald-300 group-hover:scale-110 transition-transform shrink-0" />
-                  <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-100 truncate">Annual Holiday Wreath Sale Is Live!</span>
-                  <ArrowUpRight size={14} className="text-emerald-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
-                </div>
-
                 <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-none mb-6 sm:mb-8 shadow-inner border border-white/5">
                   <Compass size={14} className="text-[#BE1E2D]" />
                   <span className="text-[9px] sm:text-[10px] font-black tracking-[0.3em] uppercase text-white">Established 1956</span>
@@ -935,12 +717,12 @@ export default function App() {
                   Drive character development, boost outdoor skills, and maximize personal growth. We craft engaging, year-round scouting strategies that deliver measurable results.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                  <button onClick={() => navigateTo('wreaths')} className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 bg-[#BE1E2D] text-white font-black text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(190,30,45,0.4)] group flex items-center justify-center space-x-4 rounded-none">
-                    <span>Order Holiday Wreaths</span>
+                  <button onClick={() => navigateTo('join')} className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 bg-[#BE1E2D] text-white font-black text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(190,30,45,0.4)] group flex items-center justify-center space-x-4 rounded-none">
+                    <span>Schedule Visit</span>
                     <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   </button>
-                  <button onClick={() => navigateTo('join')} className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-5 bg-white/10 text-white font-black text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-white/20 transition-all border border-white/20 rounded-none text-center">
-                    <span>Schedule Visit</span>
+                  <button onClick={() => navigateTo('about')} className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-5 bg-white/10 text-white font-black text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-white/20 transition-all border border-white/20 rounded-none text-center">
+                    <span>About Our Troop</span>
                   </button>
                 </div>
               </div>
@@ -1010,455 +792,6 @@ export default function App() {
                      </div>
                   </div>
                 </div>
-            </div>
-          </div>
-        )}
-
-        {/* --- HOLIDAY WREATH STOREFRONT PAGE --- */}
-        {currentPage === 'wreaths' && (
-          <div className="bg-gray-50 pb-24 sm:pb-32 min-h-screen">
-            {/* Header Hero */}
-            <div className="relative pt-20 pb-24 sm:pt-24 sm:pb-28 px-4 sm:px-8 lg:px-12 text-center text-white overflow-hidden" style={{ backgroundColor: "#0e2b19" }}>
-              <div className="absolute inset-0 z-0 opacity-25">
-                <img src="/images/wreaths/24Decorated.jpg" alt="Evergreen Wreaths" className="w-full h-full object-cover blur-sm" />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-b from-[#0e2b19]/90 via-[#0e2b19]/85 to-gray-50"></div>
-
-              <div className="relative z-10 max-w-4xl mx-auto">
-                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full mb-6 border border-white/15">
-                  <Flame size={14} className="text-amber-400" />
-                  <span className="text-[9px] sm:text-[10px] font-black tracking-[0.25em] uppercase text-emerald-100">Troop 170&apos;s Primary Annual Fundraiser</span>
-                </div>
-                <h1 className="text-3xl sm:text-6xl font-black uppercase tracking-tight text-white mb-4 sm:mb-6">
-                  Annual Holiday Wreath Sale
-                </h1>
-                <p className="text-base sm:text-xl text-emerald-100/90 font-light max-w-2xl mx-auto leading-relaxed mb-8">
-                  Fragrant, fresh-cut Maine balsam fir wreaths hand-delivered directly to your porch by our Scouts. Every wreath sold directly funds summer camp, high adventure treks (Philmont, Sea Base), and essential outdoor troop equipment.
-                </p>
-                <div className="flex flex-wrap justify-center gap-4">
-                  <button 
-                    onClick={() => setShowLanyardModal(true)} 
-                    className="inline-flex items-center space-x-2 px-5 py-3 bg-white/10 hover:bg-white/20 text-white text-xs font-black uppercase tracking-widest border border-white/20 transition-colors"
-                  >
-                    <QrCode size={16} />
-                    <span>Scout QR Lanyard Kit</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* ORDER PROCESSOR OR CONFIRMATION SCREEN */}
-            <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 -mt-6 sm:-mt-10 relative z-20">
-              
-              {wreathSubmittedOrder ? (
-                /* --- ORDER CONFIRMED RECEIPT VIEW --- */
-                <div className="bg-white rounded-none border-t-8 border-[#143d23] p-6 sm:p-12 shadow-2xl">
-                  <div className="text-center pb-6 sm:pb-8 border-b border-gray-100 mb-6 sm:mb-8">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle size={32} />
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#143d23]">Order Successfully Placed</span>
-                    <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mt-1 mb-2">Thank You for Supporting Troop 170!</h2>
-                    <p className="text-gray-500 text-xs sm:text-sm max-w-md mx-auto">A confirmation receipt has been dispatched to <strong>{wreathSubmittedOrder.email}</strong>.</p>
-                  </div>
-
-                  {/* Summary Card */}
-                  <div className="bg-gray-50 p-5 sm:p-8 border border-gray-200 mb-6 sm:mb-8">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-gray-200 gap-3">
-                      <div>
-                        <span className="text-[10px] uppercase tracking-widest font-black text-gray-400 block">Unique Receipt / Order Number</span>
-                        <span className="text-2xl sm:text-3xl font-black text-[#143d23] tracking-tight">{wreathSubmittedOrder.receiptId}</span>
-                      </div>
-                      <div className="text-left sm:text-right">
-                        <span className="text-[10px] uppercase tracking-widest font-black text-gray-400 block">Total Due</span>
-                        <span className="text-2xl sm:text-3xl font-black text-[#BE1E2D]">${wreathSubmittedOrder.totalCost}</span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 pt-6 text-sm">
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Supporter</span>
-                        <strong className="text-gray-900">{wreathSubmittedOrder.supporterName}</strong>
-                        <p className="text-gray-500 text-xs mt-0.5">{wreathSubmittedOrder.phone}</p>
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Delivering Scout</span>
-                        <strong className="text-gray-900">{wreathSubmittedOrder.scoutName}</strong>
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Delivery Address</span>
-                        <strong className="text-gray-900">{wreathSubmittedOrder.address}</strong>
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">Payment Option</span>
-                        <strong className="text-gray-900">{wreathSubmittedOrder.paymentMethod}</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* DYNAMIC 3-WAY PAYMENT INSTRUCTIONS */}
-                  {wreathSubmittedOrder.paymentMethod === 'Venmo' ? (
-                    <div className="bg-blue-50 border-2 border-[#008CFF]/30 p-6 sm:p-8 mb-6 sm:mb-8 text-gray-800">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <Smartphone className="text-[#008CFF] shrink-0" size={26} />
-                        <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">Action Required: Complete Venmo</h3>
-                      </div>
-                      <p className="text-xs sm:text-sm text-gray-600 mb-5 leading-relaxed">
-                        To guarantee your wreaths are reserved and routed to the wholesale roster, please transfer <strong>${wreathSubmittedOrder.totalCost}</strong> to our troop&apos;s official Venmo account: <strong>@Troop170Unionville</strong>.
-                      </p>
-
-                      <div className="bg-white p-4 border border-blue-200 mb-5">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-900 block mb-2">
-                          Required Venmo Memo Note:
-                        </span>
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                          <code className="text-xs sm:text-sm font-bold text-gray-900 bg-gray-100 px-3 py-2 rounded break-all">
-                            Wreath - {wreathSubmittedOrder.receiptId} - {wreathCustomer.lastName.trim()}
-                          </code>
-                          <button
-                            type="button"
-                            onClick={() => handleCopyText(`Wreath - ${wreathSubmittedOrder.receiptId} - ${wreathCustomer.lastName.trim()}`)}
-                            className="inline-flex items-center justify-center space-x-1.5 px-4 py-2.5 bg-[#008CFF] hover:bg-blue-600 text-white text-xs font-bold uppercase tracking-wider transition-colors shrink-0"
-                          >
-                            {copiedMemo ? <Check size={14}/> : <Copy size={14}/>}
-                            <span>{copiedMemo ? 'Copied' : 'Copy Memo'}</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      <a 
-                        href="https://venmo.com/u/Troop170Unionville" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="inline-flex items-center justify-center space-x-3 w-full py-4 bg-[#008CFF] hover:bg-blue-600 text-white font-black uppercase tracking-widest text-xs sm:text-sm transition-colors shadow-lg"
-                      >
-                        <span>Open @Troop170Unionville on Venmo</span>
-                        <ExternalLink size={16} />
-                      </a>
-                    </div>
-                  ) : wreathSubmittedOrder.paymentMethod === 'Check' ? (
-                    <div className="bg-slate-50 border-2 border-slate-300 p-6 sm:p-8 mb-6 sm:mb-8 text-gray-800">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <FileText className="text-[#1D3A6C] shrink-0" size={26} />
-                        <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">Check Payment Instructions</h3>
-                      </div>
-                      <p className="text-xs sm:text-sm text-gray-700 leading-relaxed mb-4">
-                        Please make your check payable to <strong>Troop 170</strong> in the amount of <strong>${wreathSubmittedOrder.totalCost}</strong>.
-                      </p>
-                      <div className="bg-white p-4 border border-slate-200 mb-4">
-                        <p className="text-xs text-gray-700 m-0 break-all">
-                          <strong>Required on Memo Line:</strong> <code className="bg-gray-100 px-2 py-0.5 font-bold">Wreath - {wreathSubmittedOrder.receiptId} - {wreathSubmittedOrder.scoutName}</code>
-                        </p>
-                      </div>
-                      <p className="text-xs text-gray-600 leading-relaxed">
-                        Hand the check directly to Scout <strong>{wreathSubmittedOrder.scoutName}</strong> now that your order has been placed, or mail to:<br/>
-                        <strong>First Church of Christ, ATTN: Troop 170 Treasurer, 61 Main St, Unionville, CT 06085</strong>
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="bg-amber-50 border-2 border-amber-300 p-6 sm:p-8 mb-6 sm:mb-8 text-gray-800">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <CreditCard className="text-amber-700 shrink-0" size={26} />
-                        <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">Cash Payment Collected With Order</h3>
-                      </div>
-                      <p className="text-xs sm:text-sm text-gray-700 leading-relaxed mb-4">
-                        Please provide <strong>${wreathSubmittedOrder.totalCost}</strong> in cash directly to Scout <strong>{wreathSubmittedOrder.scoutName}</strong> now that your order has been entered.
-                      </p>
-                      <p className="text-xs text-amber-900 bg-amber-100/80 p-3 border border-amber-200">
-                        <strong>Important:</strong> Provide receipt number <strong>{wreathSubmittedOrder.receiptId}</strong> to the Scout so they can write it on their sealed troop cash collection envelope.
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="text-center pt-2">
-                    <button
-                      onClick={() => {
-                        setWreathSubmittedOrder(null);
-                        setWreathQuantities({
-                          wreath24Plain: 0,
-                          wreath24Dec: 0,
-                          wreath30Plain: 0,
-                          wreath30Dec: 0,
-                          wreath40Plain: 0,
-                          wreath40Dec: 0,
-                        });
-                        setWreathCustomer({
-                          firstName: '',
-                          lastName: '',
-                          email: '',
-                          phone: '',
-                          address: '',
-                          scoutName: SCOUT_ROSTER[0],
-                          paymentMethod: 'Venmo',
-                        });
-                      }}
-                      className="w-full sm:w-auto px-8 py-3.5 bg-gray-900 hover:bg-black text-white font-black uppercase tracking-widest text-xs transition-colors"
-                    >
-                      Place Another Order
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                /* --- ORDER FORM & STOREFRONT CATALOG --- */
-                <form onSubmit={handleWreathOrderSubmit} className="space-y-8 sm:space-y-12 pb-16">
-                  
-                  {wreathError && (
-                    <div className="bg-red-50 border-l-4 border-[#BE1E2D] p-4 text-red-700 text-xs sm:text-sm font-bold shadow-md">
-                      {wreathError}
-                    </div>
-                  )}
-
-                  {/* Section 1: Catalog */}
-                  <div className="bg-white p-5 sm:p-10 lg:p-12 shadow-xl border-t-8 border-[#143d23]">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 pb-4 border-b border-gray-100 gap-3">
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 01</span>
-                        <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-gray-900">Select Wreath Sizes & Styles</h2>
-                      </div>
-                      <div className="bg-emerald-50 px-3.5 py-1.5 text-emerald-900 font-bold text-xs uppercase tracking-wider border border-emerald-100 w-full sm:w-auto text-center">
-                        Selected: <span className="font-black text-base text-[#143d23]">{calculateWreathTotalUnits()}</span> Items
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                      {WREATH_PRODUCTS.map(product => {
-                        const qty = wreathQuantities[product.id];
-                        return (
-                          <div 
-                            key={product.id}
-                            className={`border transition-all duration-300 flex flex-col justify-between ${
-                              qty > 0 ? 'border-[#143d23] shadow-lg ring-2 ring-[#143d23]/20' : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="relative h-56 sm:h-64 bg-gray-50 overflow-hidden">
-                              <img 
-                                src={product.img} 
-                                alt={product.title}
-                                onError={(e) => { e.target.onerror = null; e.target.src = product.fallback; }}
-                                className="w-full h-full object-contain p-4 transition-transform duration-500 hover:scale-105"
-                              />
-                              <div className="absolute top-3 left-3 bg-[#143d23] text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1">
-                                {product.size} Ring
-                              </div>
-                            </div>
-
-                            <div className="p-5 sm:p-6 flex flex-col justify-between flex-grow">
-                              <div>
-                                <div className="flex justify-between items-baseline mb-2">
-                                  <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-gray-900">{product.title}</h3>
-                                  <span className="text-xl sm:text-2xl font-black text-[#143d23]">${product.price}</span>
-                                </div>
-                                <p className="text-gray-500 text-xs leading-relaxed mb-6 font-light">
-                                  {product.desc}
-                                </p>
-                              </div>
-
-                              <div className="flex items-center justify-between bg-gray-50 p-2 border border-gray-200">
-                                <span className="text-[10px] uppercase font-black tracking-wider text-gray-500 pl-1">Quantity:</span>
-                                <div className="flex items-center space-x-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => updateWreathQty(product.id, -1)}
-                                    className="w-11 h-11 bg-white border border-gray-300 hover:bg-gray-100 flex items-center justify-center font-black text-gray-700 text-lg active:scale-95 touch-manipulation"
-                                    aria-label="Decrease quantity"
-                                  >
-                                    -
-                                  </button>
-                                  <input 
-                                    type="text" 
-                                    inputMode="numeric"
-                                    pattern="[0-9]*"
-                                    value={qty}
-                                    onChange={(e) => setWreathDirectQty(product.id, e.target.value)}
-                                    className="w-12 h-11 text-center font-black text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#143d23]"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => updateWreathQty(product.id, 1)}
-                                    className="w-11 h-11 bg-white border border-gray-300 hover:bg-gray-100 flex items-center justify-center font-black text-gray-700 text-lg active:scale-95 touch-manipulation"
-                                    aria-label="Increase quantity"
-                                  >
-                                    +
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Section 2: Customer & Delivery Information */}
-                  <div className="bg-white p-5 sm:p-10 lg:p-12 shadow-xl border-t-8 border-[#1D3A6C]">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 02</span>
-                    <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-6 sm:mb-8">Porch Delivery & Supporter Details</h2>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                      <div>
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">First Name *</label>
-                        <input 
-                          required 
-                          type="text" 
-                          value={wreathCustomer.firstName}
-                          onChange={(e) => setWreathCustomer({...wreathCustomer, firstName: e.target.value})}
-                          placeholder="Jane"
-                          className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Last Name *</label>
-                        <input 
-                          required 
-                          type="text" 
-                          value={wreathCustomer.lastName}
-                          onChange={(e) => setWreathCustomer({...wreathCustomer, lastName: e.target.value})}
-                          placeholder="Smith"
-                          className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                      <div>
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Email (For Order Receipt) *</label>
-                        <input 
-                          required 
-                          type="email" 
-                          value={wreathCustomer.email}
-                          onChange={(e) => setWreathCustomer({...wreathCustomer, email: e.target.value})}
-                          placeholder="jane@example.com"
-                          className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Phone Number *</label>
-                        <input 
-                          required 
-                          type="tel" 
-                          value={wreathCustomer.phone}
-                          onChange={(e) => setWreathCustomer({...wreathCustomer, phone: e.target.value})}
-                          placeholder="(860) 555-0199"
-                          className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mb-4 sm:mb-6">
-                      <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Porch Hand-Delivery Address (Street, Town, Zip) *</label>
-                      <input 
-                        required 
-                        type="text" 
-                        value={wreathCustomer.address}
-                        onChange={(e) => setWreathCustomer({...wreathCustomer, address: e.target.value})}
-                        placeholder="e.g. 42 Main St, Unionville, CT 06085"
-                        className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none transition-colors text-sm"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Which Scout Should Receive Credit? *</label>
-                      <select 
-                        value={wreathCustomer.scoutName}
-                        onChange={(e) => setWreathCustomer({...wreathCustomer, scoutName: e.target.value})}
-                        className="w-full p-3.5 sm:p-4 bg-gray-50 border-0 border-b-2 border-gray-200 focus:border-[#1D3A6C] outline-none text-gray-900 rounded-none font-bold text-sm"
-                      >
-                        {SCOUT_ROSTER.map((name, i) => (
-                          <option key={i} value={name}>{name}</option>
-                        ))}
-                      </select>
-                      <p className="text-[11px] text-gray-400 mt-2 font-light">
-                        The selected Scout will receive Scout Dollar credits toward summer camp and high adventure treks.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Section 3: Payment Choice */}
-                  <div className="bg-white p-5 sm:p-10 lg:p-12 shadow-xl border-t-8 border-gray-900">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#BE1E2D]">Step 03</span>
-                    <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 mb-6">Payment Method</h2>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
-                      {/* VENMO */}
-                      <label className={`p-4 sm:p-6 border-2 cursor-pointer transition-all flex items-start space-x-3 sm:space-x-4 ${wreathCustomer.paymentMethod === 'Venmo' ? 'border-[#008CFF] bg-blue-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
-                        <input 
-                          type="radio" 
-                          name="paymentMethod" 
-                          value="Venmo" 
-                          checked={wreathCustomer.paymentMethod === 'Venmo'} 
-                          onChange={(e) => setWreathCustomer({...wreathCustomer, paymentMethod: e.target.value})}
-                          className="mt-1"
-                        />
-                        <div>
-                          <strong className="block text-gray-900 text-sm sm:text-base uppercase font-black">Venmo</strong>
-                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                            @Troop170Unionville. Enter your receipt number into the Venmo memo line.
-                          </p>
-                        </div>
-                      </label>
-
-                      {/* CHECK */}
-                      <label className={`p-4 sm:p-6 border-2 cursor-pointer transition-all flex items-start space-x-3 sm:space-x-4 ${wreathCustomer.paymentMethod === 'Check' ? 'border-[#1D3A6C] bg-slate-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                        <input 
-                          type="radio" 
-                          name="paymentMethod" 
-                          value="Check" 
-                          checked={wreathCustomer.paymentMethod === 'Check'} 
-                          onChange={(e) => setWreathCustomer({...wreathCustomer, paymentMethod: e.target.value})}
-                          className="mt-1"
-                        />
-                        <div>
-                          <strong className="block text-gray-900 text-sm sm:text-base uppercase font-black">Check</strong>
-                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                            Payable to &quot;Troop 170&quot; with receipt # and scout name on the memo line.
-                          </p>
-                        </div>
-                      </label>
-
-                      {/* CASH */}
-                      <label className={`p-4 sm:p-6 border-2 cursor-pointer transition-all flex items-start space-x-3 sm:space-x-4 ${wreathCustomer.paymentMethod === 'Cash' ? 'border-[#143d23] bg-emerald-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
-                        <input 
-                          type="radio" 
-                          name="paymentMethod" 
-                          value="Cash" 
-                          checked={wreathCustomer.paymentMethod === 'Cash'} 
-                          onChange={(e) => setWreathCustomer({...wreathCustomer, paymentMethod: e.target.value})}
-                          className="mt-1"
-                        />
-                        <div>
-                          <strong className="block text-gray-900 text-sm sm:text-base uppercase font-black">Cash to Scout</strong>
-                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                            Cash given directly to Scout when placing your order today.
-                          </p>
-                        </div>
-                      </label>
-                    </div>
-
-                    {/* Submit Bar */}
-                    <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-6">
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block">Total Due</span>
-                        <div className="flex items-baseline">
-                          <span className="text-3xl sm:text-4xl font-black text-[#143d23]">
-                            ${calculateWreathTotal()}
-                          </span>
-                          <span className="text-xs text-gray-500 font-bold ml-2">({calculateWreathTotalUnits()} Wreaths)</span>
-                        </div>
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={wreathLoading}
-                        className="w-full sm:w-auto px-10 py-4 sm:py-5 bg-[#143d23] hover:bg-[#0e2b19] text-white font-black text-xs sm:text-sm uppercase tracking-[0.2em] shadow-xl transition-all disabled:opacity-50 text-center"
-                      >
-                        {wreathLoading ? 'Processing...' : `Confirm & Place Order`}
-                      </button>
-                    </div>
-                  </div>
-
-                </form>
-              )}
-
             </div>
           </div>
         )}
@@ -2820,106 +2153,6 @@ export default function App() {
                 </button>
               </form>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* --- SCOUT LANYARD QR CARD MODAL --- */}
-      {showLanyardModal && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-          <div className="fixed inset-0 bg-[#0B0F19]/80 backdrop-blur-sm" onClick={() => setShowLanyardModal(false)}></div>
-          <div className="relative bg-white w-full max-w-2xl p-5 sm:p-10 shadow-2xl rounded-none border-t-8 border-[#143d23] my-8">
-            <button onClick={() => setShowLanyardModal(false)} className="absolute top-4 right-4 sm:top-6 sm:right-6 text-gray-400 hover:text-gray-900 transition-colors">
-              <X size={24}/>
-            </button>
-            
-            <div className="text-center mb-6 sm:mb-8 pr-6 pl-2">
-              <span className="text-[#BE1E2D] font-black uppercase tracking-[0.25em] text-[10px] block mb-1">Scout Canvassing Kit</span>
-              <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-gray-900">QR Code Lanyard Generator</h3>
-              <p className="text-gray-500 text-xs sm:text-sm mt-1">Print these QR codes for the double-sided scout badge lanyards.</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 mb-6 sm:mb-8">
-              {/* QR 1: Website */}
-              <div className="bg-gray-50 p-4 sm:p-6 border border-gray-200 text-center flex flex-col items-center">
-                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#143d23] mb-2 sm:mb-3">Front: Wreath Store</span>
-                <div className="w-36 h-36 sm:w-48 sm:h-48 bg-white p-2 border border-gray-200 shadow-sm flex items-center justify-center mb-2 sm:mb-3">
-                  <img 
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Ftroop170.org" 
-                    alt="Storefront QR" 
-                    className="w-full h-full"
-                  />
-                </div>
-                <p className="text-[10px] sm:text-[11px] text-gray-500 font-bold">Points to troop170.org</p>
-              </div>
-
-              {/* QR 2: Venmo */}
-              <div className="bg-blue-50/50 p-4 sm:p-6 border border-blue-200 text-center flex flex-col items-center">
-                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#008CFF] mb-2 sm:mb-3">Back: Direct Venmo</span>
-                <div className="w-36 h-36 sm:w-48 sm:h-48 bg-white p-2 border border-blue-200 shadow-sm flex items-center justify-center mb-2 sm:mb-3">
-                  <img 
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fvenmo.com%2FTroop170Unionville" 
-                    alt="Venmo QR" 
-                    className="w-full h-full"
-                  />
-                </div>
-                <p className="text-[10px] sm:text-[11px] text-blue-900 font-bold">@Troop170Unionville</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button 
-                type="button" 
-                onClick={() => {
-                  const printWin = window.open('', '_blank');
-                  if (!printWin) {
-                    alert("Please allow pop-ups to print the lanyard cards.");
-                    return;
-                  }
-                  printWin.document.write(`
-                    <html>
-                      <head>
-                        <title>Troop 170 - Lanyard QR Codes</title>
-                        <style>
-                          body { font-family: sans-serif; text-align: center; padding: 40px; }
-                          .qr-container { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
-                          .card { border: 2px dashed #333; padding: 20px; width: 220px; }
-                          h3 { margin-top: 0; font-size: 14px; text-transform: uppercase; }
-                          p { font-size: 11px; margin-bottom: 0; }
-                        </style>
-                      </head>
-                      <body>
-                        <h2>TROOP 170 WREATH SALE LANYARD CARDS</h2>
-                        <div class="qr-container">
-                          <div class="card">
-                            <h3>Front: Order Store</h3>
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Ftroop170.org" width="180" height="180" />
-                            <p>Scan to place online order</p>
-                          </div>
-                          <div class="card">
-                            <h3>Back: Troop Venmo</h3>
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fvenmo.com%2FTroop170Unionville" width="180" height="180" />
-                            <p>@Troop170Unionville</p>
-                          </div>
-                        </div>
-                        <script>window.onload = () => { window.print(); }</script>
-                      </body>
-                    </html>
-                  `);
-                  printWin.document.close();
-                }}
-                className="flex-1 py-3.5 bg-[#143d23] hover:bg-[#0e2b19] text-white font-black uppercase tracking-widest text-xs transition-colors flex items-center justify-center space-x-2"
-              >
-                <Printer size={16}/> <span>Print Lanyard Cards</span>
-              </button>
-              <button 
-                type="button" 
-                onClick={() => setShowLanyardModal(false)} 
-                className="px-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-black uppercase tracking-widest text-xs transition-colors"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}
