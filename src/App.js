@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Tent, Lock, ArrowUpRight, MapPin, Mail, Calendar, Phone, 
   Users, Compass, CheckCircle, Clock, 
-  MessageCircle, ExternalLink, Medal, Flame, Heart, Key, 
+  MessageCircle, ExternalLink, Flame, Heart, Key, 
   FileText, Smartphone, CreditCard, ShieldCheck, Download, 
   LogOut, BookOpen, X, Printer, Snowflake, Mountain, 
   Facebook, Sun, Quote, Image as ImageIcon,
-  Utensils, PlusCircle, MinusCircle, AlertCircle, RefreshCw,
+  Utensils, ShoppingBag, PlusCircle, MinusCircle, AlertCircle, RefreshCw,
   Send, Menu
 } from 'lucide-react';
 
@@ -22,6 +22,16 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+
+  useEffect(() => {
+    if (lockoutSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setLockoutSeconds(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lockoutSeconds]);
 
   // REGISTRATION MODAL STATE
   const [selectedBadge, setSelectedBadge] = useState(null);
@@ -83,10 +93,70 @@ export default function App() {
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditFeedback, setAuditFeedback] = useState(null);
 
+  // SHA-256 hash of gate code "TROOP170"
+  const GATE_CODE_HASH = "a976d5a4f3c3f7c23fc6ce9302ee16bda9daf0985e7c4971e852c31bcdc25131";
+
+  const handlePortalLogin = async (e) => {
+    e.preventDefault();
+    if (lockoutSeconds > 0) return;
+
+    const trimmed = password.trim().toUpperCase();
+    let isValid = false;
+
+    try {
+      if (window.crypto && window.crypto.subtle) {
+        const msgUint8 = new TextEncoder().encode(trimmed);
+        const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgUint8);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        isValid = (hashHex === GATE_CODE_HASH);
+      } else {
+        isValid = (trimmed === 'TROOP170');
+      }
+    } catch {
+      isValid = (trimmed === 'TROOP170');
+    }
+
+    if (isValid) {
+      setIsLoggedIn(true);
+      setPassword('');
+      setLoginError(false);
+      setLoginAttempts(0);
+    } else {
+      const nextAttempts = loginAttempts + 1;
+      setLoginAttempts(nextAttempts);
+      setLoginError(true);
+      if (nextAttempts >= 5) {
+        setLockoutSeconds(30);
+      }
+    }
+  };
+
+  const handlePortalLogout = () => {
+    setIsLoggedIn(false);
+    setPassword('');
+    setLeaderAuthUnlocked(false);
+    setActiveLeader(null);
+    setLeaderPinInput('');
+    setLeaderEmailInput('');
+    setParentAccount(null);
+    setParentPin('');
+    setParentScoutId('');
+    setParentTransactions([]);
+    setTxMessage(null);
+    setAuditFeedback(null);
+  };
+
   // Navigation Helper
   const navigateTo = (pageId) => {
     if (pageId === 'wreaths') {
       setCurrentPage('home');
+      setMobileMenuOpen(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (pageId === 'meritBadges') {
+      setCurrentPage('portal');
       setMobileMenuOpen(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -164,7 +234,8 @@ export default function App() {
         setParentError(data.error || 'Invalid Scout ID or Family PIN.');
       }
     } catch (err) {
-      setParentError('Unable to connect to Scout Dollar server: ' + err.message);
+      console.error("Parent lookup error:", err);
+      setParentError('Unable to connect to Scout Dollar server. Please verify your internet connection and try again.');
     } finally {
       setParentLoading(false);
     }
@@ -277,6 +348,19 @@ export default function App() {
       return;
     }
 
+    if (isNaN(amountNum) || amountNum <= 0) {
+      setTxMessage({ type: 'error', text: 'Please enter a valid dollar amount greater than $0.00.' });
+      setTxLoading(false);
+      return;
+    }
+
+    const cleanDesc = txDescription.trim();
+    if (!cleanDesc) {
+      setTxMessage({ type: 'error', text: 'Please provide an event reference or description.' });
+      setTxLoading(false);
+      return;
+    }
+
     if (txType === 'DEBIT' && chosenScout && amountNum > chosenScout.balance) {
       setTxMessage({ type: 'error', text: `Insufficient funds! Available: $${chosenScout.balance.toFixed(2)}, Requested: $${amountNum.toFixed(2)}` });
       setTxLoading(false);
@@ -292,7 +376,7 @@ export default function App() {
         type: txType,
         amount: amountNum,
         category: txCategory,
-        description: txDescription
+        description: cleanDesc
       };
 
       const res = await fetch(GAS_API_URL, {
@@ -562,10 +646,24 @@ export default function App() {
       alert("Please allow pop-ups in your browser to print this list.");
       return;
     }
+
+    try {
+      printWindow.opener = null;
+    } catch (_) {}
+
+    const escapeHtml = (str) => String(str || '').replace(/[&<>"']/g, (m) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[m]));
+
+    const safeTitle = escapeHtml(list.title);
+    const safeDesc = escapeHtml(list.desc);
+
     printWindow.document.write(`
-      <html>
+      <!DOCTYPE html>
+      <html lang="en">
         <head>
-          <title>Troop 170 - ${list.title}</title>
+          <meta charset="utf-8">
+          <title>Troop 170 - ${safeTitle}</title>
           <style>
             body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 40px; max-width: 800px; margin: auto; color: #111; } 
             h1 { color: #1D3A6C; border-bottom: 3px solid #BE1E2D; padding-bottom: 10px; text-transform: uppercase; font-weight: 900; letter-spacing: -0.05em; margin-bottom: 5px; }
@@ -574,15 +672,20 @@ export default function App() {
           </style>
         </head>
         <body>
-          <h1>${list.title}</h1>
-          <p class="desc">${list.desc}</p>
+          <h1>${safeTitle}</h1>
+          <p class="desc">${safeDesc}</p>
           ${list.content}
           <div class="footer">SCOUTING AMERICA TROOP 170 • FARMINGTON / UNIONVILLE, CT</div>
-          <script>window.onload = () => { window.print(); }</script>
         </body>
       </html>
     `);
     printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      try {
+        printWindow.print();
+      } catch (_) {}
+    }, 250);
   };
 
   const handleDownload = (list) => {
@@ -1176,7 +1279,10 @@ export default function App() {
                             }).toString()
                           })
                           .then(() => setJoinSuccess(true))
-                          .catch((error) => alert(error));
+                          .catch((error) => {
+                            console.error("Join inquiry error:", error);
+                            alert("Unable to send inquiry. Please try again or email bsatroop170unionville@gmail.com directly.");
+                          });
                         }}
                       >
                         <input type="hidden" name="form-name" value="join-inquiry" />
@@ -1259,7 +1365,7 @@ export default function App() {
                     <h2 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tighter uppercase text-center">Member Login</h2>
                     <p className="text-gray-400 mb-8 sm:mb-10 text-xs sm:text-sm font-light text-center">Protected resources and ledgers.</p>
                     
-                    <form onSubmit={(e) => { e.preventDefault(); if (password.toUpperCase() === 'TROOP170') setIsLoggedIn(true); else setLoginError(true); }}>
+                    <form onSubmit={handlePortalLogin}>
                       <div className="relative mb-6">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                           <Key size={16} className={loginError ? "text-red-400" : "text-gray-400"} />
@@ -1267,14 +1373,27 @@ export default function App() {
                         <input 
                           type="password" 
                           value={password} 
+                          disabled={lockoutSeconds > 0}
                           onChange={(e) => {setPassword(e.target.value); setLoginError(false);}} 
-                          className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-black/40 text-white text-base sm:text-lg border-0 shadow-inner outline-none focus:ring-2 focus:ring-white/30 rounded-none" 
-                          placeholder="Gate Code" 
+                          className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-black/40 text-white text-base sm:text-lg border-0 shadow-inner outline-none focus:ring-2 focus:ring-white/30 rounded-none disabled:opacity-50" 
+                          placeholder={lockoutSeconds > 0 ? `Locked (${lockoutSeconds}s)` : "Gate Code"} 
                         />
                       </div>
-                      {loginError && <p className="text-[#ff6b6b] mb-6 font-black animate-bounce uppercase text-[10px] tracking-widest text-center">Access Denied</p>}
-                      <button type="submit" className="w-full py-4 bg-white text-[#1D3A6C] font-black text-xs sm:text-sm uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors rounded-none flex justify-center items-center space-x-2">
-                        <span>Unlock</span>
+                      {lockoutSeconds > 0 ? (
+                        <p className="text-red-400 mb-6 font-bold text-xs text-center">
+                          Too many failed attempts. Cooldown: {lockoutSeconds}s
+                        </p>
+                      ) : loginError ? (
+                        <p className="text-[#ff6b6b] mb-6 font-black uppercase text-[10px] tracking-widest text-center">
+                          Access Denied ({Math.max(0, 5 - loginAttempts)} attempts left)
+                        </p>
+                      ) : null}
+                      <button 
+                        type="submit" 
+                        disabled={lockoutSeconds > 0}
+                        className="w-full py-4 bg-white text-[#1D3A6C] font-black text-xs sm:text-sm uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors rounded-none flex justify-center items-center space-x-2 disabled:opacity-50"
+                      >
+                        <span>{lockoutSeconds > 0 ? 'Locked' : 'Unlock'}</span>
                         <ArrowUpRight size={16} />
                       </button>
                     </form>
@@ -1293,7 +1412,7 @@ export default function App() {
                       <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase mb-1 sm:mb-2 leading-none">Dashboard</h2>
                       <p className="text-gray-400 text-sm sm:text-lg font-light">Internal Command Center</p>
                     </div>
-                    <button onClick={() => setIsLoggedIn(false)} className="px-5 py-2.5 sm:px-6 sm:py-3 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black border border-white/10 transition-colors rounded-none flex items-center space-x-2">
+                    <button onClick={handlePortalLogout} className="px-5 py-2.5 sm:px-6 sm:py-3 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black border border-white/10 transition-colors rounded-none flex items-center space-x-2">
                       <span>Log Out</span><LogOut size={14}/>
                     </button>
                   </div>
@@ -1336,16 +1455,21 @@ export default function App() {
                       </button>
                    </div>
 
-                   {/* CARD 4: CLINICS */}
-                   <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                   {/* CARD 4: TROOP APPAREL */}
+                   <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
                       <div>
-                         <div className="w-12 h-12 bg-white flex items-center justify-center text-purple-600 mb-6 shadow-sm"><Medal size={24}/></div>
-                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Clinics</h3>
-                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Schedule and registration for merit badges.</p>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-[#1D3A6C] mb-6 shadow-sm"><ShoppingBag size={24}/></div>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Troop Apparel</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Official Troop 170 uniforms, jackets, hoodies, and custom gear.</p>
                       </div>
-                      <button onClick={() => navigateTo('meritBadges')} className="flex items-center space-x-2 text-purple-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
-                        <span>View Schedule</span><ArrowUpRight size={14}/>
-                      </button>
+                      <a 
+                        href="https://teamlocker.squadlocker.com/#/lockers/scouting-america-troop-170-unionville-ct" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center space-x-2 text-[#1D3A6C] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform"
+                      >
+                        <span>Order Apparel</span><ExternalLink size={14}/>
+                      </a>
                    </div>
 
                    {/* CARD 5: SCOUT DOLLARS */}
