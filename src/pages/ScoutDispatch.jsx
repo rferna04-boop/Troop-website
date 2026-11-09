@@ -5,20 +5,24 @@ import {
   RefreshCw, Check, X, 
   Sparkles, UserCheck, HeartHandshake, Copy, ExternalLink,
   ClipboardList, Building2, UserPlus, PhoneCall, Plus, StickyNote,
-  Printer, FileText, CheckSquare, Square, AlertOctagon
+  Printer, FileText, CheckSquare, Square, AlertOctagon,
+  Edit3, BookOpen, Upload
 } from 'lucide-react';
 
 // Live Google Apps Script API Endpoint
 const API_URL = "https://script.google.com/macros/s/AKfycbwc0jFa7_F-m22bsb5n-mUMJuDOzLOdxdtHHd6fmN2_Xf-kYA1BeZ3w_WqUX5BABql9/exec";
 
-// Helper: Extract street names from API route properties (populated from Master_Routes / Archive_2026 tab)
-const getRouteStreets = (route) => {
-  if (route.Streets && String(route.Streets).trim()) return String(route.Streets).trim();
-  if (route.Street_Names && String(route.Street_Names).trim()) return String(route.Street_Names).trim();
-  if (route.Description && String(route.Description).trim()) return String(route.Description).trim();
-  if (route.Master_Streets && String(route.Master_Streets).trim()) return String(route.Master_Streets).trim();
-  if (route.Route_Description && String(route.Route_Description).trim()) return String(route.Route_Description).trim();
-  return null;
+// Verified route streets from Google Maps GPS endpoints and permanent alerts
+const KNOWN_ROUTE_STREETS = {
+  1: "Trotters Glen, White Cir, Rocky Ridge Ln, Carriage Dr",
+  2: "Meadow Rd & Historic Village surroundings",
+  3: "Plainville Ave (Rt 177) & connecting neighborhoods",
+  4: "Pine Hollow Rd (Westwoods Dr has 0 homes)",
+  5: "Brentwood Dr & neighborhood roads",
+  6: "Brookshire Ln, Inwood Ln, Peggy Ln, Winthrop Dr, Lindy Ln, Case St, Harold Rd, Winchester Ct",
+  7: "Condo complex: West Woods II (Westwoods Dr)",
+  12: "Snowberry La and all streets off it",
+  18: "Fieldstone Run and all roads off it"
 };
 
 const PANTRY_SLOTS = [
@@ -49,6 +53,21 @@ export default function ScoutDispatch() {
 
   // Volunteer Dossier (Printable Field Packet) Modal
   const [showDossierModal, setShowDossierModal] = useState(false);
+
+  // Custom & Imported Master Route Street Descriptions (Persists across reloads)
+  const [customStreets, setCustomStreets] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sff_custom_streets');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [showStreetManager, setShowStreetManager] = useState(false);
+  const [streetBatchText, setStreetBatchText] = useState('');
+  const [streetSuccessMsg, setStreetSuccessMsg] = useState(null);
+  const [editingStreetRouteId, setEditingStreetRouteId] = useState(null);
+  const [editingStreetText, setEditingStreetText] = useState('');
 
   // Real-Time Route Notes State (Stored locally & synced with API)
   const [routeNotes, setRouteNotes] = useState(() => {
@@ -145,6 +164,15 @@ export default function ScoutDispatch() {
     }
   }, [routeNotes]);
 
+  // Save custom streets to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('sff_custom_streets', JSON.stringify(customStreets));
+    } catch {
+      // ignore
+    }
+  }, [customStreets]);
+
   const handleLogin = (e) => {
     e.preventDefault();
     const name = e.target.name.value.trim();
@@ -237,6 +265,35 @@ export default function ScoutDispatch() {
     if (nameKey.includes('sahoo')) return '(860) 555-0199';
     return null;
   };
+
+  // Extract street names from API route properties, custom manager overrides, known map links, or permanent alerts
+  const getRouteStreets = useCallback((route) => {
+    if (!route) return '';
+    // 1. Live route properties from API (Master_Routes / Archive_2026 tab columns)
+    if (route.Streets && String(route.Streets).trim()) return String(route.Streets).trim();
+    if (route.Street_Names && String(route.Street_Names).trim()) return String(route.Street_Names).trim();
+    if (route.Description && String(route.Description).trim()) return String(route.Description).trim();
+    if (route.Master_Streets && String(route.Master_Streets).trim()) return String(route.Master_Streets).trim();
+    if (route.Route_Description && String(route.Route_Description).trim()) return String(route.Route_Description).trim();
+    if (route.Roads && String(route.Roads).trim()) return String(route.Roads).trim();
+    if (route.Boundaries && String(route.Boundaries).trim()) return String(route.Boundaries).trim();
+
+    // 2. Custom street directory overrides / imports
+    const custom = customStreets[route.Route_ID];
+    if (custom && String(custom).trim()) {
+      return String(custom).trim();
+    }
+
+    // 3. Known verified route landmarks from Google Maps GPS endpoints and permanent alerts
+    if (KNOWN_ROUTE_STREETS[route.Route_ID]) {
+      return KNOWN_ROUTE_STREETS[route.Route_ID];
+    }
+    if (route.Permanent_Alerts && String(route.Permanent_Alerts).trim()) {
+      return String(route.Permanent_Alerts).trim();
+    }
+
+    return `Route ${route.Route_ID} designated canvassing neighborhood`;
+  }, [customStreets]);
 
   // Initiate Route Claim (opens confirmation modal explaining dual ownership default)
   const startClaimRoute = (route) => {
@@ -590,7 +647,7 @@ export default function ScoutDispatch() {
 
       return true;
     });
-  }, [data.routes, routePhase, routeFilter, routeSearchQuery, user, getClaimInfo, routeNotes]);
+  }, [data.routes, routePhase, routeFilter, routeSearchQuery, user, getClaimInfo, routeNotes, getRouteStreets]);
 
   // Search Results for Section 3 (Dispatch Address Finder)
   const searchResults = useMemo(() => {
@@ -612,11 +669,246 @@ export default function ScoutDispatch() {
 
       return idMatch || nameMatch || alertMatch || streetMatch || tagVol || colVol || noteMatch;
     });
-  }, [dashboardSearchQuery, data.routes, getClaimInfo, routeNotes]);
+  }, [dashboardSearchQuery, data.routes, getClaimInfo, routeNotes, getRouteStreets]);
 
   // Trigger Print Dossier
   const handlePrintDossier = () => {
     window.print();
+  };
+
+  // Batch import street names pasted from Master_Routes or Archive_2026 sheet
+  const handleBatchImportStreets = (e) => {
+    e.preventDefault();
+    if (!streetBatchText.trim()) return;
+    const lines = streetBatchText.split(/\r?\n/);
+    const updated = { ...customStreets };
+    let count = 0;
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      // Matches "1\tStreet list" or "1, Street list" or "Route 1: Street list" or "1: Street list"
+      const match = trimmed.match(/^(?:Route\s*)?(\d+)[\t:,]\s*(.+)$/i);
+      if (match) {
+        const id = parseInt(match[1], 10);
+        const streets = match[2].trim();
+        if (id && streets) {
+          updated[id] = streets;
+          count++;
+        }
+      }
+    });
+
+    setCustomStreets(updated);
+    setStreetSuccessMsg(`Successfully imported streets for ${count} route(s)!`);
+    setStreetBatchText('');
+    setTimeout(() => setStreetSuccessMsg(null), 4000);
+  };
+
+  // Save single route street update
+  const handleSaveSingleStreet = (routeId, newStreets) => {
+    const trimmed = newStreets.trim();
+    setCustomStreets(prev => ({
+      ...prev,
+      [routeId]: trimmed
+    }));
+    setEditingStreetRouteId(null);
+  };
+
+  // Render Volunteer Field Dossier (shared between on-screen modal preview and zero-blank physical print)
+  const renderDossierContent = (isPrint = false) => {
+    return (
+      <div className={`space-y-6 ${isPrint ? 'p-0 text-black bg-white font-sans' : 'p-6 sm:p-8 text-slate-900 bg-white'}`}>
+        {/* Dossier Header */}
+        <div className={`border-b-2 ${isPrint ? 'border-black pb-3' : 'border-slate-900 pb-4'}`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span className={`text-[10px] font-black uppercase tracking-widest block ${isPrint ? 'text-black' : 'text-scout-700'}`}>
+                Scouting America Troop 170 • Unionville / Farmington, CT
+              </span>
+              <h2 className={`font-black uppercase tracking-tight ${isPrint ? 'text-2xl text-black' : 'text-2xl sm:text-3xl text-slate-900'}`}>
+                Scouting for Food Volunteer Field Dossier
+              </h2>
+              <p className={`text-xs font-medium ${isPrint ? 'text-black' : 'text-slate-500'}`}>
+                Campaign: {data.campaign} • Official Volunteer Manifest & Territory Packet
+              </p>
+            </div>
+            <div className={`text-left sm:text-right text-xs ${isPrint ? 'text-black' : ''}`}>
+              <p className="font-bold text-slate-900">{user?.name || 'Volunteer'}</p>
+              <p className={`font-mono ${isPrint ? 'text-black' : 'text-slate-500'}`}>{user?.phone || 'Mobile on file'}</p>
+              <p className={`text-[10px] ${isPrint ? 'text-black' : 'text-slate-400'}`}>
+                Printed: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION: ASSIGNED ROUTES */}
+        <div className="space-y-3">
+          <div className={`flex items-center justify-between border-b pb-1.5 ${isPrint ? 'border-black' : 'border-slate-200'}`}>
+            <h3 className="font-black text-sm uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+              {!isPrint && <MapPin size={16} className="text-scout-600" />}
+              <span>Assigned Canvassing Route(s) ({myClaimedRoutes.length})</span>
+            </h3>
+            <span className={`text-[11px] font-semibold ${isPrint ? 'text-black' : 'text-slate-500'}`}>
+              Total Houses: {myClaimedRoutes.reduce((acc, r) => acc + (Number(r.Total_Houses) || 0), 0)}
+            </span>
+          </div>
+
+          {myClaimedRoutes.length === 0 ? (
+            <div className={`p-4 rounded-xl text-center text-xs italic border ${isPrint ? 'border-black text-black' : 'border-slate-100 bg-slate-50 text-slate-500'}`}>
+              You have not claimed any neighborhood routes yet. Return to the Route Selection board to claim an open route.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {myClaimedRoutes.map(route => {
+                const tagClaim = getClaimInfo(route.Route_ID, 'tagging');
+                const colClaim = getClaimInfo(route.Route_ID, 'collection');
+                const isMyTag = tagClaim?.Volunteer_Name === user?.name;
+                const isMyCol = colClaim?.Volunteer_Name === user?.name;
+                const streets = getRouteStreets(route);
+                const noteText = routeNotes[route.Route_ID]?.text || '';
+
+                return (
+                  <div key={route.Route_ID} className={`rounded-xl p-4 space-y-2.5 print-card ${isPrint ? 'border border-black bg-white text-black' : 'border border-slate-300 bg-slate-50/50'}`}>
+                    <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b pb-2 ${isPrint ? 'border-black' : 'border-slate-200/80'}`}>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-mono font-black text-xs px-2 py-0.5 rounded ${isPrint ? 'border border-black text-black' : 'bg-slate-900 text-white'}`}>
+                          ROUTE #{route.Route_ID}
+                        </span>
+                        <span className="font-bold text-slate-900 text-sm">{route.Route_Name}</span>
+                        <span className={`text-xs font-semibold ${isPrint ? 'text-black' : 'text-slate-500'}`}>({route.Total_Houses} Houses)</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs font-bold">
+                        {isMyTag && isMyCol ? (
+                          <span className={`px-2 py-0.5 rounded text-[11px] ${isPrint ? 'border border-black text-black' : 'bg-emerald-100 text-emerald-900'}`}>
+                            Full Ownership: Tags + Donation Pickup
+                          </span>
+                        ) : isMyTag ? (
+                          <span className={`px-2 py-0.5 rounded text-[11px] ${isPrint ? 'border border-black text-black' : 'bg-amber-100 text-amber-900'}`}>
+                            Door Tags Only (Orphan Pickup)
+                          </span>
+                        ) : (
+                          <span className={`px-2 py-0.5 rounded text-[11px] ${isPrint ? 'border border-black text-black' : 'bg-blue-100 text-blue-900'}`}>
+                            Donation Pickup Only
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Streets & Map */}
+                    <div className="text-xs space-y-1">
+                      <p className="leading-relaxed">
+                        <strong className="text-slate-900">Covered Streets:</strong> <span className="font-semibold text-slate-800">{streets}</span>
+                      </p>
+                      {route.Permanent_Alerts && (
+                        <p className={`font-bold ${isPrint ? 'text-black' : 'text-amber-800'}`}>
+                          ⚠️ Route Alert: {route.Permanent_Alerts}
+                        </p>
+                      )}
+                      {noteText && (
+                        <p className={`p-2 rounded border font-medium ${isPrint ? 'border-black bg-white text-black' : 'border-amber-200 bg-amber-50 text-slate-800'}`}>
+                          <strong>Live Route Note:</strong> {noteText}
+                        </p>
+                      )}
+                      {route.Map_URL && (
+                        <p className={`${isPrint ? 'text-black' : 'text-scout-700'}`}>
+                          <strong>Turn-by-turn Map:</strong> <span className="underline">{route.Map_URL}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Field Checklist */}
+                    <div className={`pt-2 border-t grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] ${isPrint ? 'border-black text-black' : 'border-slate-200/60 text-slate-700'}`}>
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-3.5 h-3.5 border rounded-xs ${isPrint ? 'border-black' : 'border-slate-400'}`}></div>
+                        <span>Pick up official tags & bags at HQ</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-3.5 h-3.5 border rounded-xs ${isPrint ? 'border-black' : 'border-slate-400'}`}></div>
+                        <span>Hang door tags on knobs (NOT mailboxes)</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-3.5 h-3.5 border rounded-xs ${isPrint ? 'border-black' : 'border-slate-400'}`}></div>
+                        <span>Canvass route for filled food bags</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-3.5 h-3.5 border rounded-xs ${isPrint ? 'border-black' : 'border-slate-400'}`}></div>
+                        <span>Deliver crates directly to Amistad Hall</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* SECTION: PANTRY SORTING SHIFTS */}
+        <div className="space-y-3 pt-2">
+          <div className={`flex items-center justify-between border-b pb-1.5 ${isPrint ? 'border-black' : 'border-slate-200'}`}>
+            <h3 className="font-black text-sm uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+              {!isPrint && <HeartHandshake size={16} className="text-amber-600" />}
+              <span>Food Pantry Volunteer Schedule</span>
+            </h3>
+            <span className={`text-[11px] font-semibold ${isPrint ? 'text-black' : 'text-slate-500'}`}>
+              Amistad Hall, 75 Main St
+            </span>
+          </div>
+
+          {myPantryShifts.length === 0 ? (
+            <p className={`text-xs italic p-3 rounded-xl border ${isPrint ? 'border-black text-black' : 'border-slate-100 bg-slate-50 text-slate-500'}`}>
+              No food sorting shifts scheduled for this account. If you wish to help at the pantry, register on tab 2.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {myPantryShifts.map(shift => (
+                <div key={shift.id} className={`p-3 rounded-xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 print-card ${isPrint ? 'border-black bg-white text-black' : 'border-amber-200 bg-amber-50/50'}`}>
+                  <div>
+                    <p className="font-bold text-slate-900">
+                      Confirmed Shifts: {shift.times.join(', ')}
+                    </p>
+                    <p className={`text-[11px] ${isPrint ? 'text-black' : 'text-slate-500'}`}>
+                      Helpers: {shift.partySize} volunteer(s) • Affiliation: {shift.affiliation}
+                    </p>
+                    {shift.notes && (
+                      <p className={`text-[11px] italic mt-0.5 ${isPrint ? 'text-black' : 'text-slate-600'}`}>Notes: {shift.notes}</p>
+                    )}
+                  </div>
+                  <span className={`px-2 py-1 rounded font-black text-[10px] uppercase whitespace-nowrap self-start sm:self-auto ${isPrint ? 'border border-black text-black' : 'bg-amber-100 text-amber-900'}`}>
+                    Confirmed Slot
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* SECTION: EMERGENCY & EVENT PROTOCOL */}
+        <div className={`pt-2 border-t-2 text-xs space-y-2 ${isPrint ? 'border-black text-black' : 'border-slate-900 text-slate-700'}`}>
+          <h4 className="font-black uppercase tracking-wider text-slate-900 text-[11px]">
+            Troop 170 Operation Protocols & Emergency Contacts
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
+            <div className={`p-2.5 rounded-lg border ${isPrint ? 'border-black bg-white text-black' : 'border-transparent bg-slate-100'}`}>
+              <p className="font-bold text-slate-900">Troop Leadership HQ</p>
+              <p className={isPrint ? 'text-black' : 'text-slate-600'}>Dispatch: (860) 796-0170</p>
+              <p className={isPrint ? 'text-black' : 'text-slate-500'}>For route questions or missed streets</p>
+            </div>
+            <div className={`p-2.5 rounded-lg border ${isPrint ? 'border-black bg-white text-black' : 'border-transparent bg-slate-100'}`}>
+              <p className="font-bold text-slate-900">Food Pantry Intake</p>
+              <p className={isPrint ? 'text-black' : 'text-slate-600'}>Amistad Hall, 75 Main St</p>
+              <p className={isPrint ? 'text-black' : 'text-slate-500'}>All collections drop off by 1:00 PM</p>
+            </div>
+            <div className={`p-2.5 rounded-lg border ${isPrint ? 'border-black bg-white text-black' : 'border-transparent bg-slate-100'}`}>
+              <p className="font-bold text-slate-900">Safety & Uniform</p>
+              <p className={isPrint ? 'text-black' : 'text-slate-600'}>Class B Uniform / T-Shirt</p>
+              <p className={isPrint ? 'text-black' : 'text-slate-500'}>Youth Protection rules in full effect</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // --- LOGIN SCREEN ---
@@ -673,31 +965,71 @@ export default function ScoutDispatch() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-24">
 
-      {/* Print Stylesheet for Volunteer Dossier */}
+      {/* Bulletproof Print Stylesheet for Volunteer Dossier */}
       <style>{`
-        @media print {
-          body * {
-            visibility: hidden !important;
-          }
-          #printable-volunteer-dossier, #printable-volunteer-dossier * {
-            visibility: visible !important;
-          }
-          #printable-volunteer-dossier {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 24px !important;
-            background: white !important;
-            color: black !important;
-            display: block !important;
-          }
-          .no-print {
+        @media screen {
+          .print-only-dossier {
             display: none !important;
           }
         }
+
+        @media print {
+          @page {
+            size: letter portrait;
+            margin: 0.4in;
+          }
+
+          /* Force hide ALL on-screen application UI and modals */
+          .no-print,
+          header,
+          main,
+          footer,
+          nav,
+          .modal-screen-wrapper,
+          div[role="dialog"] {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            max-height: 0 !important;
+            overflow: hidden !important;
+            opacity: 0 !important;
+          }
+
+          /* Show only the dedicated print document */
+          body, #root, .min-h-screen {
+            background: #ffffff !important;
+            color: #000000 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+          }
+
+          .print-only-dossier {
+            display: block !important;
+            visibility: visible !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+          }
+
+          .print-card {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            border: 1px solid #000000 !important;
+            margin-bottom: 12px !important;
+          }
+        }
       `}</style>
+
+      {/* DEDICATED PRINT-ONLY VOLUNTEER FIELD DOSSIER (Always rendered so window.print() is never blank) */}
+      <div className="print-only-dossier" id="printable-volunteer-dossier">
+        {renderDossierContent(true)}
+      </div>
       
       {/* Top Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
@@ -987,8 +1319,8 @@ export default function ScoutDispatch() {
                           </h3>
 
                           {/* STREET DESCRIPTION FROM SHEET OR MAP */}
-                          {streetList ? (
-                            <div className="mt-2.5 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                          <div className="mt-2.5 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                            <div className="flex items-start justify-between gap-2">
                               <div className="flex items-start gap-2">
                                 <MapPin size={14} className="text-scout-600 mt-0.5 flex-shrink-0" />
                                 <div>
@@ -1000,26 +1332,20 @@ export default function ScoutDispatch() {
                                   </p>
                                 </div>
                               </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingStreetRouteId(route.Route_ID);
+                                  setEditingStreetText(customStreets[route.Route_ID] || streetList);
+                                  setShowStreetManager(true);
+                                }}
+                                className="text-slate-400 hover:text-scout-600 p-1 shrink-0"
+                                title="Edit route streets"
+                              >
+                                <Edit3 size={13} />
+                              </button>
                             </div>
-                          ) : (
-                            <div className="mt-2.5 bg-slate-50/80 rounded-xl p-3 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                              <div className="flex items-center gap-2 text-xs text-slate-500">
-                                <MapPin size={14} className="text-slate-400 flex-shrink-0" />
-                                <span>Streets: <strong className="text-slate-700 font-semibold">View turn-by-turn boundaries on route map</strong></span>
-                              </div>
-                              {route.Map_URL && (
-                                <a 
-                                  href={route.Map_URL} 
-                                  target="_blank" 
-                                  rel="noreferrer" 
-                                  className="text-xs font-bold text-scout-600 hover:text-scout-700 flex items-center gap-1 self-start sm:self-auto"
-                                >
-                                  <span>Open Google Map</span>
-                                  <ExternalLink size={12} />
-                                </a>
-                              )}
-                            </div>
-                          )}
+                          </div>
 
                           {/* Claim Status & Volunteer info badge */}
                           {claimInfo && (
@@ -1921,7 +2247,15 @@ export default function ScoutDispatch() {
                   <p className="text-xs text-slate-500">Live monitoring of all 69 route claims, orphan routes, and field notes.</p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setShowStreetManager(true)}
+                    className="px-3 py-1.5 bg-scout-50 hover:bg-scout-100 text-scout-800 font-bold text-xs rounded-xl flex items-center gap-1.5 border border-scout-200 transition-colors shadow-xs"
+                    title="Import or edit street names from Master_Routes / Archive_2026 tab"
+                  >
+                    <BookOpen size={13} className="text-scout-600" />
+                    <span>Manage Street Directory</span>
+                  </button>
                   <span className="text-xs font-bold text-slate-500">Phase:</span>
                   <div className="inline-flex p-1 bg-slate-100 rounded-lg text-xs font-bold">
                     <button 
@@ -1980,14 +2314,21 @@ export default function ScoutDispatch() {
                           <td className="py-2.5 px-3 font-medium text-slate-600">
                             {route.Total_Houses}
                           </td>
-                          <td className="py-2.5 px-3 text-slate-700 max-w-xs truncate">
-                            {streets ? streets : (
-                              route.Map_URL ? (
-                                <a href={route.Map_URL} target="_blank" rel="noreferrer" className="text-scout-600 hover:underline">
-                                  View on Google Map
-                                </a>
-                              ) : 'Standard Zone'
-                            )}
+                          <td className="py-2.5 px-3 text-slate-700 max-w-xs truncate" title={streets}>
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="truncate">{streets}</span>
+                              <button
+                                onClick={() => {
+                                  setEditingStreetRouteId(route.Route_ID);
+                                  setEditingStreetText(customStreets[route.Route_ID] || streets || '');
+                                  setShowStreetManager(true);
+                                }}
+                                className="text-slate-300 hover:text-scout-600 p-0.5 rounded shrink-0"
+                                title="Edit street names"
+                              >
+                                <Edit3 size={11} />
+                              </button>
+                            </div>
                           </td>
                           <td className="py-2.5 px-3 text-slate-700 max-w-xs truncate">
                             {noteText ? (
@@ -2185,24 +2526,25 @@ export default function ScoutDispatch() {
       )}
 
       {/* ======================================================== */}
-      {/* VOLUNTEER DOSSIER MODAL & PRINTABLE PACKET               */}
+      {/* VOLUNTEER DOSSIER MODAL (ON-SCREEN PREVIEW)               */}
       {/* ======================================================== */}
       {showDossierModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs no-print">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs no-print modal-screen-wrapper">
           <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col">
             
-            {/* Modal Actions Bar (Not Printed) */}
+            {/* Modal Actions Bar */}
             <div className="sticky top-0 bg-white border-b border-slate-100 p-4 sm:p-5 flex items-center justify-between z-10 no-print">
               <div className="flex items-center gap-2">
                 <FileText size={18} className="text-scout-600" />
                 <h3 className="font-black text-slate-900 text-sm sm:text-base uppercase tracking-tight">
-                  Volunteer Field Dossier
+                  Volunteer Field Dossier Preview
                 </h3>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handlePrintDossier}
                   className="px-4 py-2 bg-scout-600 hover:bg-scout-700 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center gap-1.5 shadow-sm transition-all"
+                  title="Print official dossier"
                 >
                   <Printer size={14} />
                   <span>Print Dossier</span>
@@ -2216,193 +2558,161 @@ export default function ScoutDispatch() {
               </div>
             </div>
 
-            {/* PRINTABLE DOSSIER CONTENT */}
-            <div id="printable-volunteer-dossier" className="p-6 sm:p-8 space-y-6 bg-white text-slate-900">
-              
-              {/* Dossier Header */}
-              <div className="border-b-2 border-slate-900 pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-scout-700 block">
-                      Scouting America Troop 170 • Unionville, CT
-                    </span>
-                    <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-slate-900">
-                      Scouting for Food Volunteer Dossier
-                    </h2>
-                    <p className="text-xs text-slate-500 font-medium">Campaign: {data.campaign} • Official Field Mission Packet</p>
-                  </div>
-                  <div className="text-left sm:text-right text-xs">
-                    <p className="font-bold text-slate-900">{user.name}</p>
-                    <p className="text-slate-500 font-mono">{user.phone}</p>
-                    <p className="text-[10px] text-slate-400">Printed: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION: ASSIGNED ROUTES */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
-                  <h3 className="font-black text-sm uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-                    <MapPin size={16} className="text-scout-600" />
-                    <span>Your Assigned Canvassing Route(s) ({myClaimedRoutes.length})</span>
-                  </h3>
-                  <span className="text-[11px] text-slate-500 font-semibold">
-                    Total Houses: {myClaimedRoutes.reduce((acc, r) => acc + (Number(r.Total_Houses) || 0), 0)}
-                  </span>
-                </div>
-
-                {myClaimedRoutes.length === 0 ? (
-                  <div className="p-4 bg-slate-50 rounded-xl text-center text-xs text-slate-500 italic border border-slate-100">
-                    You have not claimed any neighborhood routes yet. Return to the Route Selection board to claim an open route.
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {myClaimedRoutes.map(route => {
-                      const tagClaim = getClaimInfo(route.Route_ID, 'tagging');
-                      const colClaim = getClaimInfo(route.Route_ID, 'collection');
-                      const isMyTag = tagClaim?.Volunteer_Name === user.name;
-                      const isMyCol = colClaim?.Volunteer_Name === user.name;
-                      const streets = getRouteStreets(route);
-                      const noteText = routeNotes[route.Route_ID]?.text || '';
-
-                      return (
-                        <div key={route.Route_ID} className="border border-slate-300 rounded-xl p-4 bg-slate-50/50 space-y-2.5">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 pb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="bg-slate-900 text-white font-mono font-black text-xs px-2 py-0.5 rounded">
-                                ROUTE #{route.Route_ID}
-                              </span>
-                              <span className="font-bold text-slate-900 text-sm">{route.Route_Name}</span>
-                              <span className="text-xs text-slate-500 font-semibold">({route.Total_Houses} Houses)</span>
-                            </div>
-
-                            <div className="flex items-center gap-2 text-xs font-bold">
-                              {isMyTag && isMyCol ? (
-                                <span className="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded text-[11px]">
-                                  Full Ownership: Tags + Donation Pickup
-                                </span>
-                              ) : isMyTag ? (
-                                <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[11px]">
-                                  Door Tags Only (Orphan Pickup)
-                                </span>
-                              ) : (
-                                <span className="bg-blue-100 text-blue-900 px-2 py-0.5 rounded text-[11px]">
-                                  Donation Pickup Only
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Streets & Map */}
-                          <div className="text-xs space-y-1">
-                            <p><strong>Covered Streets:</strong> {streets ? streets : 'View turn-by-turn road boundary map'}</p>
-                            {route.Permanent_Alerts && (
-                              <p className="text-amber-800 font-bold">⚠️ Route Alert: {route.Permanent_Alerts}</p>
-                            )}
-                            {noteText && (
-                              <p className="text-slate-800 bg-amber-50 p-2 rounded border border-amber-200 font-medium">
-                                <strong>Live Route Note:</strong> {noteText}
-                              </p>
-                            )}
-                            {route.Map_URL && (
-                              <p className="text-scout-700">
-                                <strong>Map Link:</strong> <span className="underline">{route.Map_URL}</span>
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Field Checklist */}
-                          <div className="pt-2 border-t border-slate-200/60 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-700">
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-3.5 h-3.5 border border-slate-400 rounded-xs"></div>
-                              <span>Pick up official tags & bags at HQ</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-3.5 h-3.5 border border-slate-400 rounded-xs"></div>
-                              <span>Hang door tags on knobs (NOT mailboxes)</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-3.5 h-3.5 border border-slate-400 rounded-xs"></div>
-                              <span>Canvass route for filled food bags</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-3.5 h-3.5 border border-slate-400 rounded-xs"></div>
-                              <span>Deliver crates directly to Amistad Hall</span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* SECTION: PANTRY SORTING SHIFTS */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
-                  <h3 className="font-black text-sm uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-                    <HeartHandshake size={16} className="text-amber-600" />
-                    <span>Your Food Pantry Volunteer Schedule</span>
-                  </h3>
-                  <span className="text-[11px] text-slate-500 font-semibold">
-                    Amistad Hall, 75 Main St
-                  </span>
-                </div>
-
-                {myPantryShifts.length === 0 ? (
-                  <p className="text-xs text-slate-500 italic p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    No food sorting shifts scheduled for this account. If you wish to help at the pantry, register on tab 2.
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {myPantryShifts.map(shift => (
-                      <div key={shift.id} className="p-3 bg-amber-50/50 rounded-xl border border-amber-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div>
-                          <p className="font-bold text-slate-900">
-                            Confirmed Shifts: {shift.times.join(', ')}
-                          </p>
-                          <p className="text-[11px] text-slate-500">
-                            Helpers: {shift.partySize} volunteer(s) • Affiliation: {shift.affiliation}
-                          </p>
-                          {shift.notes && (
-                            <p className="text-[11px] text-slate-600 italic mt-0.5">Notes: {shift.notes}</p>
-                          )}
-                        </div>
-                        <span className="bg-amber-100 text-amber-900 px-2 py-1 rounded font-black text-[10px] uppercase whitespace-nowrap self-start sm:self-auto">
-                          Confirmed Slot
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* SECTION: EMERGENCY & EVENT PROTOCOL */}
-              <div className="pt-2 border-t-2 border-slate-900 text-xs space-y-2 text-slate-700">
-                <h4 className="font-black uppercase tracking-wider text-slate-900 text-[11px]">
-                  Troop 170 Operation Protocols & Emergency Contacts
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
-                  <div className="p-2.5 bg-slate-100 rounded-lg">
-                    <p className="font-bold text-slate-900">Troop Leadership HQ</p>
-                    <p className="text-slate-600">Dispatch: (860) 796-0170</p>
-                    <p className="text-slate-500">For route questions or missed streets</p>
-                  </div>
-                  <div className="p-2.5 bg-slate-100 rounded-lg">
-                    <p className="font-bold text-slate-900">Food Pantry Intake</p>
-                    <p className="text-slate-600">Amistad Hall, 75 Main St</p>
-                    <p className="text-slate-500">All collections drop off by 1:00 PM</p>
-                  </div>
-                  <div className="p-2.5 bg-slate-100 rounded-lg">
-                    <p className="font-bold text-slate-900">Safety & Uniform</p>
-                    <p className="text-slate-600">Class B Uniform / T-Shirt</p>
-                    <p className="text-slate-500">Youth Protection rules in full effect</p>
-                  </div>
-                </div>
-              </div>
-
+            {/* Modal Dossier Content Preview */}
+            <div className="no-print">
+              {renderDossierContent(false)}
             </div>
 
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500 no-print">
+              <span>Ready for canvassing morning</span>
+              <button
+                onClick={handlePrintDossier}
+                className="px-4 py-2 bg-slate-900 hover:bg-black text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center gap-1.5 shadow-xs"
+              >
+                <Printer size={13} />
+                <span>Print Document</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* STREET MANAGER & IMPORT MODAL (MATCH MASTER_ROUTES TAB)   */}
+      {/* ======================================================== */}
+      {showStreetManager && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs no-print modal-screen-wrapper">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col p-6 sm:p-8">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+              <div className="flex items-center gap-2">
+                <BookOpen size={20} className="text-scout-600" />
+                <div>
+                  <h3 className="font-black text-slate-900 text-lg uppercase tracking-tight">
+                    Master Route Streets Directory
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Match route numbers to streets from the Master_Routes or Archive_2026 sheet.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowStreetManager(false)}
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {streetSuccessMsg && (
+              <div className="mb-4 p-3 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 text-xs font-bold flex items-center gap-2">
+                <CheckCircle size={16} /> {streetSuccessMsg}
+              </div>
+            )}
+
+            {/* Batch Import Box */}
+            <form onSubmit={handleBatchImportStreets} className="space-y-3 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-1">
+                  Batch Import from Google Sheet
+                </label>
+                <p className="text-[11px] text-slate-500 mb-2">
+                  Copy two columns from your <strong>Master_Routes</strong> or <strong>Archive_2026</strong> tab (Route_ID and Streets) and paste below:
+                </p>
+                <textarea
+                  value={streetBatchText}
+                  onChange={(e) => setStreetBatchText(e.target.value)}
+                  placeholder={`1\tTrotters Glen, White Cir, Rocky Ridge Ln, Carriage Dr\n2\tMeadow Rd\n3\tPlainville Ave (Rt 177)\n4\tPine Hollow Rd`}
+                  rows={4}
+                  className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-scout-500"
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-4 py-2.5 bg-scout-600 hover:bg-scout-700 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center gap-1.5 shadow-sm transition-all"
+              >
+                <Upload size={14} />
+                <span>Import & Save Streets</span>
+              </button>
+            </form>
+
+            {/* Quick Inline Route Editor List */}
+            <div className="space-y-3">
+              <h4 className="font-black text-xs uppercase tracking-wider text-slate-700">
+                Current Route Street Assignments (69 Routes)
+              </h4>
+              <div className="max-h-64 overflow-y-auto space-y-2 border border-slate-200 rounded-xl p-2 bg-slate-50/50">
+                {data.routes.map(route => {
+                  const currentStreets = getRouteStreets(route);
+                  const isEditing = editingStreetRouteId === route.Route_ID;
+
+                  return (
+                    <div key={route.Route_ID} className="bg-white p-2.5 rounded-lg border border-slate-200/80 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-mono font-black text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">
+                            #{route.Route_ID}
+                          </span>
+                          <span className="font-bold text-slate-800">{route.Route_Name}</span>
+                          <span className="text-[10px] text-slate-400">({route.Total_Houses} houses)</span>
+                        </div>
+                        {isEditing ? (
+                          <div className="flex gap-2 mt-1">
+                            <input
+                              type="text"
+                              value={editingStreetText}
+                              onChange={(e) => setEditingStreetText(e.target.value)}
+                              className="flex-1 border border-slate-300 rounded px-2 py-1 text-xs"
+                              placeholder="e.g. Main St, Elm St, High St"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveSingleStreet(route.Route_ID, editingStreetText)}
+                              className="px-2.5 py-1 bg-scout-600 text-white font-bold rounded text-xs"
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingStreetRouteId(null)}
+                              className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <p className="text-[11px] text-slate-600 leading-snug">
+                            {currentStreets}
+                          </p>
+                        )}
+                      </div>
+                      {!isEditing && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingStreetRouteId(route.Route_ID);
+                            setEditingStreetText(customStreets[route.Route_ID] || currentStreets || '');
+                          }}
+                          className="self-end sm:self-auto text-slate-400 hover:text-scout-600 p-1"
+                          title="Edit street names"
+                        >
+                          <Edit3 size={13} />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="pt-4 mt-4 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowStreetManager(false)}
+                className="px-4 py-2 bg-slate-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
