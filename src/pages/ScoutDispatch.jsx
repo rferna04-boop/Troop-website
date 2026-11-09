@@ -4,7 +4,8 @@ import {
   Search, Clock, Users, Calendar, Phone, Package, 
   RefreshCw, Check, X, 
   Sparkles, UserCheck, HeartHandshake, Copy, ExternalLink,
-  ClipboardList, Building2, UserPlus, PhoneCall, Plus, StickyNote
+  ClipboardList, Building2, UserPlus, PhoneCall, Plus, StickyNote,
+  Printer, FileText, CheckSquare, Square, AlertOctagon
 } from 'lucide-react';
 
 // Live Google Apps Script API Endpoint
@@ -39,8 +40,15 @@ export default function ScoutDispatch() {
   const [data, setData] = useState({ campaign: 'CAMP-2027', routes: [], claims: {} });
 
   // Route Filters
-  const [routeFilter, setRouteFilter] = useState('all'); // 'all', 'available', 'claimed', 'my_routes', 'completed', 'alerts'
+  const [routeFilter, setRouteFilter] = useState('all'); // 'all', 'available', 'claimed', 'my_routes', 'completed', 'orphans', 'alerts'
   const [routeSearchQuery, setRouteSearchQuery] = useState('');
+
+  // Claim Modal State (Door tags -> auto-assumes pickup unless opted out)
+  const [claimingRoute, setClaimingRoute] = useState(null);
+  const [alsoClaimPickup, setAlsoClaimPickup] = useState(true);
+
+  // Volunteer Dossier (Printable Field Packet) Modal
+  const [showDossierModal, setShowDossierModal] = useState(false);
 
   // Real-Time Route Notes State (Stored locally & synced with API)
   const [routeNotes, setRouteNotes] = useState(() => {
@@ -230,24 +238,70 @@ export default function ScoutDispatch() {
     return null;
   };
 
-  // Claim a route
-  const claimRoute = (routeId, forcedPhase = null) => {
-    const phaseToUse = forcedPhase || routePhase;
-    const phaseLabel = phaseToUse === 'tagging' ? 'Tag Distribution (Phase A)' : 'Food Pickup (Phase B)';
-    if (!window.confirm(`Confirm claiming Route #${routeId} for ${phaseLabel}?`)) return;
+  // Initiate Route Claim (opens confirmation modal explaining dual ownership default)
+  const startClaimRoute = (route) => {
+    setClaimingRoute(route);
+    setAlsoClaimPickup(true); // default: assume both door tags and donation pickup
+  };
 
-    if (user) {
-      setContactRegistry(prev => ({ ...prev, [user.name.toLowerCase()]: user.phone }));
+  // Execute Route Claim after modal confirmation
+  const executeClaimRoute = async () => {
+    if (!claimingRoute || !user) return;
+    const routeId = claimingRoute.Route_ID;
+
+    setContactRegistry(prev => ({ ...prev, [user.name.toLowerCase()]: user.phone }));
+
+    if (routePhase === 'tagging') {
+      if (alsoClaimPickup) {
+        // Volunteer claims BOTH door tags AND donation pickup
+        await sendAction({
+          action: 'claim_route',
+          campaign_id: data.campaign,
+          route_id: routeId,
+          phase: 'Tagging',
+          volunteer_name: user.name,
+          volunteer_phone: user.phone
+        });
+        await sendAction({
+          action: 'claim_route',
+          campaign_id: data.campaign,
+          route_id: routeId,
+          phase: 'Collection',
+          volunteer_name: user.name,
+          volunteer_phone: user.phone
+        });
+      } else {
+        // Volunteer opted OUT of donation pickup: flags route as an Orphan
+        await sendAction({
+          action: 'claim_route',
+          campaign_id: data.campaign,
+          route_id: routeId,
+          phase: 'Tagging',
+          volunteer_name: user.name,
+          volunteer_phone: user.phone
+        });
+        // Dispatch orphan route alert to API
+        await sendAction({
+          action: 'flag_orphan_route',
+          campaign_id: data.campaign,
+          route_id: routeId,
+          volunteer_name: user.name,
+          notes: 'Volunteer opted out of donation pickup. Needs pickup driver.'
+        });
+      }
+    } else {
+      // Direct pickup claim (e.g. adopting an orphan route or standard Phase B claim)
+      await sendAction({
+        action: 'claim_route',
+        campaign_id: data.campaign,
+        route_id: routeId,
+        phase: 'Collection',
+        volunteer_name: user.name,
+        volunteer_phone: user.phone
+      });
     }
 
-    sendAction({
-      action: 'claim_route',
-      campaign_id: data.campaign,
-      route_id: routeId,
-      phase: phaseToUse === 'tagging' ? 'Tagging' : 'Collection',
-      volunteer_name: user.name,
-      volunteer_phone: user.phone
-    });
+    setClaimingRoute(null);
   };
 
   // Mark route completed
@@ -284,7 +338,6 @@ export default function ScoutDispatch() {
     };
     setRouteNotes(updated);
 
-    // Also notify API
     sendAction({
       action: 'update_route_notes',
       campaign_id: data.campaign,
@@ -378,6 +431,33 @@ export default function ScoutDispatch() {
     setTimeout(() => setCopiedSchedule(false), 3000);
   };
 
+  // Identify Orphan Routes (Have Door Tag Volunteer, but NO Donation Pickup Volunteer)
+  const orphanRoutesList = useMemo(() => {
+    return data.routes.filter(route => {
+      const tagClaim = getClaimInfo(route.Route_ID, 'tagging');
+      const colClaim = getClaimInfo(route.Route_ID, 'collection');
+      return Boolean(tagClaim && !colClaim);
+    });
+  }, [data.routes, getClaimInfo]);
+
+  // Identify Current Volunteer's Claimed Routes
+  const myClaimedRoutes = useMemo(() => {
+    if (!user) return [];
+    return data.routes.filter(route => {
+      const tagClaim = getClaimInfo(route.Route_ID, 'tagging');
+      const colClaim = getClaimInfo(route.Route_ID, 'collection');
+      const isMyTag = tagClaim?.Volunteer_Name === user.name;
+      const isMyCol = colClaim?.Volunteer_Name === user.name;
+      return isMyTag || isMyCol;
+    });
+  }, [data.routes, user, getClaimInfo]);
+
+  // Current Volunteer's Pantry Shifts
+  const myPantryShifts = useMemo(() => {
+    if (!user) return [];
+    return pantrySignups.filter(s => s.name.trim().toLowerCase() === user.name.trim().toLowerCase());
+  }, [pantrySignups, user]);
+
   // --- STATS COMPUTATIONS FOR DASHBOARD ---
   const stats = useMemo(() => {
     const totalRoutes = data.routes.length;
@@ -392,6 +472,7 @@ export default function ScoutDispatch() {
         collectionClaimed: 0,
         collectionCompleted: 0,
         collectionAbandoned: 0,
+        orphanCount: 0,
         totalHouses: 0,
         housesCoveredTagging: 0,
         housesCoveredCollection: 0,
@@ -409,6 +490,7 @@ export default function ScoutDispatch() {
     let collectionCompleted = 0;
     let collectionAbandoned = 0;
 
+    let orphanCount = 0;
     let totalHouses = 0;
     let housesCoveredTagging = 0;
     let housesCoveredCollection = 0;
@@ -448,6 +530,11 @@ export default function ScoutDispatch() {
           totalBagsCollected += Number(colClaim.Bags_Collected) || 0;
         }
       }
+
+      // Orphan calculation: Tagged but no collection driver
+      if (tagClaim && !colClaim) {
+        orphanCount++;
+      }
     });
 
     return {
@@ -460,6 +547,7 @@ export default function ScoutDispatch() {
       collectionClaimed,
       collectionCompleted,
       collectionAbandoned,
+      orphanCount,
       totalHouses,
       housesCoveredTagging,
       housesCoveredCollection,
@@ -475,11 +563,16 @@ export default function ScoutDispatch() {
       const isMyClaim = claim?.Volunteer_Name === user?.name;
       const isCompleted = claim?.Status === 'Completed';
 
+      const tagClaim = getClaimInfo(route.Route_ID, 'tagging');
+      const colClaim = getClaimInfo(route.Route_ID, 'collection');
+      const isOrphan = Boolean(tagClaim && !colClaim);
+
       // Status filter
       if (routeFilter === 'available' && !isAvailable) return false;
       if (routeFilter === 'claimed' && (!claim || isCompleted)) return false;
       if (routeFilter === 'my_routes' && !isMyClaim) return false;
       if (routeFilter === 'completed' && !isCompleted) return false;
+      if (routeFilter === 'orphans' && !isOrphan) return false;
       if (routeFilter === 'alerts' && !route.Permanent_Alerts) return false;
 
       // Text search
@@ -520,6 +613,11 @@ export default function ScoutDispatch() {
       return idMatch || nameMatch || alertMatch || streetMatch || tagVol || colVol || noteMatch;
     });
   }, [dashboardSearchQuery, data.routes, getClaimInfo, routeNotes]);
+
+  // Trigger Print Dossier
+  const handlePrintDossier = () => {
+    window.print();
+  };
 
   // --- LOGIN SCREEN ---
   if (!user) {
@@ -574,9 +672,35 @@ export default function ScoutDispatch() {
   // --- MAIN SFF DISPATCH APPLICATION ---
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-24">
+
+      {/* Print Stylesheet for Volunteer Dossier */}
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #printable-volunteer-dossier, #printable-volunteer-dossier * {
+            visibility: visible !important;
+          }
+          #printable-volunteer-dossier {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 24px !important;
+            background: white !important;
+            color: black !important;
+            display: block !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
       
       {/* Top Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
         <div className="max-w-6xl mx-auto px-4 py-3.5 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-scout-600 text-white rounded-xl flex items-center justify-center shadow-md">
@@ -598,6 +722,21 @@ export default function ScoutDispatch() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Dossier Button */}
+            <button
+              onClick={() => setShowDossierModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black uppercase tracking-wider bg-slate-900 hover:bg-black text-white rounded-xl shadow-sm transition-all"
+              title="View and Print your volunteer route and pantry schedule"
+            >
+              <Printer size={14} className="text-amber-400" />
+              <span>My Field Dossier</span>
+              {myClaimedRoutes.length > 0 && (
+                <span className="ml-1 bg-amber-400 text-slate-900 text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+                  {myClaimedRoutes.length}
+                </span>
+              )}
+            </button>
+
             <button 
               onClick={fetchData} 
               disabled={refreshing}
@@ -647,15 +786,21 @@ export default function ScoutDispatch() {
           >
             <ClipboardList size={16} />
             <span>3. Dispatch Dashboard</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-black">
-              Manager View
-            </span>
+            {orphanRoutesList.length > 0 ? (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500 text-white font-black animate-pulse">
+                {orphanRoutesList.length} Orphan
+              </span>
+            ) : (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-black">
+                Manager View
+              </span>
+            )}
           </button>
         </div>
       </header>
 
       {/* Main Body Content */}
-      <main className="max-w-6xl mx-auto px-4 pt-6">
+      <main className="max-w-6xl mx-auto px-4 pt-6 no-print">
 
         {/* ======================================================== */}
         {/* SECTION 1: ROUTE SELECTION (TAGS & PICKUP)               */}
@@ -673,7 +818,7 @@ export default function ScoutDispatch() {
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
                     {routePhase === 'tagging' 
-                      ? 'Drop official Scouting for Food collection bags & door tags onto front porches. (Do NOT place inside mailboxes per postal regulations).'
+                      ? 'Drop official Scouting for Food collection bags & door tags onto front porches. (Door tag volunteers default to also picking up donations on collection day).'
                       : 'Pick up non-perishable food bags left outside by Farmington residents and transport directly to the Farmington Food Pantry at Amistad Hall.'}
                   </p>
                 </div>
@@ -698,7 +843,7 @@ export default function ScoutDispatch() {
               </div>
 
               {/* Live Phase Stats Strip */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-100">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-6 pt-5 border-t border-slate-100">
                 <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                   <span className="text-[10px] font-black uppercase text-slate-400 block">Total Routes</span>
                   <span className="text-lg font-black text-slate-800">{stats.totalRoutes}</span>
@@ -710,7 +855,7 @@ export default function ScoutDispatch() {
                   </span>
                 </div>
                 <div className="bg-blue-50 p-3 rounded-xl border border-blue-100">
-                  <span className="text-[10px] font-black uppercase text-blue-700 block">Assigned / In Progress</span>
+                  <span className="text-[10px] font-black uppercase text-blue-700 block">Assigned / Active</span>
                   <span className="text-lg font-black text-blue-800">
                     {routePhase === 'tagging' ? stats.taggingClaimed : stats.collectionClaimed}
                   </span>
@@ -719,6 +864,12 @@ export default function ScoutDispatch() {
                   <span className="text-[10px] font-black uppercase text-purple-700 block">Completed</span>
                   <span className="text-lg font-black text-purple-800">
                     {routePhase === 'tagging' ? stats.taggingCompleted : stats.collectionCompleted}
+                  </span>
+                </div>
+                <div className="bg-amber-50 p-3 rounded-xl border border-amber-200">
+                  <span className="text-[10px] font-black uppercase text-amber-800 block">Orphan Routes</span>
+                  <span className="text-lg font-black text-amber-900">
+                    {orphanRoutesList.length}
                   </span>
                 </div>
               </div>
@@ -748,14 +899,15 @@ export default function ScoutDispatch() {
                   { id: 'all', label: 'All' },
                   { id: 'available', label: 'Available' },
                   { id: 'claimed', label: 'Claimed' },
-                  { id: 'my_routes', label: 'My Routes' },
+                  { id: 'my_routes', label: `My Routes (${myClaimedRoutes.length})` },
+                  { id: 'orphans', label: `Orphans (${orphanRoutesList.length})` },
                   { id: 'completed', label: 'Completed' },
                   { id: 'alerts', label: 'Has Alerts' }
                 ].map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setRouteFilter(tab.id)}
-                    className={`px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${routeFilter === tab.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                    className={`px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${routeFilter === tab.id ? 'bg-slate-900 text-white' : tab.id === 'orphans' && orphanRoutesList.length > 0 ? 'bg-amber-100 text-amber-900 font-black' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                   >
                     {tab.label}
                   </button>
@@ -793,10 +945,14 @@ export default function ScoutDispatch() {
                   const currentNoteMeta = routeNotes[route.Route_ID];
                   const currentNoteText = currentNoteMeta?.text || '';
 
+                  const tagClaim = getClaimInfo(route.Route_ID, 'tagging');
+                  const colClaim = getClaimInfo(route.Route_ID, 'collection');
+                  const isOrphan = Boolean(tagClaim && !colClaim);
+
                   return (
                     <div 
                       key={route.Route_ID} 
-                      className={`bg-white rounded-2xl p-5 border transition-all hover:shadow-md ${isMyClaim ? 'border-scout-300 ring-2 ring-scout-100' : isCompleted ? 'border-emerald-200 bg-emerald-50/20' : isAvailable ? 'border-slate-200' : 'border-slate-100'}`}
+                      className={`bg-white rounded-2xl p-5 border transition-all hover:shadow-md ${isMyClaim ? 'border-scout-300 ring-2 ring-scout-100' : isOrphan ? 'border-amber-300 bg-amber-50/20' : isCompleted ? 'border-emerald-200 bg-emerald-50/20' : isAvailable ? 'border-slate-200' : 'border-slate-100'}`}
                     >
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         
@@ -809,6 +965,11 @@ export default function ScoutDispatch() {
                             <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-md">
                               {route.Total_Houses} Houses
                             </span>
+                            {isOrphan && (
+                              <span className="flex items-center gap-1 text-amber-900 bg-amber-100 text-[10px] font-black px-2 py-0.5 rounded-md uppercase border border-amber-300">
+                                <AlertOctagon size={12} className="text-amber-700" /> Orphan: Needs Donation Pickup Driver
+                              </span>
+                            )}
                             {route.Permanent_Alerts && (
                               <span className="flex items-center gap-1 text-amber-700 bg-amber-50 text-[10px] font-black px-2 py-0.5 rounded-md uppercase border border-amber-200">
                                 <AlertTriangle size={12} /> {route.Permanent_Alerts}
@@ -993,25 +1154,33 @@ export default function ScoutDispatch() {
 
                           {isAvailable ? (
                             <button 
-                              onClick={() => claimRoute(route.Route_ID)}
-                              className="w-full sm:w-auto lg:w-40 bg-scout-600 hover:bg-scout-700 text-white font-black text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl shadow-sm transition-all hover:shadow"
+                              onClick={() => startClaimRoute(route)}
+                              className="w-full sm:w-auto lg:w-44 bg-scout-600 hover:bg-scout-700 text-white font-black text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl shadow-sm transition-all hover:shadow"
                             >
-                              Claim {routePhase === 'tagging' ? 'Tagging' : 'Pickup'}
+                              {routePhase === 'tagging' ? 'Claim Route (Tags + Pickup)' : 'Claim Food Pickup'}
+                            </button>
+                          ) : isOrphan && routePhase === 'collection' ? (
+                            <button 
+                              onClick={() => startClaimRoute(route)}
+                              className="w-full sm:w-auto lg:w-44 bg-amber-600 hover:bg-amber-700 text-white font-black text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5"
+                            >
+                              <AlertOctagon size={14} />
+                              <span>Adopt Orphan Pickup</span>
                             </button>
                           ) : isCompleted ? (
-                            <div className="w-full sm:w-auto lg:w-40 bg-emerald-100 text-emerald-800 font-black text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 border border-emerald-200">
+                            <div className="w-full sm:w-auto lg:w-44 bg-emerald-100 text-emerald-800 font-black text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 border border-emerald-200">
                               <CheckCircle size={15} /> Completed
                             </div>
                           ) : isMyClaim ? (
                             <button 
                               onClick={() => completeRoute(route.Route_ID)}
-                              className="w-full sm:w-auto lg:w-40 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5"
+                              className="w-full sm:w-auto lg:w-44 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5"
                             >
                               <Check size={16} />
                               <span>Mark Done</span>
                             </button>
                           ) : (
-                            <div className="w-full sm:w-auto lg:w-40 bg-slate-100 text-slate-600 font-bold text-xs py-2.5 px-4 rounded-xl text-center border border-slate-200">
+                            <div className="w-full sm:w-auto lg:w-44 bg-slate-100 text-slate-600 font-bold text-xs py-2.5 px-4 rounded-xl text-center border border-slate-200">
                               Claimed
                             </div>
                           )}
@@ -1072,9 +1241,18 @@ export default function ScoutDispatch() {
             </div>
 
             {pantrySuccessMessage && (
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl flex items-center gap-3">
-                <CheckCircle size={20} className="text-emerald-600 flex-shrink-0" />
-                <p className="text-sm font-bold">{pantrySuccessMessage}</p>
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <CheckCircle size={20} className="text-emerald-600 flex-shrink-0" />
+                  <p className="text-sm font-bold">{pantrySuccessMessage}</p>
+                </div>
+                <button
+                  onClick={() => setShowDossierModal(true)}
+                  className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider rounded-lg flex items-center gap-1 whitespace-nowrap"
+                >
+                  <Printer size={13} />
+                  <span>Print Dossier</span>
+                </button>
               </div>
             )}
 
@@ -1353,7 +1531,7 @@ export default function ScoutDispatch() {
                     Dispatch Command Center
                   </h2>
                   <p className="text-slate-400 text-xs sm:text-sm mt-2 max-w-xl font-light">
-                    Overview of townwide route coverage, active volunteer assignments, address lookups, and food pantry staffing.
+                    Overview of townwide route coverage, orphan route alerts, volunteer assignments, and food pantry staffing.
                   </p>
                 </div>
 
@@ -1375,8 +1553,8 @@ export default function ScoutDispatch() {
                 </div>
               </div>
 
-              {/* 4 Primary Summary Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-8 pt-6 border-t border-white/10">
+              {/* 5 Primary Summary Cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mt-8 pt-6 border-t border-white/10">
                 <div className="bg-white/5 rounded-xl p-4 border border-white/5">
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Total Campaign Routes</span>
                   <div className="flex items-baseline gap-2 mt-1">
@@ -1386,40 +1564,81 @@ export default function ScoutDispatch() {
                 </div>
 
                 <div className="bg-white/5 rounded-xl p-4 border border-white/5">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block">Tagging Claimed / Covered</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block">Tagging Claimed</span>
                   <div className="flex items-baseline gap-2 mt-1">
                     <span className="text-2xl sm:text-3xl font-black text-emerald-400">
                       {Math.round(((stats.taggingClaimed + stats.taggingCompleted) / Math.max(1, stats.totalRoutes)) * 100)}%
                     </span>
                     <span className="text-xs text-slate-300 font-medium">
-                      {stats.taggingClaimed + stats.taggingCompleted}/{stats.totalRoutes} Routes
+                      {stats.taggingClaimed + stats.taggingCompleted}/{stats.totalRoutes}
                     </span>
                   </div>
                 </div>
 
                 <div className="bg-white/5 rounded-xl p-4 border border-white/5">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-blue-400 block">Pickup Claimed / Covered</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-blue-400 block">Pickup Claimed</span>
                   <div className="flex items-baseline gap-2 mt-1">
                     <span className="text-2xl sm:text-3xl font-black text-blue-400">
                       {Math.round(((stats.collectionClaimed + stats.collectionCompleted) / Math.max(1, stats.totalRoutes)) * 100)}%
                     </span>
                     <span className="text-xs text-slate-300 font-medium">
-                      {stats.collectionClaimed + stats.collectionCompleted}/{stats.totalRoutes} Routes
+                      {stats.collectionClaimed + stats.collectionCompleted}/{stats.totalRoutes}
                     </span>
                   </div>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-4 border border-white/5">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 block">Unassigned / Remaining</span>
+                {/* ORPHAN ROUTES KPI */}
+                <div 
+                  onClick={() => { setActiveSection('routes'); setRouteFilter('orphans'); }}
+                  className="bg-amber-500/20 rounded-xl p-4 border border-amber-400/40 cursor-pointer hover:bg-amber-500/30 transition-all"
+                  title="Click to view all orphan routes needing pickup drivers"
+                >
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-300 flex items-center justify-between">
+                    <span>Orphan Routes</span>
+                    <AlertOctagon size={12} className="text-amber-400" />
+                  </span>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl sm:text-3xl font-black text-amber-400">
-                      {stats.taggingAvailable + stats.collectionAvailable}
+                    <span className="text-2xl sm:text-3xl font-black text-amber-300">{stats.orphanCount}</span>
+                    <span className="text-[11px] text-amber-200/80 font-medium">Needs Pickup</span>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 rounded-xl p-4 border border-white/5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 block">Unassigned Both</span>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-2xl sm:text-3xl font-black text-slate-200">
+                      {stats.taggingAvailable}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">Opportunities</span>
+                    <span className="text-xs text-slate-400 font-medium">Open Routes</span>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* ORPHAN ROUTES ALERT BANNER */}
+            {orphanRoutesList.length > 0 && (
+              <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-200 text-amber-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <AlertOctagon size={22} />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-amber-900 text-base uppercase tracking-tight">
+                      {orphanRoutesList.length} Orphan Route(s) Require Donation Pickup Drivers!
+                    </h4>
+                    <p className="text-xs text-amber-800 mt-0.5 leading-relaxed">
+                      Volunteers distributed door tags for these routes but opted out of food pickup. They need a pickup driver assigned before collection day.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setActiveSection('routes'); setRoutePhase('collection'); setRouteFilter('orphans'); }}
+                  className="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-sm whitespace-nowrap"
+                >
+                  Adopt Orphan Routes
+                </button>
+              </div>
+            )}
 
             {/* ADDRESS & STREET LOOKUP TOOL */}
             <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
@@ -1473,9 +1692,10 @@ export default function ScoutDispatch() {
                         const colPhone = colClaim ? getVolunteerPhone(colClaim.Volunteer_Name) : null;
                         const streets = getRouteStreets(route);
                         const noteMeta = routeNotes[route.Route_ID];
+                        const isOrphan = Boolean(tagClaim && !colClaim);
 
                         return (
-                          <div key={route.Route_ID} className="bg-slate-50 rounded-xl p-4 border border-slate-200 hover:border-scout-300 transition-all">
+                          <div key={route.Route_ID} className={`rounded-xl p-4 border transition-all ${isOrphan ? 'bg-amber-50/60 border-amber-300' : 'bg-slate-50 border-slate-200'}`}>
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-200/60">
                               <div className="flex items-center gap-2">
                                 <span className="bg-slate-900 text-white font-mono font-black text-xs px-2.5 py-0.5 rounded-md">
@@ -1483,6 +1703,11 @@ export default function ScoutDispatch() {
                                 </span>
                                 <h4 className="font-bold text-slate-900 text-sm sm:text-base">{route.Route_Name}</h4>
                                 <span className="text-xs text-slate-500">({route.Total_Houses} Houses)</span>
+                                {isOrphan && (
+                                  <span className="bg-amber-200 text-amber-900 font-black text-[10px] px-2 py-0.5 rounded-md uppercase">
+                                    Orphan: Needs Pickup Driver
+                                  </span>
+                                )}
                               </div>
                               {route.Permanent_Alerts && (
                                 <span className="text-[10px] font-black text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md self-start">
@@ -1543,7 +1768,7 @@ export default function ScoutDispatch() {
                                       Unclaimed
                                     </span>
                                     <button 
-                                      onClick={() => claimRoute(route.Route_ID, 'tagging')}
+                                      onClick={() => startClaimRoute(route)}
                                       className="text-[10px] font-black uppercase bg-slate-800 text-white px-2 py-1 rounded"
                                     >
                                       Claim
@@ -1574,13 +1799,13 @@ export default function ScoutDispatch() {
                                 ) : (
                                   <div className="flex items-center justify-between">
                                     <span className="text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                                      Unclaimed
+                                      {isOrphan ? 'Needs Pickup Driver' : 'Unclaimed'}
                                     </span>
                                     <button 
-                                      onClick={() => claimRoute(route.Route_ID, 'collection')}
-                                      className="text-[10px] font-black uppercase bg-slate-800 text-white px-2 py-1 rounded"
+                                      onClick={() => startClaimRoute(route)}
+                                      className="text-[10px] font-black uppercase bg-amber-700 hover:bg-amber-800 text-white px-2 py-1 rounded shadow-xs"
                                     >
-                                      Claim
+                                      Adopt Pickup
                                     </button>
                                   </div>
                                 )}
@@ -1686,14 +1911,14 @@ export default function ScoutDispatch() {
               </div>
             </div>
 
-            {/* ROUTE ROSTER AUDIT & ABANDONED ROUTES TRACKER */}
+            {/* ROUTE ROSTER AUDIT & ORPHAN ROUTES TRACKER */}
             <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="font-black text-slate-900 text-lg uppercase tracking-tight">
                     Master Route Coverage Ledger
                   </h3>
-                  <p className="text-xs text-slate-500">Live monitoring of all 69 route claims and field notes.</p>
+                  <p className="text-xs text-slate-500">Live monitoring of all 69 route claims, orphan routes, and field notes.</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -1744,11 +1969,11 @@ export default function ScoutDispatch() {
                       const tagClaim = getClaimInfo(route.Route_ID, 'tagging');
                       const colClaim = getClaimInfo(route.Route_ID, 'collection');
                       const streets = getRouteStreets(route);
-                      const isUnassigned = !tagClaim && !colClaim;
+                      const isOrphan = Boolean(tagClaim && !colClaim);
                       const noteText = routeNotes[route.Route_ID]?.text || '';
 
                       return (
-                        <tr key={route.Route_ID} className={`hover:bg-slate-50/80 ${isUnassigned ? 'bg-amber-50/30' : ''}`}>
+                        <tr key={route.Route_ID} className={`hover:bg-slate-50/80 ${isOrphan ? 'bg-amber-50/40' : ''}`}>
                           <td className="py-2.5 px-3 font-mono font-bold text-slate-900">
                             #{route.Route_ID}
                           </td>
@@ -1800,8 +2025,12 @@ export default function ScoutDispatch() {
                                     {colClaim.Status}
                                   </span>
                                 </span>
+                              ) : isOrphan ? (
+                                <span className="text-[10px] font-black text-amber-900 bg-amber-200 px-2 py-0.5 rounded border border-amber-300 animate-pulse">
+                                  ⚠️ Orphan (Needs Pickup)
+                                </span>
                               ) : (
-                                <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                                <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
                                   Unassigned
                                 </span>
                               )}
@@ -1839,6 +2068,345 @@ export default function ScoutDispatch() {
         )}
 
       </main>
+
+      {/* ======================================================== */}
+      {/* CLAIM CONFIRMATION MODAL (DUAL-PHASE DEFAULT AWARENESS)   */}
+      {/* ======================================================== */}
+      {claimingRoute && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs no-print">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="bg-slate-900 text-white font-mono font-black text-xs px-2.5 py-0.5 rounded-md">
+                  ROUTE #{claimingRoute.Route_ID}
+                </span>
+                <h3 className="font-black text-slate-900 text-lg uppercase tracking-tight">
+                  {claimingRoute.Route_Name}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setClaimingRoute(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-xs text-slate-600 space-y-1">
+                <p><strong>Total Houses:</strong> {claimingRoute.Total_Houses}</p>
+                {claimingRoute.Permanent_Alerts && (
+                  <p className="text-amber-800 font-semibold">⚠️ Alert: {claimingRoute.Permanent_Alerts}</p>
+                )}
+                {getRouteStreets(claimingRoute) && (
+                  <p><strong>Streets:</strong> {getRouteStreets(claimingRoute)}</p>
+                )}
+              </div>
+
+              {/* DUAL-PHASE OWNERSHIP NOTICE & OPTION */}
+              {routePhase === 'tagging' ? (
+                <div className="space-y-3">
+                  <div className="bg-scout-50 border border-scout-200 rounded-xl p-3.5 text-xs text-scout-900">
+                    <p className="font-black uppercase tracking-wider text-[11px] text-scout-800 mb-1 flex items-center gap-1.5">
+                      <CheckCircle size={14} className="text-scout-600" />
+                      <span>Troop 170 Dual-Phase Policy</span>
+                    </p>
+                    <p className="leading-relaxed">
+                      Anyone who distributes door tags for a route defaults to also picking up donations for that same route on food collection morning.
+                    </p>
+                  </div>
+
+                  {/* Radio / Choice Options */}
+                  <div className="space-y-2">
+                    <div 
+                      onClick={() => setAlsoClaimPickup(true)}
+                      className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${alsoClaimPickup ? 'bg-scout-50/60 border-scout-600 ring-2 ring-scout-500/20' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'}`}
+                    >
+                      <div className="mt-0.5">
+                        {alsoClaimPickup ? <CheckSquare size={18} className="text-scout-600" /> : <Square size={18} className="text-slate-400" />}
+                      </div>
+                      <div>
+                        <span className="font-black text-xs text-slate-900 block">
+                          Yes, I will distribute door tags AND pick up food donations (Recommended)
+                        </span>
+                        <span className="text-[11px] text-slate-500 leading-tight block mt-0.5">
+                          You own this route for both Phase A (Tags) and Phase B (Pickup).
+                        </span>
+                      </div>
+                    </div>
+
+                    <div 
+                      onClick={() => setAlsoClaimPickup(false)}
+                      className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${!alsoClaimPickup ? 'bg-amber-50/80 border-amber-600 ring-2 ring-amber-500/20' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'}`}
+                    >
+                      <div className="mt-0.5">
+                        {!alsoClaimPickup ? <CheckSquare size={18} className="text-amber-700" /> : <Square size={18} className="text-slate-400" />}
+                      </div>
+                      <div>
+                        <span className="font-black text-xs text-amber-950 block">
+                          No, I cannot pick up donations (Door Tags Only)
+                        </span>
+                        <span className="text-[11px] text-amber-800 leading-tight block mt-0.5">
+                          This will flag Route #{claimingRoute.Route_ID} on the Dispatch Command Center as an <strong>Orphan Route</strong> needing a pickup driver.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900">
+                  <p className="font-bold mb-1">Confirm Food Collection Pickup</p>
+                  <p className="text-blue-800 leading-relaxed">
+                    You are claiming Route #{claimingRoute.Route_ID} to pick up filled donation bags and transport them to the Farmington Food Pantry.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setClaimingRoute(null)}
+                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={executeClaimRoute}
+                  className="flex-[2] py-3 bg-scout-600 hover:bg-scout-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-colors shadow-md flex items-center justify-center gap-1.5"
+                >
+                  <Check size={16} />
+                  <span>Confirm Route Claim</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* VOLUNTEER DOSSIER MODAL & PRINTABLE PACKET               */}
+      {/* ======================================================== */}
+      {showDossierModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs no-print">
+          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col">
+            
+            {/* Modal Actions Bar (Not Printed) */}
+            <div className="sticky top-0 bg-white border-b border-slate-100 p-4 sm:p-5 flex items-center justify-between z-10 no-print">
+              <div className="flex items-center gap-2">
+                <FileText size={18} className="text-scout-600" />
+                <h3 className="font-black text-slate-900 text-sm sm:text-base uppercase tracking-tight">
+                  Volunteer Field Dossier
+                </h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handlePrintDossier}
+                  className="px-4 py-2 bg-scout-600 hover:bg-scout-700 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center gap-1.5 shadow-sm transition-all"
+                >
+                  <Printer size={14} />
+                  <span>Print Dossier</span>
+                </button>
+                <button
+                  onClick={() => setShowDossierModal(false)}
+                  className="p-2 text-slate-400 hover:text-slate-600 rounded-lg"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* PRINTABLE DOSSIER CONTENT */}
+            <div id="printable-volunteer-dossier" className="p-6 sm:p-8 space-y-6 bg-white text-slate-900">
+              
+              {/* Dossier Header */}
+              <div className="border-b-2 border-slate-900 pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-scout-700 block">
+                      Scouting America Troop 170 • Unionville, CT
+                    </span>
+                    <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-slate-900">
+                      Scouting for Food Volunteer Dossier
+                    </h2>
+                    <p className="text-xs text-slate-500 font-medium">Campaign: {data.campaign} • Official Field Mission Packet</p>
+                  </div>
+                  <div className="text-left sm:text-right text-xs">
+                    <p className="font-bold text-slate-900">{user.name}</p>
+                    <p className="text-slate-500 font-mono">{user.phone}</p>
+                    <p className="text-[10px] text-slate-400">Printed: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION: ASSIGNED ROUTES */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
+                  <h3 className="font-black text-sm uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                    <MapPin size={16} className="text-scout-600" />
+                    <span>Your Assigned Canvassing Route(s) ({myClaimedRoutes.length})</span>
+                  </h3>
+                  <span className="text-[11px] text-slate-500 font-semibold">
+                    Total Houses: {myClaimedRoutes.reduce((acc, r) => acc + (Number(r.Total_Houses) || 0), 0)}
+                  </span>
+                </div>
+
+                {myClaimedRoutes.length === 0 ? (
+                  <div className="p-4 bg-slate-50 rounded-xl text-center text-xs text-slate-500 italic border border-slate-100">
+                    You have not claimed any neighborhood routes yet. Return to the Route Selection board to claim an open route.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {myClaimedRoutes.map(route => {
+                      const tagClaim = getClaimInfo(route.Route_ID, 'tagging');
+                      const colClaim = getClaimInfo(route.Route_ID, 'collection');
+                      const isMyTag = tagClaim?.Volunteer_Name === user.name;
+                      const isMyCol = colClaim?.Volunteer_Name === user.name;
+                      const streets = getRouteStreets(route);
+                      const noteText = routeNotes[route.Route_ID]?.text || '';
+
+                      return (
+                        <div key={route.Route_ID} className="border border-slate-300 rounded-xl p-4 bg-slate-50/50 space-y-2.5">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 pb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="bg-slate-900 text-white font-mono font-black text-xs px-2 py-0.5 rounded">
+                                ROUTE #{route.Route_ID}
+                              </span>
+                              <span className="font-bold text-slate-900 text-sm">{route.Route_Name}</span>
+                              <span className="text-xs text-slate-500 font-semibold">({route.Total_Houses} Houses)</span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-xs font-bold">
+                              {isMyTag && isMyCol ? (
+                                <span className="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded text-[11px]">
+                                  Full Ownership: Tags + Donation Pickup
+                                </span>
+                              ) : isMyTag ? (
+                                <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[11px]">
+                                  Door Tags Only (Orphan Pickup)
+                                </span>
+                              ) : (
+                                <span className="bg-blue-100 text-blue-900 px-2 py-0.5 rounded text-[11px]">
+                                  Donation Pickup Only
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Streets & Map */}
+                          <div className="text-xs space-y-1">
+                            <p><strong>Covered Streets:</strong> {streets ? streets : 'View turn-by-turn road boundary map'}</p>
+                            {route.Permanent_Alerts && (
+                              <p className="text-amber-800 font-bold">⚠️ Route Alert: {route.Permanent_Alerts}</p>
+                            )}
+                            {noteText && (
+                              <p className="text-slate-800 bg-amber-50 p-2 rounded border border-amber-200 font-medium">
+                                <strong>Live Route Note:</strong> {noteText}
+                              </p>
+                            )}
+                            {route.Map_URL && (
+                              <p className="text-scout-700">
+                                <strong>Map Link:</strong> <span className="underline">{route.Map_URL}</span>
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Field Checklist */}
+                          <div className="pt-2 border-t border-slate-200/60 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-700">
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3.5 h-3.5 border border-slate-400 rounded-xs"></div>
+                              <span>Pick up official tags & bags at HQ</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3.5 h-3.5 border border-slate-400 rounded-xs"></div>
+                              <span>Hang door tags on knobs (NOT mailboxes)</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3.5 h-3.5 border border-slate-400 rounded-xs"></div>
+                              <span>Canvass route for filled food bags</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3.5 h-3.5 border border-slate-400 rounded-xs"></div>
+                              <span>Deliver crates directly to Amistad Hall</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION: PANTRY SORTING SHIFTS */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
+                  <h3 className="font-black text-sm uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                    <HeartHandshake size={16} className="text-amber-600" />
+                    <span>Your Food Pantry Volunteer Schedule</span>
+                  </h3>
+                  <span className="text-[11px] text-slate-500 font-semibold">
+                    Amistad Hall, 75 Main St
+                  </span>
+                </div>
+
+                {myPantryShifts.length === 0 ? (
+                  <p className="text-xs text-slate-500 italic p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    No food sorting shifts scheduled for this account. If you wish to help at the pantry, register on tab 2.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {myPantryShifts.map(shift => (
+                      <div key={shift.id} className="p-3 bg-amber-50/50 rounded-xl border border-amber-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <p className="font-bold text-slate-900">
+                            Confirmed Shifts: {shift.times.join(', ')}
+                          </p>
+                          <p className="text-[11px] text-slate-500">
+                            Helpers: {shift.partySize} volunteer(s) • Affiliation: {shift.affiliation}
+                          </p>
+                          {shift.notes && (
+                            <p className="text-[11px] text-slate-600 italic mt-0.5">Notes: {shift.notes}</p>
+                          )}
+                        </div>
+                        <span className="bg-amber-100 text-amber-900 px-2 py-1 rounded font-black text-[10px] uppercase whitespace-nowrap self-start sm:self-auto">
+                          Confirmed Slot
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION: EMERGENCY & EVENT PROTOCOL */}
+              <div className="pt-2 border-t-2 border-slate-900 text-xs space-y-2 text-slate-700">
+                <h4 className="font-black uppercase tracking-wider text-slate-900 text-[11px]">
+                  Troop 170 Operation Protocols & Emergency Contacts
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
+                  <div className="p-2.5 bg-slate-100 rounded-lg">
+                    <p className="font-bold text-slate-900">Troop Leadership HQ</p>
+                    <p className="text-slate-600">Dispatch: (860) 796-0170</p>
+                    <p className="text-slate-500">For route questions or missed streets</p>
+                  </div>
+                  <div className="p-2.5 bg-slate-100 rounded-lg">
+                    <p className="font-bold text-slate-900">Food Pantry Intake</p>
+                    <p className="text-slate-600">Amistad Hall, 75 Main St</p>
+                    <p className="text-slate-500">All collections drop off by 1:00 PM</p>
+                  </div>
+                  <div className="p-2.5 bg-slate-100 rounded-lg">
+                    <p className="font-bold text-slate-900">Safety & Uniform</p>
+                    <p className="text-slate-600">Class B Uniform / T-Shirt</p>
+                    <p className="text-slate-500">Youth Protection rules in full effect</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
