@@ -10,13 +10,41 @@ import {
   Send, Menu
 } from 'lucide-react';
 
+import ScoutDispatch from './pages/ScoutDispatch';
+
+// Route component for standalone paths
+function Route({ path, element }) {
+  if (typeof window !== 'undefined' && window.location.pathname === path) {
+    return element;
+  }
+  return null;
+}
+
 // SET YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE:
 const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7tNBzEsbBF3DoKrmIhrAwjvqMyM91rbzi81-Rr48BHIKiqmJp0o56P9AYc787vR8B/exec";
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.pathname === '/sff-dispatch') {
+      return 'sff-dispatch';
+    }
+    return 'home';
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeProgram, setActiveProgram] = useState(0);
+
+  // Synchronize route changes for standalone paths
+  useEffect(() => {
+    const handlePopState = () => {
+      if (window.location.pathname === '/sff-dispatch') {
+        setCurrentPage('sff-dispatch');
+      } else if (currentPage === 'sff-dispatch') {
+        setCurrentPage('portal');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [currentPage]);
   
   // PORTAL AUTHENTICATION STATE
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -160,6 +188,18 @@ export default function App() {
       setMobileMenuOpen(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
+    }
+    if (pageId === 'sff-dispatch') {
+      if (typeof window !== 'undefined') {
+        window.history.pushState(null, '', '/sff-dispatch');
+      }
+      setCurrentPage('sff-dispatch');
+      setMobileMenuOpen(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (typeof window !== 'undefined' && window.location.pathname === '/sff-dispatch') {
+      window.history.pushState(null, '', '/');
     }
     setCurrentPage(pageId);
     setMobileMenuOpen(false);
@@ -706,6 +746,23 @@ export default function App() {
     { id: 'scoutCorner', label: 'Scout Corner' },
     { id: 'join', label: 'Join' }
   ];
+
+  // Standalone Route: Scouting for Food Dispatch
+  if (currentPage === 'sff-dispatch' || (typeof window !== 'undefined' && window.location.pathname === '/sff-dispatch')) {
+    return (
+      <div className="relative">
+        <a 
+          href="/" 
+          onClick={(e) => { e.preventDefault(); navigateTo('portal'); }}
+          className="fixed bottom-4 left-4 z-50 bg-slate-800/90 hover:bg-slate-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-lg flex items-center gap-1.5 transition-all backdrop-blur-sm border border-slate-700/50"
+        >
+          ← Troop 170 Vault
+        </a>
+        <Route element={<ScoutDispatch />} path="/sff-dispatch" />
+        {typeof window !== 'undefined' && window.location.pathname !== '/sff-dispatch' && <ScoutDispatch />}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-white text-gray-900 selection:bg-[#BE1E2D] selection:text-white">
@@ -1505,6 +1562,22 @@ export default function App() {
                       </div>
                       <a href="https://drive.google.com/file/d/1HJXppDP_Hl7XXf9lfFr0HMBWDXLYGnLi/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-indigo-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform">
                         <span>View Document</span><ExternalLink size={14}/>
+                      </a>
+                   </div>
+
+                   {/* CARD 8: SFF DISPATCH */}
+                   <div className="bg-gradient-to-br from-white to-scout-50 border border-scout-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-scout-600 mb-6 shadow-sm"><MapPin size={24}/></div>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">SFF Dispatch</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Scouting for Food route coordination, door tags, and collection tracking.</p>
+                      </div>
+                      <a 
+                        href="/sff-dispatch" 
+                        onClick={(e) => { e.preventDefault(); navigateTo('sff-dispatch'); }} 
+                        className="flex items-center space-x-2 text-scout-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left"
+                      >
+                        <span>Launch Dispatch</span><ArrowUpRight size={14}/>
                       </a>
                    </div>
 
