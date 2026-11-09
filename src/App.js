@@ -754,7 +754,7 @@ export default function App() {
         <a 
           href="/" 
           onClick={(e) => { e.preventDefault(); navigateTo('portal'); }}
-          className="fixed bottom-4 left-4 z-50 bg-slate-800/90 hover:bg-slate-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-lg flex items-center gap-1.5 transition-all backdrop-blur-sm border border-slate-700/50"
+          className="fixed bottom-4 left-4 z-50 bg-slate-800/90 hover:bg-slate-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-lg flex items-center gap-1.5 transition-all backdrop-blur-sm border border-slate-700/50 no-print"
         >
           ← Troop 170 Vault
         </a>

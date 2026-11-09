@@ -12,17 +12,89 @@ import {
 // Live Google Apps Script API Endpoint
 const API_URL = "https://script.google.com/macros/s/AKfycbwc0jFa7_F-m22bsb5n-mUMJuDOzLOdxdtHHd6fmN2_Xf-kYA1BeZ3w_WqUX5BABql9/exec";
 
-// Verified route streets from Google Maps GPS endpoints and permanent alerts
-const KNOWN_ROUTE_STREETS = {
-  1: "Trotters Glen, White Cir, Rocky Ridge Ln, Carriage Dr",
-  2: "Meadow Rd & Historic Village surroundings",
-  3: "Plainville Ave (Rt 177) & connecting neighborhoods",
-  4: "Pine Hollow Rd (Westwoods Dr has 0 homes)",
-  5: "Brentwood Dr & neighborhood roads",
-  6: "Brookshire Ln, Inwood Ln, Peggy Ln, Winthrop Dr, Lindy Ln, Case St, Harold Rd, Winchester Ct",
-  7: "Condo complex: West Woods II (Westwoods Dr)",
-  12: "Snowberry La and all streets off it",
-  18: "Fieldstone Run and all roads off it"
+// Official Troop 170 Master Route Streets Directory (Authoritative Archive & Master Route mapping)
+const OFFICIAL_ROUTE_STREETS = {
+  1: "Penfield Pl (22), Indian Hill Rd (22), Meadow La (63), Reservation Rd (9), Trotters Glen (19), White Circle (4), Rocky Ridge La (9), Carriage Dr (24)",
+  2: "Somersby Way (29), Saunders Hill (3), Clear Brook (6), Asbury Hollow (3), Wyndham La (9), Heartwood Trail (2), Wakefield La (10), Portage Crossing (38), Wisteria La (13), Meadow Rd (31)",
+  3: "Cope Farms Rd (4), Ships Oak La (8), Cutler La (10), Hartfield La (7), Olde Pond La (12), Tall Timbers Dr (28), Morea Rd (6)",
+  4: "Westwoods Dr (0), Pine Hollow Rd (6), Greencrest Dr (12), Wells Dr (32), Fable La (11), Harvest La (8), Laurel La (6), Plainville Ave (Meadow Rd-Plainville line) (42)",
+  5: "Judson La (12), Centerbrook Dr (22), Fairlawn St (23), Baldwin Dr (29), Littlebrook Crossing (30), Brentwood (21), Cornerstone (5), Lantern Court (16), Wintonbury Dr (13)",
+  6: "Brookshire La (11), Inwood La (16), Peggy La (26), Winthrop Dr (10), Lindy La (2), Case St (23), Harold Rd (59), Winchester Ct (19)",
+  7: "Scott Swamp Rd condos West Woods II, 312 Scott Swamp Rd (34)",
+  8: "Farmington Chase Crescent (11), Nathan Hale La (24), William Penn Dr (18), Independence Way (28), Pllymouth Walk (14), Thomas Hooker Dr (18), Liberty La (24), Whitman Way (22)",
+  10: "Florence Way (84)",
+  11: "Rosecliff (13), Blossom Rd (3), New Britain Ave (Hyde Rd-Red Oak Hill) (25)",
+  12: "Snowberry La and all streets off it (195)",
+  13: "Autumn Way (17), October Glory (5), Hazelnut Dr (3), Weeping Willow Ct (5), TanbarkTrail (20), Nauset La (5), Palazzo Dr (4), Plainville Ave (Meadow-Coppermine) (41)",
+  14: "old field Rd (6), Great Oak La (12), Old Village La (35), Greenwoods La (22), Village View La (20)",
+  15: "Butternut Dr (27), Chestnut La (9), Woodside Dr (48), Meadowside Dr (10)",
+  16: "Coppermine (Plainville Ave-NB Ave) (56), Twin Ponds Dr (6), Sycamore La (7), Horseshoe La (11), Chapel Rd (2)",
+  17: "Walnut Farms Dr (44), Paper Chase (31), Kent La (19), Red Oak Hill (33), Hidden Oak Dr (20)",
+  18: "Fieldstone Run (23), and all roads off it (240)",
+  19: "New Britain Ave (Red Oak-Oakridge) (63), Roma Dr (26), Firenzi La (9), Blueberry La (5), Juniper Dr (9), Gray Ct (Farmington Court) (54)",
+  20: "Oakridge (54), Cobblestone Rd (6), Briar Hill (10), Stonegate (18), Dunne Wood (17), Mals Way (10)",
+  21: "Westview Terr (60), Chaffee La (6), Mohawk Dr (42), Batt Ct (5), Brittany La (3), Pickett La (11), Keene Pl (10)",
+  22: "West District Rd (52), Pine Tree Shilling (7), Bella La (13), Whispering Rod Rd (24), Red Coat La (32), Silversmith Rd (18), Plainville Ave (Coppermine-West District) (33)",
+  23: "Lake Garda Dr (57), Lido Rd (51), Sunset Dr (18), Pond St (11), Pine Dr (39), Colony Rd (9), Ravine Rd (5), Circle Dr (15)",
+  24: "Birch St (22), Litchfield Rd (51), Lincoln St (19), Buena Vista St (23), Lake St (19), Jefferson St (7), East Shore Blvd (17)",
+  25: "Cove Circle (4), West Side Blvd (7), Washington Circle (8), Glen Hollow Dr (22), Crab Apple La (5), Old Field Rd (10), Burlington Rd (51)",
+  26: "Doris St (13), Wooddale Dr (12), West Meath (13), Valerie La (4)",
+  27: "River Rd (36), Hemlock Notch (12), Brightwood Rd (15), Longridge Ct (10), Fox Run Rd (15)",
+  28: "Bridgehampton Crossing (30), Newcastle Pl (11), Dunstable Close (4), Gateshead Way (9), Banbury Crescent (4), Cross Creek La (8)",
+  29: "Taine Mountain Rd (32), Hendrickson La (19)",
+  30: "Jules Ct (6), Anglers Bend (10), Strawfield (25), Birmingham Cir (9), Sparrow La (8), Chatham Ct (3), Nottingham Blvd (25)",
+  31: "Webster St (34), Hillside Ave (16), Forest St (26), Bari La (12), Plainville Ave (West District-Forest) (30), South Main St (9), Moses Pl (2), Spruce Dr (5)",
+  32: "Railroad Ave (9), Hunters Ridge (25), Overbrook (10), Burnham Ave (4), Wall St (3), Haberern Ave (6), Barwood La (1)",
+  35: "Lovely St (43), Sunset Terr (20), Sherman Ave (2), Lydia Way (5), Curtis La (0), Sanford Ave (15), Saw Mill Ct (5)",
+  36: "Merriman St (14), Sylvan Ave (18), Extension St (7), Progress Ave (7), Edgewood St (7)",
+  37: "West Avon Rd (25), Cottage St (11), Keyes St (12), Walnut St (44), Serra Dr (6), Jordan La (9), Morgan Pl (23), Williamsburg La (6)",
+  38: "Cedar La (16), Canterbury La (19), Chaucer Court (1), Burke Crossing (2), Virginia La (15), Larchwood West (11)",
+  39: "Highwood (20), Riverwood (4), Candlewood (9), Dogwood (7), Crosswood (33)",
+  40: "Boxwood (7), Pinewood (15), Beechwood (7), Gillette Way (8), Northwoods Rd (12), Knollwood (Ledgewood-Northwoods) (25)",
+  41: "Knollwood (Rte 4-Ledgewood) (59), Briarwood (23), Arwood (35), Ledgewood (25), Birchwood (6), Woewassa La (5), Sequassen Rd (9), Wannowmassa La (2)",
+  42: "Wyndwood (39), Crestwood Circle (12), Fernwood (4), Thornwood (3), Rosewood (13), Springwood (13), Maplewood (11), Berrywood (2), Tanglewood (44)",
+  43: "Michael Dr (21), Pamela Ct (5), Basswood (36), Wildwood (12), Tallwood (10), Deepwood (10), Ellawoods Dr (2)",
+  44: "Champlains Dr (6), Taskers Pond (9), Griffinville Rd (9), Brickyard Rd (53)",
+  45: "Grandview Dr condos (77), Greenbriar Dr condos (73)",
+  46: "Lakeshore Dr condos (70), Walton Way (2), Worthington Dr (47), Bailey Ct (15)",
+  47: "Town Farm Rd (20), Country Club Rd (8), Girard Ave (14), Devonwood Dr (0), Kempton Mews (3), Sussex (3), Lowell (6), Salisbury Way (14), Stratford (8), Essex Ct (13), Oxford Rd (8), Glenmore Dr (11), Newberry Ct (6)",
+  48: "Cambridge Crossing (0), Pembroke Hill (31), Grosvenor Pl (3), Suningdale (5), Kensington Pl (3), Windsor Ct (11), Whitehall Pl (13), Blenheim Terr (11), Hinchley Wood (10), Fernhurst (10), Kew Gardens (12), Wentworth Park (14), Clermont Park (11), Farnham Way (13), Brighton Way (3), Thatcher Terr (10), Atwater Terr (9), Bedford CT (4), Townsend Rd (14), York Terr (2), Chelsea Pl (4), Chatsworth Pl (14), Eton Pl (4), Ascot Pl (3), Belgravia Terr (9), Henley Common (6), Exeter Park (8), Langley Park (11), Fitzwilliam Park (7), Chipping Camden (7), Beacon Heath (10), Chiltern ST (21), Ashford Ct (6), Norfolk Gardens (5), Wiltshire Place (4)",
+  49: "Main St Farmington (Rte 6-Plainville line) (134), Farmstead La (29), Nadia's Way (6), Old Canal Crossing (8), Pequabuck La (10), Pasture (2)",
+  50: "Cooke St (8), Half Acre Dr. (11), Fawn Dr. (16), Ben Ct (2), Hawthorne La (10), Barberry La (5)",
+  51: "Forest Hills Dr (74), South Ridge Rd (27), Trumbull La (6)",
+  52: "Old Pinnacle Rd (5), Pinnacle Rd (40), Suncrest La (3), Pinnacle Ridge (15)",
+  53: "Reservoir Rd (20), Dunham La (4), Hilltop Rd (6), Mountain Rd (85), Poplar Hill Dr (20), Farmington Ridge Dr (24), Hampton Ct (5), Hidden Spring La (3)",
+  54: "Hatters La (16), Diamond Glen (11), Dorset La (26), Willow La (6), Colton St (20), Old Gate La (6), Carrington La (14), Hart St (4), Church St (8)",
+  55: "Hotchkiss Rd (15), Wellington Dr (140), Tunxis St (33)",
+  56: "Garden St (69), Winchell Smith Dr (2), Pearl St (4), Maple ST (4), Maiden La (11), Mill La (9), Porter Rd (3), Haworth La (1), Hobart St (6), High St (22)",
+  57: "Waterville Rd (43), Brookside Ridge (2), Aqueduct La (2), Deer Run Rd (5), Gleneagles Dr (4), Pheasant Hill Rd (5), St. Andrews Dr (9), Muls Hill Dr (3)",
+  58: "Mountain Spring Rd (72), Olcott Way (4), Mountain Lane (13), Old Mountain Rd (38), Ely Rd (26), Parish Rd (5), Jefferson Crossing (8), John Steel Rd (9), Northeast Rd (9), Larkins Way (5), White Oak Rd (15)",
+  59: "Talcott Notch (53), Copper Beach La (7), Northington Way (4), Vine Hill Rd (16), Metacomet Rd (25)",
+  60: "Talcott Glen Rd (77), Lyle Ct (29), Harte Ct (2), Staunton Ct (46), Quail Ridge (8), Earls Ct (22), Talcott Ridge Rd (65), Talcott Forest Rd (150)",
+  61: "Maple Ave (14), Timberline Dr (35), Oakland Ave (40), Bungalow Hill Rd (7), Crescent Ave (14), Beech St (9), Farmington Ave (near there) (35)",
+  62: "Middle Rd (35), Grassy Hill Rd (11), Bittersweet La (7), Clover La (9), Thistledown Way (9), Blackberry Ridge (7), Plum Tree Circle (7), Munson Rd (4)",
+  63: "O'Meara Farm Dr (4), Lavender La (5), Arbor Way (4), Dahlia Dr (6), Sunflower Terr (6), Primrose La (4), Cherry Hill Ct (5), Magnolia Circle (7), Honeysuckle Dr (8), Azalea Ct (11), Nutmeg La (5), Barns Hill Rd (4), Peachtree Terr (9), Bayberry Circle (8), Cinnamon Ridge (7), Mulberry La (11)",
+  64: "Valley View Dr (32), Cedar Ridge Dr (25), Hickory La (12), Burnt Hill Rd (32), West Gate Rd (19), Skyline Dr (36), East Gate Rd (3)",
+  65: "Woodruff Rd (54), Helm Dr (7), Shady La (9), Blueridge Dr (5), Ridgeview Dr (23), Timberbrook Rd (12), Woodpond Rd (41)",
+  66: "Arbor way (59), Morris Pl (1), Goodrich Rd (9), Maple Ridge Dr (39), Orchard Rd (33), Fairview Dr (34), Elon Rd (2), Romano Ct (4)",
+  67: "Garden Gate (38), Berkshire Dr (37), Robin Rd (32), Holmes Circle (25), Lakeview Dr (23), Winterwood Terr (12), Two Mile Rd (30)",
+  68: "Batterson Park Rd (11), Hamilton Way (6), Winterwood Terr (12), Ingelside Rd (4), Bradford Walk (120)",
+  69: "Prattling Pond Rd (28), Pilgrim Path (8), Norton La (4)",
+  70: "Wolf Pit Rd (24), Irene La (4), Elizabeth Rd (17), Gail Rd (30), Paul Spring Hollow (7), Lexton Dr (36)",
+  71: "Paul Spring Rd (21), Terrie Rd (11), Petemont Dr (17), Birdseye Rd (53), Douglas Way (9), Fir Dr (4), Balsam Dr (4), Colt Highway (Birdseye-Wolf Pit) (18)",
+  72: "Fienemann Rd (30), Ellen Dr (18), Jeffrey Dr (26), Bonnie Dr (38), Deborah La (12), Harlan Rd (10)"
+};
+
+const OFFICIAL_ROUTE_HOUSES = {
+  1: 182, 2: 144, 3: 75, 4: 117, 5: 171, 6: 166, 7: 34, 8: 159, 10: 84,
+  11: 41, 12: 195, 13: 100, 14: 95, 15: 94, 16: 82, 17: 147, 18: 263,
+  19: 166, 20: 115, 21: 137, 22: 179, 23: 205, 24: 158, 25: 107, 26: 42,
+  27: 88, 28: 66, 29: 51, 30: 86, 31: 134, 32: 58, 35: 90, 36: 53,
+  37: 136, 38: 64, 39: 73, 40: 74, 41: 164, 42: 141, 43: 96, 44: 77,
+  45: 150, 46: 134, 47: 114, 48: 308, 49: 189, 50: 52, 51: 107, 52: 63,
+  53: 167, 54: 111, 55: 188, 56: 131, 57: 73, 58: 204, 59: 105, 60: 399,
+  61: 154, 62: 89, 63: 104, 64: 159, 65: 151, 66: 181, 67: 197, 68: 153,
+  69: 40, 70: 118, 71: 137, 72: 134
 };
 
 const PANTRY_SLOTS = [
@@ -190,24 +262,88 @@ export default function ScoutDispatch() {
     setUser(null);
   };
 
-  // Fetch live route and claim data from Google Apps Script
+  // Fetch live route, claim, and pantry signup data from Google Apps Script
   const fetchData = async () => {
     setRefreshing(true);
     try {
       const response = await fetch(API_URL);
       const result = await response.json();
-      setData(result);
+      
+      // Enrich routes with official house counts and street directory
+      if (result && Array.isArray(result.routes) && result.routes.length > 0) {
+        const enrichedRoutes = result.routes.map(r => {
+          const rId = Number(r.Route_ID) || r.Route_ID;
+          return {
+            ...r,
+            Route_ID: rId,
+            Route_Name: r.Route_Name || `Route ${rId}`,
+            Total_Houses: (r.Total_Houses && Number(r.Total_Houses) > 0)
+              ? Number(r.Total_Houses)
+              : (OFFICIAL_ROUTE_HOUSES[rId] || 100),
+            Streets: r.Streets || OFFICIAL_ROUTE_STREETS[rId] || ''
+          };
+        });
+        setData({
+          ...result,
+          routes: enrichedRoutes
+        });
+      } else {
+        // Fallback using the official 69-route roster
+        const officialRouteList = Object.keys(OFFICIAL_ROUTE_HOUSES).map(id => {
+          const numId = Number(id);
+          return {
+            Route_ID: numId,
+            Route_Name: `Route ${numId}`,
+            Map_URL: '',
+            Total_Houses: OFFICIAL_ROUTE_HOUSES[numId] || 100,
+            Streets: OFFICIAL_ROUTE_STREETS[numId] || '',
+            Permanent_Alerts: numId === 4 ? 'Westwoods Dr has 0 homes' : numId === 7 ? 'Condo complex: West Woods II' : ''
+          };
+        });
+        setData({
+          campaign: result?.campaign || 'CAMP-2027',
+          routes: officialRouteList,
+          claims: result?.claims || {}
+        });
+      }
+
+      // Sync pantry / food sorting signups from remote backend if available
+      const remoteSignups = result.pantry_signups || result.food_sorting || result.pantrySignups;
+      if (Array.isArray(remoteSignups) && remoteSignups.length > 0) {
+        setPantrySignups(prev => {
+          const normalized = remoteSignups.map((s, idx) => ({
+            id: s.id || s.signup_id || `api-pantry-${idx}-${Date.now()}`,
+            name: s.name || s.volunteer_name || '',
+            phone: s.phone || s.volunteer_phone || '',
+            email: s.email || s.volunteer_email || '',
+            affiliation: s.affiliation || 'Troop 170 Volunteer',
+            partySize: parseInt(s.partySize || s.party_size || s.size || 1, 10) || 1,
+            times: Array.isArray(s.times) ? s.times : String(s.times || s.time_slots || s.shift || '').split(';').map(t => t.trim()).filter(Boolean),
+            notes: s.notes || '',
+            createdAt: s.createdAt || s.created_at || new Date().toISOString()
+          })).filter(s => s.name);
+
+          // Merge: Remote takes authority, plus keep any fresh local-only ones not yet in remote
+          const remoteNamesAndTimes = new Set(normalized.map(n => `${n.name.toLowerCase()}_${n.times.join(',')}`));
+          const localOnly = prev.filter(p => !remoteNamesAndTimes.has(`${p.name.toLowerCase()}_${p.times.join(',')}`));
+          return [...normalized, ...localOnly];
+        });
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
-      setData(prev => prev.routes?.length > 0 ? prev : {
+      setData(prev => (prev.routes && prev.routes.length > 0) ? prev : {
         campaign: 'CAMP-2027',
-        routes: Array.from({ length: 69 }, (_, i) => ({
-          Route_ID: i + 1,
-          Route_Name: `Route ${i + 1}`,
-          Map_URL: '',
-          Total_Houses: 100 + ((i * 17) % 150),
-          Permanent_Alerts: i === 3 ? 'Westwoods Dr has 0 homes' : i === 6 ? 'Condo complex: West Woods II' : ''
-        })),
+        routes: Object.keys(OFFICIAL_ROUTE_HOUSES).map(id => {
+          const numId = Number(id);
+          return {
+            Route_ID: numId,
+            Route_Name: `Route ${numId}`,
+            Map_URL: '',
+            Total_Houses: OFFICIAL_ROUTE_HOUSES[numId] || 100,
+            Streets: OFFICIAL_ROUTE_STREETS[numId] || '',
+            Permanent_Alerts: numId === 4 ? 'Westwoods Dr has 0 homes' : numId === 7 ? 'Condo complex: West Woods II' : ''
+          };
+        }),
         claims: {}
       });
     }
@@ -266,10 +402,26 @@ export default function ScoutDispatch() {
     return null;
   };
 
-  // Extract street names from API route properties, custom manager overrides, known map links, or permanent alerts
+  // Extract street names from custom overrides, official 69-route roster, or API route properties
   const getRouteStreets = useCallback((route) => {
     if (!route) return '';
-    // 1. Live route properties from API (Master_Routes / Archive_2026 tab columns)
+    const routeId = Number(route.Route_ID) || route.Route_ID;
+
+    // 1. Custom street directory overrides / inline edits saved in localStorage
+    const custom = customStreets[routeId] || customStreets[route.Route_ID];
+    if (custom && String(custom).trim()) {
+      return String(custom).trim();
+    }
+
+    // 2. Authoritative Troop 170 Master Route Streets Directory (Official 69-route roster)
+    if (OFFICIAL_ROUTE_STREETS[routeId]) {
+      return OFFICIAL_ROUTE_STREETS[routeId];
+    }
+    if (OFFICIAL_ROUTE_STREETS[String(route.Route_ID)]) {
+      return OFFICIAL_ROUTE_STREETS[String(route.Route_ID)];
+    }
+
+    // 3. Live route properties from API (Master_Routes / Archive_2026 tab columns)
     if (route.Streets && String(route.Streets).trim()) return String(route.Streets).trim();
     if (route.Street_Names && String(route.Street_Names).trim()) return String(route.Street_Names).trim();
     if (route.Description && String(route.Description).trim()) return String(route.Description).trim();
@@ -278,21 +430,11 @@ export default function ScoutDispatch() {
     if (route.Roads && String(route.Roads).trim()) return String(route.Roads).trim();
     if (route.Boundaries && String(route.Boundaries).trim()) return String(route.Boundaries).trim();
 
-    // 2. Custom street directory overrides / imports
-    const custom = customStreets[route.Route_ID];
-    if (custom && String(custom).trim()) {
-      return String(custom).trim();
-    }
-
-    // 3. Known verified route landmarks from Google Maps GPS endpoints and permanent alerts
-    if (KNOWN_ROUTE_STREETS[route.Route_ID]) {
-      return KNOWN_ROUTE_STREETS[route.Route_ID];
-    }
     if (route.Permanent_Alerts && String(route.Permanent_Alerts).trim()) {
       return String(route.Permanent_Alerts).trim();
     }
 
-    return `Route ${route.Route_ID} designated canvassing neighborhood`;
+    return `Route ${routeId} designated canvassing neighborhood`;
   }, [customStreets]);
 
   // Initiate Route Claim (opens confirmation modal explaining dual ownership default)
@@ -465,7 +607,18 @@ export default function ScoutDispatch() {
 
   const handleRemovePantrySignup = (id) => {
     if (!window.confirm("Remove this volunteer shift?")) return;
+    const target = pantrySignups.find(item => item.id === id);
     setPantrySignups(prev => prev.filter(item => item.id !== id));
+    if (target) {
+      sendAction({
+        action: 'remove_pantry_signup',
+        campaign_id: data.campaign,
+        signup_id: id,
+        volunteer_name: target.name,
+        volunteer_phone: target.phone,
+        times: Array.isArray(target.times) ? target.times.join('; ') : target.times
+      });
+    }
   };
 
   // Copy Master Pantry Roster to clipboard
