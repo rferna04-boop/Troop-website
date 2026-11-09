@@ -4,106 +4,21 @@ import {
   Search, Clock, Users, Calendar, Phone, Package, 
   RefreshCw, Check, X, 
   Sparkles, UserCheck, HeartHandshake, Copy, ExternalLink,
-  ClipboardList, Building2, UserPlus, PhoneCall
+  ClipboardList, Building2, UserPlus, PhoneCall, Plus, StickyNote
 } from 'lucide-react';
 
 // Live Google Apps Script API Endpoint
 const API_URL = "https://script.google.com/macros/s/AKfycbwc0jFa7_F-m22bsb5n-mUMJuDOzLOdxdtHHd6fmN2_Xf-kYA1BeZ3w_WqUX5BABql9/exec";
 
-// Comprehensive street dictionary for Farmington & Unionville CT routes
-const ROUTE_STREETS = {
-  1: ["Main St (Unionville)", "Perry St", "Maple Ave", "River Rd", "Mill St"],
-  2: ["Lovely St (North)", "Greenwood Dr", "Birch Rd", "Pinecrest Rd", "Hickory Hill"],
-  3: ["Plainville Ave (Rt 177)", "Cooke St", "Red Oak Hill Rd", "Scott Swamp Rd"],
-  4: ["Westwoods Dr", "Farmington Ave", "Metacomet Rd", "High Wood Rd"],
-  5: ["Colton St", "High St", "Mountain Rd", "Farmington Chase Rd"],
-  6: ["Burlington Rd (Rt 4)", "Huckleberry Hill Rd", "Punch Brook Rd", "Stafford Rd"],
-  7: ["West Woods II", "Westwoods Dr", "Woodside Green", "Robin Rd"],
-  8: ["Tunxis St", "South Main St", "Valley View Dr", "Sunset Terrace"],
-  9: ["Coppermine Rd", "Round Hill Rd", "Talcott Notch Rd", "Ridge Rd"],
-  10: ["Meadow Rd", "Garden St", "Porter St", "Church St"],
-  11: ["Waterville Rd (Rt 10)", "Old Farms Rd", "Aqueduct Ln", "Avonwood Rd"],
-  12: ["Snowberry La", "Cranberry Ln", "Blueberry Ln", "Wintergreen Way", "Bayberry Hill"],
-  13: ["Brickyard Rd", "Harris St", "Wooster St", "Dunham Rd"],
-  14: ["Town Farm Rd", "Tillotson Rd", "Cider Brook Rd", "River Glen"],
-  15: ["Devonwood Dr", "Hampshire Dr", "Oxford Dr", "Stratford Rd"],
-  16: ["Morea Rd", "Stagecoach Rd", "Carriage Dr", "Bridle Path"],
-  17: ["Unionville Ave", "School St", "Elm St", "Sanford Ave"],
-  18: ["Fieldstone Run", "Cobblestone Court", "Hearthstone Dr", "Millstone Rd"],
-  19: ["Lake Garda Dr", "W Chippens Hill Rd", "Monce Rd", "Battison Dr"],
-  20: ["Stafford Ave", "Woodcock Ln", "Partridge Ln", "Quail Run"],
-  21: ["New Britain Ave", "Redstone Hill Rd", "Barksdale Rd", "Pinnacle Rd"],
-  22: ["Birdseye Rd", "Mountain Spring Rd", "Crestwood Dr", "Brookridge Dr"],
-  23: ["Farmingbury Dr", "Wood Pond Rd", "Highland Ave", "Orchard Rd"],
-  24: ["Farmington Ave (Historic Village)", "Hatter's Ln", "Walton Dr", "Garden St"],
-  25: ["South Rd", "Two Mile Rd", "Briarwood Rd", "Overlook Dr"],
-  26: ["Chestnut Hill Rd", "Timber Hill", "Fox Den Rd", "Deerfield Run"],
-  27: ["Winding Brook Rd", "Stoney Brook Rd", "Hidden Brook", "Clearwater Creek"],
-  28: ["Chidsey Rd", "Camp St", "Bacon Pond Rd", "Old Mill Rd"],
-  29: ["Robbinswood Dr", "Deepwood Dr", "Sherwood Rd", "Oakridge St"],
-  30: ["Shuttlemeadow Rd", "Belridge Rd", "Highland Terrace", "Hilltop Dr"],
-  31: ["Country Club Rd", "Fairway Dr", "Greenbriar Dr", "Golf Club Ln"],
-  32: ["Cider Mill Rd", "Stonegate Rd", "Pond View Dr", "Heritage Dr"],
-  33: ["Walnut St", "Oak St", "Pine St", "Cedar St", "Maple St"],
-  34: ["Clover Ln", "Daisy Path", "Primrose Ln", "Heather Rd"],
-  35: ["Curtis La", "Elm Ridge Dr", "Hillside Rd", "Prospect St"],
-  36: ["Spring Ln", "Brook St", "Willow Rd", "Alder Ln"],
-  37: ["Whigville Rd", "Copper Mine Brook", "Wildcat Rd", "Fox Run"],
-  38: ["Highwood Rd", "Ridgeview Rd", "Cliffside Dr", "Summit St"],
-  39: ["Hemlock Rd", "Spruce Ln", "Balsam Way", "Larchmont Dr"],
-  40: ["Sycamore Rd", "Chestnut Dr", "Linden Ln", "Beechwood Dr"],
-  41: ["Poplar Hill Rd", "Birchwood Rd", "Aspen Ln", "Cottonwood Ct"],
-  42: ["Maple Ridge Dr", "Oak Ridge Way", "Hickory Ln", "Butternut Ct"],
-  43: ["Old Wood Rd", "Timberline Dr", "Woodland Ter", "Forest Hill Rd"],
-  44: ["Wildwood Rd", "Briar Hill Rd", "Fernwood Dr", "Bramble Way"],
-  45: ["Grandview Dr", "Greenbriar Dr", "Mountain Spring Rd", "Summit View"],
-  46: ["Lakeshore Dr", "Lake Garda Dr", "Monce Rd", "Shoreline Way"],
-  47: ["Devonwood Dr", "Berkshire Way", "Wellington Dr", "Windsor Ct"],
-  48: ["Cambridge Crossing", "Talcott Notch Rd", "Highland Glen", "Crossing Way"],
-  49: ["Farm Glen Blvd", "Pasture Ln", "Barnyard Way", "Hayfield Rd"],
-  50: ["Meadow View Dr", "Brookside Ln", "Sunny Ridge", "Pleasant St"],
-  51: ["Heritage Hill", "Colonial Dr", "Patriot Way", "Minuteman Ln"],
-  52: ["Charter Oak Rd", "Constitution Way", "Independence Dr", "Liberty St"],
-  53: ["Valley View", "Highland Crest", "Skyview Dr", "Mountain View"],
-  54: ["Stonefield Rd", "Quarry Rd", "Rockledge Dr", "Boulder Brook"],
-  55: ["Riverview Rd", "Water St", "Canal St", "Lockwood Rd"],
-  56: ["Pond View Ln", "Lakeview Ter", "Waterside Dr", "Shore Rd"],
-  57: ["Pine Glen", "Evergreen Way", "Arbor Ln", "Holly Court"],
-  58: ["Magnolia Dr", "Dogwood Ln", "Redbud Way", "Laurel Ln"],
-  59: ["Juniper Ln", "Cedar Ridge", "Cypress Dr", "Tamarack Rd"],
-  60: ["Farmington Woods Dr", "Woodhaven", "Pine Valley", "Clubhouse Rd"],
-  61: ["Autumn Way", "Harvest Ln", "Cider Press Rd", "Orchard View"],
-  62: ["Winterberry Dr", "Snowdrift Ln", "Frost Hollow", "Icicle Way"],
-  63: ["Spring Brook", "Blossom Way", "Mayflower Dr", "Petal Ln"],
-  64: ["Summer Hill", "Sunburst Rd", "Solitude Way", "Warm Springs"],
-  65: ["Sunrise Ave", "Dawn Dr", "Morning Glory", "Daybreak Rd"],
-  66: ["Sunset Blvd", "Twilight Dr", "Evening Star", "Dusk Way"],
-  67: ["Starlight Ln", "Milky Way", "Galaxy Dr", "North Star Way"],
-  68: ["Windmill Ln", "Breeze Way", "Zephyr Rd", "Gusty Hill"],
-  69: ["Echo Valley", "Whispering Pines", "Gentle Breeze", "Serenity Ln"],
-  70: ["Rolling Hills", "Gentle Slope", "Valley Road", "Lowland Dr"],
-  71: ["High Ridge Rd", "Peak View", "Summit Ridge", "Crestline Dr"],
-  72: ["Falcon Ridge", "Eagle Crest", "Hawk Nest", "Osprey Way"]
-};
-
-// Helper: Get listed streets from API route or fallback mapping
+// Helper: Extract street names from API route properties (populated from Master_Routes / Archive_2026 tab)
 const getRouteStreets = (route) => {
-  if (route.Streets && String(route.Streets).trim()) return route.Streets;
-  if (route.Street_Names && String(route.Street_Names).trim()) return route.Street_Names;
-  if (route.Description && String(route.Description).trim()) return route.Description;
-  const list = ROUTE_STREETS[route.Route_ID];
-  if (list && list.length > 0) return list.join(', ');
-  return `Designated neighborhood streets for Route ${route.Route_ID}`;
+  if (route.Streets && String(route.Streets).trim()) return String(route.Streets).trim();
+  if (route.Street_Names && String(route.Street_Names).trim()) return String(route.Street_Names).trim();
+  if (route.Description && String(route.Description).trim()) return String(route.Description).trim();
+  if (route.Master_Streets && String(route.Master_Streets).trim()) return String(route.Master_Streets).trim();
+  if (route.Route_Description && String(route.Route_Description).trim()) return String(route.Route_Description).trim();
+  return null;
 };
-
-// Seed Pantry schedule data for demonstration & live persistence
-const DEFAULT_PANTRY_SIGNUPS = [
-  { id: 'p1', name: 'Mark Fernandes', phone: '(860) 555-0192', email: 'mark.fernandes@example.com', affiliation: 'Adult Leader', partySize: 2, times: ['9:00 AM - 10:00 AM', '10:00 AM - 11:00 AM'], notes: 'Can coordinate box loading' },
-  { id: 'p2', name: 'Sarah & Ben Miller', phone: '(860) 555-0144', email: 'miller.family@example.com', affiliation: 'Troop 170 Scout & Parent', partySize: 2, times: ['10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM'], notes: 'Date check table' },
-  { id: 'p3', name: 'Dave Johnson', phone: '(860) 555-0178', email: 'dave.j@example.com', affiliation: 'Parent/Guardian', partySize: 1, times: ['9:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 1:00 PM'], notes: 'Heavy lifting / scale weighing' },
-  { id: 'p4', name: 'Claire Bystricky', phone: '(860) 555-0115', email: 'claire.b@example.com', affiliation: 'Troop 170 Scout', partySize: 1, times: ['11:00 AM - 12:00 PM', '12:00 PM - 1:00 PM'], notes: 'Can packaging / sorting' },
-  { id: 'p5', name: 'Elena Rostova', phone: '(860) 555-0163', email: 'elena.r@example.com', affiliation: 'Troop 170 Scout & Parent', partySize: 2, times: ['9:00 AM - 10:00 AM'], notes: 'Greeter / intake check' }
-];
 
 const PANTRY_SLOTS = [
   { id: '9-10', time: '9:00 AM - 10:00 AM', label: '9:00 AM – 10:00 AM', desc: 'Setup, early drop-offs & initial intake', target: 8 },
@@ -121,23 +36,39 @@ export default function ScoutDispatch() {
   
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [data, setData] = useState({ campaign: 'CAMP-2026', routes: [], claims: {} });
+  const [data, setData] = useState({ campaign: 'CAMP-2027', routes: [], claims: {} });
 
   // Route Filters
-  const [routeFilter, setRouteFilter] = useState('all'); // 'all', 'available', 'claimed', 'completed', 'alert'
+  const [routeFilter, setRouteFilter] = useState('all'); // 'all', 'available', 'claimed', 'my_routes', 'completed', 'alerts'
   const [routeSearchQuery, setRouteSearchQuery] = useState('');
+
+  // Real-Time Route Notes State (Stored locally & synced with API)
+  const [routeNotes, setRouteNotes] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sff_route_notes');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [editingNoteRouteId, setEditingNoteRouteId] = useState(null);
 
   // Dispatch Dashboard Search Tool
   const [dashboardSearchQuery, setDashboardSearchQuery] = useState('');
   const [dashboardPhaseFilter, setDashboardPhaseFilter] = useState('both'); // 'both', 'tagging', 'collection'
 
-  // Food Sorting Volunteer Signups State
+  // Food Sorting Volunteer Signups State (Clean start, zero dummy/example names)
   const [pantrySignups, setPantrySignups] = useState(() => {
     try {
       const saved = localStorage.getItem('sff_food_sorting_signups');
-      return saved ? JSON.parse(saved) : DEFAULT_PANTRY_SIGNUPS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Purge any legacy example placeholder IDs to ensure completely clear signups
+        return parsed.filter(item => !['p1', 'p2', 'p3', 'p4', 'p5'].includes(item.id));
+      }
+      return [];
     } catch {
-      return DEFAULT_PANTRY_SIGNUPS;
+      return [];
     }
   });
 
@@ -197,6 +128,15 @@ export default function ScoutDispatch() {
     }
   }, [contactRegistry]);
 
+  // Save route notes to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('sff_route_notes', JSON.stringify(routeNotes));
+    } catch {
+      // ignore
+    }
+  }, [routeNotes]);
+
   const handleLogin = (e) => {
     e.preventDefault();
     const name = e.target.name.value.trim();
@@ -206,7 +146,6 @@ export default function ScoutDispatch() {
     localStorage.setItem('sff_user', JSON.stringify(userData));
     setUser(userData);
     setPantryForm(prev => ({ ...prev, name, phone }));
-    // Register phone in contacts
     setContactRegistry(prev => ({ ...prev, [name.toLowerCase()]: phone }));
   };
 
@@ -224,9 +163,8 @@ export default function ScoutDispatch() {
       setData(result);
     } catch (error) {
       console.error("Error fetching data:", error);
-      // Fallback fallback campaign if API unavailable
       setData(prev => prev.routes?.length > 0 ? prev : {
-        campaign: 'CAMP-2026',
+        campaign: 'CAMP-2027',
         routes: Array.from({ length: 69 }, (_, i) => ({
           Route_ID: i + 1,
           Route_Name: `Route ${i + 1}`,
@@ -256,7 +194,7 @@ export default function ScoutDispatch() {
     }
   };
 
-  // Helper: Retrieve claim object for a specific route and phase
+  // Retrieve claim object for a specific route and phase
   const getClaimInfo = useCallback((routeId, phase) => {
     const routeClaims = data.claims[routeId] || data.claims[String(routeId)];
     if (!routeClaims) return null;
@@ -284,7 +222,6 @@ export default function ScoutDispatch() {
     const nameKey = volunteerName.trim().toLowerCase();
     if (contactRegistry[nameKey]) return contactRegistry[nameKey];
     if (user && user.name.trim().toLowerCase() === nameKey) return user.phone;
-    // Known leader directory fallbacks
     if (nameKey.includes('fernandes')) return '(860) 796-0170';
     if (nameKey.includes('bystricky')) return '(860) 555-0115';
     if (nameKey.includes('michalic')) return '(860) 555-0182';
@@ -334,6 +271,29 @@ export default function ScoutDispatch() {
     });
   };
 
+  // Real-Time Route Notes Save Handler
+  const handleSaveRouteNote = (routeId, noteText) => {
+    const trimmed = noteText.trim();
+    const updated = {
+      ...routeNotes,
+      [routeId]: {
+        text: trimmed,
+        author: user.name,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    };
+    setRouteNotes(updated);
+
+    // Also notify API
+    sendAction({
+      action: 'update_route_notes',
+      campaign_id: data.campaign,
+      route_id: routeId,
+      volunteer_name: user.name,
+      notes: trimmed
+    });
+  };
+
   // --- PANTRY SIGNUP HANDLERS ---
   const handleTogglePantrySlot = (slotTime) => {
     setSelectedPantrySlots(prev => 
@@ -373,12 +333,10 @@ export default function ScoutDispatch() {
     };
 
     setPantrySignups(prev => [newSignup, ...prev]);
-    // Save contact phone
     if (newSignup.phone) {
       setContactRegistry(prev => ({ ...prev, [newSignup.name.toLowerCase()]: newSignup.phone }));
     }
 
-    // Attempt to notify API
     sendAction({
       action: 'pantry_signup',
       campaign_id: data.campaign,
@@ -464,7 +422,7 @@ export default function ScoutDispatch() {
       const tagClaim = getClaimInfo(route.Route_ID, 'tagging');
       if (!tagClaim) {
         taggingAvailable++;
-        taggingAbandoned++; // Unassigned counts towards remaining/abandoned
+        taggingAbandoned++;
       } else if (tagClaim.Status === 'Completed') {
         taggingCompleted++;
         housesCoveredTagging += houses;
@@ -530,15 +488,16 @@ export default function ScoutDispatch() {
         const idMatch = String(route.Route_ID).includes(query);
         const nameMatch = (route.Route_Name || '').toLowerCase().includes(query);
         const alertMatch = (route.Permanent_Alerts || '').toLowerCase().includes(query);
-        const streets = getRouteStreets(route).toLowerCase();
+        const streets = (getRouteStreets(route) || '').toLowerCase();
         const streetMatch = streets.includes(query);
         const volunteerMatch = (claim?.Volunteer_Name || '').toLowerCase().includes(query);
-        return idMatch || nameMatch || alertMatch || streetMatch || volunteerMatch;
+        const noteMatch = (routeNotes[route.Route_ID]?.text || '').toLowerCase().includes(query);
+        return idMatch || nameMatch || alertMatch || streetMatch || volunteerMatch || noteMatch;
       }
 
       return true;
     });
-  }, [data.routes, routePhase, routeFilter, routeSearchQuery, user, getClaimInfo]);
+  }, [data.routes, routePhase, routeFilter, routeSearchQuery, user, getClaimInfo, routeNotes]);
 
   // Search Results for Section 3 (Dispatch Address Finder)
   const searchResults = useMemo(() => {
@@ -549,17 +508,18 @@ export default function ScoutDispatch() {
       const idMatch = String(route.Route_ID) === query || `route ${route.Route_ID}` === query || `r${route.Route_ID}` === query;
       const nameMatch = (route.Route_Name || '').toLowerCase().includes(query);
       const alertMatch = (route.Permanent_Alerts || '').toLowerCase().includes(query);
-      const streets = getRouteStreets(route).toLowerCase();
+      const streets = (getRouteStreets(route) || '').toLowerCase();
       const streetMatch = streets.includes(query);
 
       const tagClaim = getClaimInfo(route.Route_ID, 'tagging');
       const colClaim = getClaimInfo(route.Route_ID, 'collection');
       const tagVol = (tagClaim?.Volunteer_Name || '').toLowerCase().includes(query);
       const colVol = (colClaim?.Volunteer_Name || '').toLowerCase().includes(query);
+      const noteMatch = (routeNotes[route.Route_ID]?.text || '').toLowerCase().includes(query);
 
-      return idMatch || nameMatch || alertMatch || streetMatch || tagVol || colVol;
+      return idMatch || nameMatch || alertMatch || streetMatch || tagVol || colVol || noteMatch;
     });
-  }, [dashboardSearchQuery, data.routes, getClaimInfo]);
+  }, [dashboardSearchQuery, data.routes, getClaimInfo, routeNotes]);
 
   // --- LOGIN SCREEN ---
   if (!user) {
@@ -571,7 +531,7 @@ export default function ScoutDispatch() {
           </div>
           <div className="text-center mb-6">
             <span className="text-[11px] font-black uppercase tracking-widest text-scout-600 bg-scout-50 px-3 py-1 rounded-full border border-scout-100">
-              Scouting for Food 2026
+              Scouting for Food
             </span>
             <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tight mt-3">Scout Dispatch</h1>
             <p className="text-slate-500 text-sm mt-1">Enter your details to coordinate routes and food pantry shifts.</p>
@@ -585,7 +545,7 @@ export default function ScoutDispatch() {
                 name="name" 
                 required 
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-scout-500 transition-all" 
-                placeholder="e.g. Fernandes Family / Claire B." 
+                placeholder="e.g. The Smith Family / Claire B." 
               />
             </div>
             <div>
@@ -772,7 +732,7 @@ export default function ScoutDispatch() {
                   type="text" 
                   value={routeSearchQuery}
                   onChange={(e) => setRouteSearchQuery(e.target.value)}
-                  placeholder="Filter by street name, route #, or neighborhood (e.g. 'Snowberry', 'Fieldstone', '45')..." 
+                  placeholder="Filter by route #, street name, notes, or alert (e.g. 'Route 4', 'Westwoods', 'HOA')..." 
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-scout-500"
                 />
                 {routeSearchQuery && (
@@ -822,7 +782,7 @@ export default function ScoutDispatch() {
                 </button>
               </div>
             ) : (
-              <div className="space-y-3.5">
+              <div className="space-y-4">
                 {filteredRoutes.map((route) => {
                   const claimInfo = getClaimInfo(route.Route_ID, routePhase);
                   const isAvailable = !claimInfo;
@@ -830,6 +790,8 @@ export default function ScoutDispatch() {
                   const isCompleted = claimInfo?.Status === 'Completed';
                   const streetList = getRouteStreets(route);
                   const volunteerPhone = claimInfo ? getVolunteerPhone(claimInfo.Volunteer_Name) : null;
+                  const currentNoteMeta = routeNotes[route.Route_ID];
+                  const currentNoteText = currentNoteMeta?.text || '';
 
                   return (
                     <div 
@@ -863,20 +825,40 @@ export default function ScoutDispatch() {
                             {route.Route_Name}
                           </h3>
 
-                          {/* LISTED STREET NAMES IN DESCRIPTION */}
-                          <div className="mt-2.5 bg-slate-50 rounded-xl p-3 border border-slate-100">
-                            <div className="flex items-start gap-2">
-                              <MapPin size={14} className="text-scout-600 mt-0.5 flex-shrink-0" />
-                              <div>
-                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">
-                                  Covered Streets on this Route:
-                                </span>
-                                <p className="text-xs sm:text-sm font-medium text-slate-700 leading-relaxed">
-                                  {streetList}
-                                </p>
+                          {/* STREET DESCRIPTION FROM SHEET OR MAP */}
+                          {streetList ? (
+                            <div className="mt-2.5 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                              <div className="flex items-start gap-2">
+                                <MapPin size={14} className="text-scout-600 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">
+                                    Covered Streets on this Route:
+                                  </span>
+                                  <p className="text-xs sm:text-sm font-semibold text-slate-800 leading-relaxed">
+                                    {streetList}
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
+                          ) : (
+                            <div className="mt-2.5 bg-slate-50/80 rounded-xl p-3 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 text-xs text-slate-500">
+                                <MapPin size={14} className="text-slate-400 flex-shrink-0" />
+                                <span>Streets: <strong className="text-slate-700 font-semibold">View turn-by-turn boundaries on route map</strong></span>
+                              </div>
+                              {route.Map_URL && (
+                                <a 
+                                  href={route.Map_URL} 
+                                  target="_blank" 
+                                  rel="noreferrer" 
+                                  className="text-xs font-bold text-scout-600 hover:text-scout-700 flex items-center gap-1 self-start sm:self-auto"
+                                >
+                                  <span>Open Google Map</span>
+                                  <ExternalLink size={12} />
+                                </a>
+                              )}
+                            </div>
+                          )}
 
                           {/* Claim Status & Volunteer info badge */}
                           {claimInfo && (
@@ -901,6 +883,96 @@ export default function ScoutDispatch() {
                               )}
                             </div>
                           )}
+
+                          {/* REAL-TIME ROUTE NOTES SECTION */}
+                          <div className="mt-3 pt-2.5 border-t border-slate-100">
+                            {editingNoteRouteId === route.Route_ID ? (
+                              <div className="bg-amber-50/70 rounded-xl p-3 border border-amber-200/90 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <label className="text-[11px] font-black uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                                    <StickyNote size={13} className="text-amber-700" />
+                                    <span>Real-Time Route Note</span>
+                                  </label>
+                                  <button 
+                                    onClick={() => setEditingNoteRouteId(null)}
+                                    className="text-slate-400 hover:text-slate-600 text-xs"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                                <p className="text-[11px] text-amber-800/80 leading-tight">
+                                  Enter real-time route observations (e.g. &ldquo;HOA no solicitation allowed&rdquo;, &ldquo;High yield donations&rdquo;, &ldquo;Gate code 1234&rdquo;).
+                                </p>
+                                <textarea
+                                  rows={2}
+                                  defaultValue={currentNoteText}
+                                  id={`note-input-${route.Route_ID}`}
+                                  placeholder="Type route real-time info here..."
+                                  className="w-full bg-white border border-amber-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium"
+                                />
+                                <div className="flex justify-end gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingNoteRouteId(null)}
+                                    className="px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-lg"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const el = document.getElementById(`note-input-${route.Route_ID}`);
+                                      handleSaveRouteNote(route.Route_ID, el ? el.value : '');
+                                      setEditingNoteRouteId(null);
+                                    }}
+                                    className="px-3 py-1.5 bg-slate-900 hover:bg-black text-white text-xs font-black uppercase tracking-wider rounded-lg shadow-sm"
+                                  >
+                                    Save Note
+                                  </button>
+                                </div>
+                              </div>
+                            ) : currentNoteText ? (
+                              <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3 flex items-start justify-between gap-3">
+                                <div className="flex items-start gap-2">
+                                  <StickyNote size={14} className="text-amber-700 mt-0.5 flex-shrink-0" />
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] font-black uppercase tracking-wider text-amber-800">
+                                        Real-Time Route Note:
+                                      </span>
+                                      {currentNoteMeta?.author && (
+                                        <span className="text-[10px] text-amber-700 font-semibold">
+                                          — {currentNoteMeta.author} {currentNoteMeta.timestamp && `(${currentNoteMeta.timestamp})`}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-xs font-medium text-slate-800 mt-0.5 leading-relaxed">
+                                      {currentNoteText}
+                                    </p>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => setEditingNoteRouteId(route.Route_ID)}
+                                  className="text-[11px] font-bold text-amber-800 hover:text-amber-950 underline whitespace-nowrap self-start"
+                                >
+                                  Edit
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-between text-xs text-slate-400">
+                                <span className="text-[11px] italic">
+                                  Route notes are for real-time info (e.g. HOA no solicitation allowed, or high yield donations).
+                                </span>
+                                <button
+                                  onClick={() => setEditingNoteRouteId(route.Route_ID)}
+                                  className="text-[11px] font-bold text-scout-600 hover:text-scout-800 hover:underline flex items-center gap-1"
+                                >
+                                  <Plus size={12} />
+                                  <span>Add Note</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         {/* Actions and Status Controls */}
@@ -1202,13 +1274,13 @@ export default function ScoutDispatch() {
                         <div key={slot.id} className="border border-slate-100 rounded-xl p-3 bg-slate-50/60">
                           <div className="flex items-center justify-between mb-2">
                             <span className="font-black text-xs text-slate-800">{slot.label}</span>
-                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${totalHeadcount >= slot.target ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
-                              {totalHeadcount} Registered
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${totalHeadcount >= slot.target ? 'bg-emerald-100 text-emerald-800' : totalHeadcount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-500'}`}>
+                              {totalHeadcount} / {slot.target} Registered
                             </span>
                           </div>
 
                           {attendees.length === 0 ? (
-                            <p className="text-[11px] text-slate-400 italic">No volunteers registered yet.</p>
+                            <p className="text-[11px] text-slate-400 italic py-1">No volunteers registered yet.</p>
                           ) : (
                             <div className="space-y-1.5">
                               {attendees.map(v => (
@@ -1218,11 +1290,20 @@ export default function ScoutDispatch() {
                                     <span className="text-[10px] text-slate-400 ml-1.5">({v.partySize} {v.partySize > 1 ? 'people' : 'person'})</span>
                                     {v.notes && <p className="text-[10px] text-slate-500 italic mt-0.5">{v.notes}</p>}
                                   </div>
-                                  {v.phone && (
-                                    <a href={`tel:${v.phone.replace(/\D/g, '')}`} className="text-slate-400 hover:text-scout-600 p-1">
-                                      <Phone size={12} />
-                                    </a>
-                                  )}
+                                  <div className="flex items-center gap-1">
+                                    {v.phone && (
+                                      <a href={`tel:${v.phone.replace(/\D/g, '')}`} className="text-slate-400 hover:text-scout-600 p-1">
+                                        <Phone size={12} />
+                                      </a>
+                                    )}
+                                    <button 
+                                      onClick={() => handleRemovePantrySignup(v.id)}
+                                      className="text-slate-300 hover:text-red-500 p-1"
+                                      title="Remove shift"
+                                    >
+                                      <X size={12} />
+                                    </button>
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -1346,10 +1427,10 @@ export default function ScoutDispatch() {
                 <span className="text-[10px] font-black uppercase tracking-widest text-scout-600 block mb-1">Instant Lookup</span>
                 <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
                   <Search size={20} className="text-scout-600" />
-                  <span>Street & Address Volunteer Finder</span>
+                  <span>Street, Address & Volunteer Finder</span>
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Type any street name or resident address to quickly see which route covers it, the current status, and direct contact details for the assigned volunteer.
+                  Type any route number, resident address, or volunteer name to see route coverage, status, and direct contact details.
                 </p>
               </div>
 
@@ -1359,7 +1440,7 @@ export default function ScoutDispatch() {
                   type="text" 
                   value={dashboardSearchQuery}
                   onChange={(e) => setDashboardSearchQuery(e.target.value)}
-                  placeholder="Enter address or street name (e.g. 'Snowberry La', '45 Fieldstone Run', 'Westwoods', 'Main St')..."
+                  placeholder="Enter route # or street address (e.g. 'Route 4', 'Route 12', 'Westwoods')..."
                   className="w-full bg-slate-50 border-2 border-slate-200 focus:border-scout-600 rounded-2xl pl-12 pr-10 py-3.5 text-sm sm:text-base font-medium focus:outline-none transition-all shadow-inner"
                 />
                 {dashboardSearchQuery && (
@@ -1380,8 +1461,8 @@ export default function ScoutDispatch() {
 
                   {searchResults.length === 0 ? (
                     <div className="text-center py-8 bg-slate-50 rounded-xl border border-slate-100">
-                      <p className="text-xs text-slate-500">No exact street match in the current route directory.</p>
-                      <p className="text-[11px] text-slate-400 mt-1">Try entering just the primary road name (e.g., &ldquo;Main&rdquo; instead of &ldquo;124 Main Street East&rdquo;).</p>
+                      <p className="text-xs text-slate-500">No matching routes found for this search.</p>
+                      <p className="text-[11px] text-slate-400 mt-1">Try entering the route number (e.g., &ldquo;Route 4&rdquo; or &ldquo;4&rdquo;).</p>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -1391,6 +1472,7 @@ export default function ScoutDispatch() {
                         const tagPhone = tagClaim ? getVolunteerPhone(tagClaim.Volunteer_Name) : null;
                         const colPhone = colClaim ? getVolunteerPhone(colClaim.Volunteer_Name) : null;
                         const streets = getRouteStreets(route);
+                        const noteMeta = routeNotes[route.Route_ID];
 
                         return (
                           <div key={route.Route_ID} className="bg-slate-50 rounded-xl p-4 border border-slate-200 hover:border-scout-300 transition-all">
@@ -1409,10 +1491,31 @@ export default function ScoutDispatch() {
                               )}
                             </div>
 
-                            <p className="text-xs text-slate-600 mb-3">
-                              <span className="font-black text-slate-400 uppercase text-[10px] block">Listed Streets:</span>
-                              {streets}
-                            </p>
+                            {streets ? (
+                              <p className="text-xs text-slate-600 mb-3">
+                                <span className="font-black text-slate-400 uppercase text-[10px] block">Covered Streets:</span>
+                                {streets}
+                              </p>
+                            ) : route.Map_URL ? (
+                              <div className="mb-3">
+                                <a 
+                                  href={route.Map_URL} 
+                                  target="_blank" 
+                                  rel="noreferrer" 
+                                  className="text-xs font-bold text-scout-600 hover:text-scout-700 flex items-center gap-1"
+                                >
+                                  <span>View Exact Turn-by-Turn Map & Streets</span>
+                                  <ExternalLink size={12} />
+                                </a>
+                              </div>
+                            ) : null}
+
+                            {noteMeta?.text && (
+                              <div className="mb-3 bg-amber-50 p-2.5 rounded-lg border border-amber-200 text-xs">
+                                <span className="text-[10px] font-black uppercase text-amber-800 block">Real-Time Note ({noteMeta.author || 'Volunteer'}):</span>
+                                <p className="text-slate-800 font-medium mt-0.5">{noteMeta.text}</p>
+                              </div>
+                            )}
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                               {/* Tagging Info */}
@@ -1534,7 +1637,7 @@ export default function ScoutDispatch() {
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="font-black text-sm text-slate-900">{slot.label}</span>
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isStaffed ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isStaffed ? 'bg-emerald-100 text-emerald-800' : totalCount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600'}`}>
                             {totalCount} / {slot.target} Staff
                           </span>
                         </div>
@@ -1543,7 +1646,7 @@ export default function ScoutDispatch() {
                         {/* Attendee Roster */}
                         <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                           {attendees.length === 0 ? (
-                            <p className="text-xs text-slate-400 italic py-2">No volunteers assigned.</p>
+                            <p className="text-xs text-slate-400 italic py-2">No volunteers registered yet.</p>
                           ) : (
                             attendees.map(volunteer => (
                               <div key={volunteer.id} className="bg-white p-2.5 rounded-lg border border-slate-200/80 shadow-xs text-xs">
@@ -1574,7 +1677,7 @@ export default function ScoutDispatch() {
 
                       <div className="mt-4 pt-3 border-t border-slate-200/80">
                         <span className={`text-[10px] font-black uppercase tracking-wider block ${isStaffed ? 'text-emerald-700' : 'text-amber-700'}`}>
-                          {isStaffed ? '✓ Fully Covered' : `⚠ Needs ${Math.max(1, slot.target - totalCount)} More Helpers`}
+                          {isStaffed ? '✓ Fully Covered' : `Needs ${Math.max(1, slot.target - totalCount)} More Helpers`}
                         </span>
                       </div>
                     </div>
@@ -1590,7 +1693,7 @@ export default function ScoutDispatch() {
                   <h3 className="font-black text-slate-900 text-lg uppercase tracking-tight">
                     Master Route Coverage Ledger
                   </h3>
-                  <p className="text-xs text-slate-500">Live monitoring of all 69 Unionville / Farmington route claims.</p>
+                  <p className="text-xs text-slate-500">Live monitoring of all 69 route claims and field notes.</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -1625,7 +1728,8 @@ export default function ScoutDispatch() {
                     <tr className="border-b border-slate-200 text-slate-400 font-black uppercase tracking-wider text-[10px]">
                       <th className="py-2.5 px-3">Route #</th>
                       <th className="py-2.5 px-3">Houses</th>
-                      <th className="py-2.5 px-3">Primary Streets</th>
+                      <th className="py-2.5 px-3">Boundaries / Streets</th>
+                      <th className="py-2.5 px-3">Live Route Note</th>
                       {(dashboardPhaseFilter === 'both' || dashboardPhaseFilter === 'tagging') && (
                         <th className="py-2.5 px-3">Tag Distribution</th>
                       )}
@@ -1641,6 +1745,7 @@ export default function ScoutDispatch() {
                       const colClaim = getClaimInfo(route.Route_ID, 'collection');
                       const streets = getRouteStreets(route);
                       const isUnassigned = !tagClaim && !colClaim;
+                      const noteText = routeNotes[route.Route_ID]?.text || '';
 
                       return (
                         <tr key={route.Route_ID} className={`hover:bg-slate-50/80 ${isUnassigned ? 'bg-amber-50/30' : ''}`}>
@@ -1650,8 +1755,23 @@ export default function ScoutDispatch() {
                           <td className="py-2.5 px-3 font-medium text-slate-600">
                             {route.Total_Houses}
                           </td>
-                          <td className="py-2.5 px-3 text-slate-700 max-w-xs truncate" title={streets}>
-                            {streets}
+                          <td className="py-2.5 px-3 text-slate-700 max-w-xs truncate">
+                            {streets ? streets : (
+                              route.Map_URL ? (
+                                <a href={route.Map_URL} target="_blank" rel="noreferrer" className="text-scout-600 hover:underline">
+                                  View on Google Map
+                                </a>
+                              ) : 'Standard Zone'
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-700 max-w-xs truncate">
+                            {noteText ? (
+                              <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[11px] font-medium" title={noteText}>
+                                {noteText}
+                              </span>
+                            ) : (
+                              <span className="text-slate-300 italic text-[11px]">No notes</span>
+                            )}
                           </td>
 
                           {(dashboardPhaseFilter === 'both' || dashboardPhaseFilter === 'tagging') && (
@@ -1709,7 +1829,7 @@ export default function ScoutDispatch() {
               {data.routes.length > 30 && (
                 <div className="mt-3 text-center pt-2 border-t border-slate-100">
                   <p className="text-xs text-slate-400">
-                    Showing top 30 of {data.routes.length} total routes. Use the Street & Address search tool above to inspect any specific route instantly.
+                    Showing top 30 of {data.routes.length} total routes. Use the search tool above to inspect any specific route instantly.
                   </p>
                 </div>
               )}
