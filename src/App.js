@@ -742,6 +742,7 @@ export default function App() {
 
   const navLinks = [
     { id: 'home', label: 'Home' },
+    { id: 'banquet', label: 'Banquet' },
     { id: 'about', label: 'About' },
     { id: 'scoutCorner', label: 'Scout Corner' },
     { id: 'join', label: 'Join' }
@@ -792,6 +793,11 @@ export default function App() {
                   className={`hover:text-white transition-colors relative py-1 ${currentPage === page.id ? 'text-white border-b-2 border-[#BE1E2D]' : ''}`}
                 >
                   {page.label}
+                  {page.id === 'banquet' && (
+                    <span className="absolute -top-2 -right-6 bg-amber-500 text-black text-[9px] px-1.5 py-0.5 rounded-full uppercase tracking-widest font-black animate-pulse">
+                      Dec 5
+                    </span>
+                  )}
                 </button>
               ))}
               <a href="https://venmo.com/u/Troop170Unionville" target="_blank" rel="noopener noreferrer" className="text-[#008CFF] hover:text-blue-400 transition-colors flex items-center space-x-1.5">
@@ -804,6 +810,12 @@ export default function App() {
 
             {/* Mobile Navigation Toggle */}
             <div className="flex items-center space-x-2 md:hidden">
+              <button 
+                onClick={() => navigateTo('banquet')}
+                className="bg-amber-500 text-black text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded mr-1 shadow-sm"
+              >
+                Banquet
+              </button>
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -828,6 +840,9 @@ export default function App() {
                   className={`flex items-center justify-between py-2 text-left text-sm font-black uppercase tracking-widest ${currentPage === page.id ? 'text-[#BE1E2D]' : 'text-gray-200'}`}
                 >
                   <span>{page.label}</span>
+                  {page.id === 'banquet' && (
+                    <span className="bg-amber-500 text-black text-[9px] px-2 py-0.5 rounded-full font-bold">DEC 5–6</span>
+                  )}
                 </button>
               ))}
               <a 
@@ -865,6 +880,16 @@ export default function App() {
               </div>
               <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-start">
                 
+                {/* Revival Banquet Announcement Banner */}
+                <div 
+                  onClick={() => navigateTo('banquet')}
+                  className="cursor-pointer mb-6 inline-flex items-center space-x-2 sm:space-x-3 bg-gradient-to-r from-amber-950/90 to-amber-900/80 border border-amber-500/50 hover:border-amber-400 text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition-all group shadow-xl max-w-full"
+                >
+                  <Calendar size={15} className="text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
+                  <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-amber-100 truncate">Troop 170 Revival Banquet &amp; Campout • Dec 5–6</span>
+                  <ArrowUpRight size={14} className="text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
+                </div>
+
                 <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-none mb-6 sm:mb-8 shadow-inner border border-white/5">
                   <Compass size={14} className="text-[#BE1E2D]" />
                   <span className="text-[9px] sm:text-[10px] font-black tracking-[0.3em] uppercase text-white">Established 1956</span>
@@ -877,12 +902,12 @@ export default function App() {
                   Drive character development, boost outdoor skills, and maximize personal growth. We craft engaging, year-round scouting strategies that deliver measurable results.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                  <button onClick={() => navigateTo('join')} className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 bg-[#BE1E2D] text-white font-black text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(190,30,45,0.4)] group flex items-center justify-center space-x-4 rounded-none">
-                    <span>Schedule Visit</span>
+                  <button onClick={() => navigateTo('banquet')} className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-xs sm:text-sm tracking-[0.2em] uppercase transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(245,158,11,0.4)] group flex items-center justify-center space-x-4 rounded-none">
+                    <span>Banquet &amp; Campout Passes</span>
                     <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   </button>
-                  <button onClick={() => navigateTo('about')} className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-5 bg-white/10 text-white font-black text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-white/20 transition-all border border-white/20 rounded-none text-center">
-                    <span>About Our Troop</span>
+                  <button onClick={() => navigateTo('join')} className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-5 bg-white/10 text-white font-black text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-white/20 transition-all border border-white/20 rounded-none text-center">
+                    <span>Schedule Visit</span>
                   </button>
                 </div>
               </div>
@@ -952,6 +977,52 @@ export default function App() {
                      </div>
                   </div>
                 </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- REVIVAL BANQUET & CAMPOUT PAGE --- */}
+        {currentPage === 'banquet' && (
+          <div className="bg-[#090e15] min-h-screen text-white">
+            {/* Banquet Navigation Control Bar */}
+            <div className="bg-[#0f1826] border-b border-white/10 px-4 sm:px-8 py-3.5 sticky top-20 sm:top-24 z-40 shadow-xl">
+              <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div className="flex items-center space-x-3 text-center sm:text-left">
+                  <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                    <Calendar size={16} />
+                  </div>
+                  <div>
+                    <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">The Legend Returns • Revival Banquet &amp; Campout</h2>
+                    <p className="text-[10px] sm:text-xs text-amber-300/80 font-mono">Dec 5–6, 2026 • Camp Workcoeman Main Dining Hall</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <a 
+                    href="/banquet/index.html" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-black text-[10px] sm:text-xs font-black uppercase tracking-wider transition-colors"
+                  >
+                    <span>Full Window View</span>
+                    <ExternalLink size={13} />
+                  </a>
+                  <button 
+                    onClick={() => navigateTo('home')} 
+                    className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-gray-200 text-[10px] sm:text-xs font-black uppercase tracking-wider transition-colors"
+                  >
+                    ← Return to Home
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Embedded Interactive Banquet Reservation Application */}
+            <div className="w-full bg-[#090e15]">
+              <iframe 
+                src="/banquet/index.html" 
+                title="Troop 170 Revival Banquet & Campout" 
+                className="w-full min-h-[1600px] border-0" 
+              />
             </div>
           </div>
         )}
@@ -1527,6 +1598,19 @@ export default function App() {
                       >
                         <span>Order Apparel</span><ExternalLink size={14}/>
                       </a>
+                   </div>
+
+                   {/* CARD 5: REVIVAL BANQUET */}
+                   <div className="bg-gradient-to-br from-white to-amber-50 border border-amber-200 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-amber-600 mb-6 shadow-sm"><Calendar size={24}/></div>
+                         <div className="inline-block px-2 py-0.5 bg-amber-500/20 text-amber-900 text-[9px] font-black uppercase tracking-widest mb-2">Dec 5–6, 2026</div>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Revival Banquet</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Camp Workcoeman banquet passes, cabin camping, and RSVP reservations.</p>
+                      </div>
+                      <button onClick={() => navigateTo('banquet')} className="flex items-center space-x-2 text-amber-700 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                        <span>Reserve Passes</span><ArrowUpRight size={14}/>
+                      </button>
                    </div>
 
                    {/* CARD 5: SCOUT DOLLARS */}

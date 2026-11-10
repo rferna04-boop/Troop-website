@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Legend Returns • Troop 170 Revival Banquet & Campout</title>
+  
+  <!-- Modern 2026 Typography Stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM TOKENS (Human-Centered Dark Luxury & Strict WCAG Contrast)
+       ========================================================================== */
+    :root {
+      --bg-base: #090e15;
+      --bg-surface: #0f1826;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --bg-card-hover: rgba(255, 255, 255, 0.06);
+      
+      --gold-primary: #e5b35a;
+      --gold-hover: #f3c97e;
+      --gold-glow: rgba(229, 179, 90, 0.28);
+      
+      --pine-glow: rgba(25, 71, 51, 0.38);
+      --pine-accent: #1e3a2b;
+
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(229, 179, 90, 0.6);
+      --border-light: rgba(255, 255, 255, 0.16);
+
+      --text-hero: #ffffff;
+      --text-main: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-gold: #f3c97e;
+
+      --font-display: 'Cinzel', serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient Organic Glow Canvas - Warm Campfire & Pine Undertones */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 5%, rgba(229, 179, 90, 0.2) 0%, transparent 55%),
+                  radial-gradient(circle at 85% 25%, rgba(200, 130, 50, 0.14) 0%, transparent 50%),
+                  radial-gradient(circle at 10% 45%, var(--pine-glow) 0%, transparent 50%),
+                  radial-gradient(circle at 75% 75%, rgba(229, 179, 90, 0.1) 0%, transparent 45%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ==========================================================================
+       NAVIGATION BAR
+       ========================================================================== */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(9, 14, 21, 0.92);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 0;
+      gap: 1.2rem;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .nav-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .nav-back-link:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--gold-primary);
+      transform: translateY(-1px);
+    }
+    .nav-divider {
+      width: 1px;
+      height: 26px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .brand:hover { opacity: 0.95; }
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+    }
+    .brand:hover .brand-logo { transform: scale(1.05); }
+    .brand-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.18;
+    }
+    .brand-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+    }
+    .brand-badge {
+      background: var(--gold-primary);
+      color: #090e15;
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-family: var(--font-body);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .brand-town {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold-primary); }
+    .btn-ticket-nav {
+      background: linear-gradient(135deg, var(--gold-primary) 0%, #b88636 100%);
+      color: #060b11 !important;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.4px;
+      padding: 0.6rem 1.35rem;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 4px 18px var(--gold-glow);
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+    .btn-ticket-nav:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(229, 179, 90, 0.45);
+    }
+    .btn-ticket-nav-mobile {
+      display: none;
+    }
+
+    /* ==========================================================================
+       HERO SECTION WITH WARMTH & GRADIENT FADE
+       ========================================================================== */
+    .hero {
+      padding: 10.5rem 0 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      /* Smooth gradient fade of image from behind the text to foreground/bottom */
+      mask-image: linear-gradient(180deg, 
+        rgba(0, 0, 0, 1) 0%, 
+        rgba(0, 0, 0, 1) 42%, 
+        rgba(0, 0, 0, 0.6) 70%, 
+        rgba(0, 0, 0, 0) 100%
+      );
+      -webkit-mask-image: linear-gradient(180deg, 
+        rgba(0, 0, 0, 1) 0%, 
+        rgba(0, 0, 0, 1) 42%, 
+        rgba(0, 0, 0, 0.6) 70%, 
+        rgba(0, 0, 0, 0) 100%
+      );
+    }
+
+    .hero-bg-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      opacity: 0.62;
+      filter: contrast(1.08) saturate(1.22) brightness(1.04);
+      transform: scale(1.02);
+    }
+
+    .hero-gradient-overlay {
+      position: absolute;
+      inset: 0;
+      background: 
+        /* Top dark scrim for navbar contrast, fading smoothly into warm photo */
+        linear-gradient(180deg, 
+          rgba(9, 14, 21, 0.88) 0%, 
+          rgba(9, 14, 21, 0.26) 18%, 
+          rgba(12, 19, 29, 0.42) 48%, 
+          rgba(9, 14, 21, 0.82) 80%, 
+          var(--bg-base) 100%
+        ),
+        /* Warm ambient gold & timber campfire glow centered behind "A Cherished Tradition" */
+        radial-gradient(ellipse at 50% 28%, 
+          rgba(229, 179, 90, 0.24) 0%, 
+          rgba(195, 125, 45, 0.15) 42%, 
+          transparent 75%
+        ),
+        /* Subtle contrast scrim centered behind title text for maximum legibility */
+        radial-gradient(ellipse at 35% 32%, 
+          rgba(9, 14, 21, 0.55) 0%, 
+          rgba(9, 14, 21, 0.18) 60%, 
+          transparent 85%
+        );
+    }
+
+    .hero-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(15, 24, 38, 0.72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(229, 179, 90, 0.35);
+      padding: 6px 18px;
+      border-radius: 100px;
+      margin-bottom: 2rem;
+    }
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--gold-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--gold-primary);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .hero-meta span {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--gold-primary);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 6.5vw, 5.2rem);
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text-hero);
+      margin-bottom: 1.75rem;
+      max-width: 980px;
+      text-shadow: 0 3px 24px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.9);
+    }
+    .hero-title em {
+      font-style: italic;
+      color: #ffffff;
+    }
+    .hero-subtitle {
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      color: #f1f5f9;
+      max-width: 780px;
+      font-weight: 400;
+      line-height: 1.6;
+      margin-bottom: 3.5rem;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Asymmetric Date Bento Cards */
+    .date-split-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+    .date-card {
+      background: rgba(15, 24, 38, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+    }
+    .date-card:hover {
+      border-color: rgba(229, 179, 90, 0.45);
+      transform: translateY(-2px);
+      box-shadow: 0 16px 42px rgba(0, 0, 0, 0.45);
+    }
+    .date-card::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    }
+    .date-card-type {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold-primary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .date-card-time {
+      font-family: var(--font-display);
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .date-card-location {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+    .date-card-deadline {
+      margin-top: 1.15rem;
+      padding-top: 0.95rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+    }
+    .deadline-pill {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--gold-primary);
+      background: rgba(229, 179, 90, 0.12);
+      border: 1px solid rgba(229, 179, 90, 0.3);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    /* ==========================================================================
+       "WHY WE GATHER" / THE MISSION DUAL HOOK SECTION
+       ========================================================================== */
+    .section-headline { margin-bottom: 2.5rem; }
+    .section-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold-primary);
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .why-mission-banner {
+      background: linear-gradient(135deg, rgba(15, 24, 38, 0.95), rgba(30, 58, 43, 0.85));
+      border: 1px solid rgba(229, 179, 90, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2rem;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    .why-mission-banner::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+    }
+    .why-mission-banner h3 {
+      font-family: var(--font-display);
+      font-size: 1.65rem;
+      color: var(--gold-primary);
+      margin-bottom: 0.75rem;
+    }
+    .why-mission-banner p {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      max-width: 860px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+
+    .dual-hook-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-bottom: 6rem;
+    }
+    .hook-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .hook-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(229, 179, 90, 0.4);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+    }
+    .hook-card.scout-card {
+      border-top: 3px solid #2e7d32;
+    }
+    .hook-card.family-card {
+      border-top: 3px solid var(--gold-primary);
+    }
+    .hook-card-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    .scout-card .hook-card-tag { color: #81c784; }
+    .family-card .hook-card-tag { color: var(--gold-primary); }
+
+    .hook-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.65rem;
+      color: #ffffff;
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .hook-card-lead {
+      color: #94a3b8;
+      font-size: 0.96rem;
+      margin-bottom: 1.75rem;
+      line-height: 1.6;
+    }
+    .hook-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+      margin-top: auto;
+    }
+    .hook-features li {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      line-height: 1.55;
+    }
+    .hook-features li strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .hook-icon-check {
+      color: var(--gold-primary);
+      font-weight: 800;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ==========================================================================
+       TICKETING ENGINE & ARCHITECTURE
+       ========================================================================== */
+    .tickets-section { padding: 2rem 0 7rem; }
+
+    /* Safeguarding Youth & Lodging Callout */
+    .safeguarding-box {
+      background: radial-gradient(circle at 0% 0%, rgba(25, 71, 51, 0.35) 0%, rgba(14, 23, 36, 0.95) 70%);
+      border: 1px solid rgba(229, 179, 90, 0.3);
+      border-radius: var(--radius-md);
+      padding: 1.75rem 2rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .safeguarding-box::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--gold-primary);
+    }
+    .safeguarding-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .sg-shield {
+      font-size: 2rem;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(229, 179, 90, 0.12);
+      border: 1px solid rgba(229, 179, 90, 0.3);
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+    .sg-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+    .sg-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+    .safeguarding-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .sg-item {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 1.15rem 1.25rem;
+      transition: border-color 0.2s ease;
+    }
+    .sg-item:hover {
+      border-color: rgba(229, 179, 90, 0.35);
+    }
+    .sg-item-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--gold-hover);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sg-item p {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+    .sg-item p strong {
+      color: #ffffff;
+    }
+    .t-badge.pack {
+      background: rgba(30, 80, 50, 0.5);
+      color: #9fe88d;
+      border-color: rgba(159, 232, 141, 0.35);
+    }
+    .t-badge.leader {
+      background: rgba(40, 60, 100, 0.5);
+      color: #93c5fd;
+      border-color: rgba(147, 197, 253, 0.35);
+    }
+
+    .ticket-shelf {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 3.5rem;
+    }
+    .t-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .t-card:hover {
+      border-color: var(--border-light);
+      background: var(--bg-card-hover);
+      transform: translateY(-3px);
+    }
+    .t-card.featured {
+      border-color: rgba(229, 179, 90, 0.4);
+      background: radial-gradient(circle at 100% 0%, rgba(229, 179, 90, 0.08) 0%, var(--bg-surface) 70%);
+    }
+    .t-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      background: rgba(229, 179, 90, 0.15);
+      color: var(--gold-primary);
+      border: 1px solid rgba(229, 179, 90, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .t-role {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+      padding-right: 40px;
+    }
+    .t-price {
+      font-family: var(--font-mono);
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--gold-primary);
+      margin: 0.75rem 0;
+    }
+    .t-price span {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    .t-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      min-height: 52px;
+    }
+    
+    /* Tactile Stepper Control */
+    .stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--border-subtle);
+      border-radius: 50px;
+      padding: 4px 6px;
+    }
+    .stepper-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .stepper-btn:hover {
+      background: var(--gold-primary);
+      color: #060b11;
+      transform: scale(1.05);
+    }
+    .stepper-btn:active { transform: scale(0.95); }
+    .stepper-val {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #fff;
+    }
+
+    /* Checkout Master Container */
+    .checkout-board {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 3rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .field-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .field-wrap.full { grid-column: span 2; }
+    .field-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .field-input, .field-select, .field-textarea {
+      background: rgba(7, 11, 16, 0.75);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      padding: 0.85rem 1.15rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field-input:focus, .field-select:focus, .field-textarea:focus {
+      outline: none;
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    /* Payment Radio Bar */
+    .payment-block {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .payment-options {
+      display: flex;
+      gap: 1.25rem 2.25rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .custom-radio {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+    .custom-radio input[type="radio"] {
+      accent-color: var(--gold-primary);
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Order Summary Live Banner */
+    .order-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(229, 179, 90, 0.05);
+      border: 1px solid rgba(229, 179, 90, 0.2);
+      border-radius: 14px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .summary-passes-count {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+    .summary-passes-count strong { color: #fff; }
+    .summary-total-val {
+      font-family: var(--font-mono);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--gold-primary);
+    }
+
+    .btn-submit-order {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold-primary) 0%, #b88636 100%);
+      color: #060b11;
+      border: none;
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 1.25rem;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 8px 30px var(--gold-glow);
+      transition: all 0.25s ease;
+    }
+    .btn-submit-order:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(229, 179, 90, 0.4);
+    }
+    .btn-submit-order:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ==========================================================================
+       CONCERT / EVENT TICKET MODAL DISPLAY
+       ========================================================================== */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 8, 13, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .ticket-modal-container {
+      max-width: 840px;
+      width: 100%;
+      position: relative;
+      margin: auto;
+    }
+
+    .modal-close-x {
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      width: 36px;
+      height: 36px;
+      background: #0e1b2b;
+      border: 1px solid rgba(229, 179, 90, 0.5);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: all 0.2s;
+    }
+    .modal-close-x:hover {
+      background: var(--gold-primary);
+      color: #060b11;
+      transform: scale(1.1);
+    }
+
+    /* Authentic Concert / Event Ticket */
+    .concert-ticket {
+      display: flex;
+      flex-direction: row;
+      background: radial-gradient(circle at 10% 10%, rgba(229, 179, 90, 0.08) 0%, transparent 45%),
+                  radial-gradient(circle at 90% 90%, rgba(30, 58, 43, 0.25) 0%, transparent 50%),
+                  #0a1420;
+      border: 1.5px solid rgba(229, 179, 90, 0.45);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.85), 0 0 50px var(--gold-glow);
+      position: relative;
+    }
+
+    .ticket-main {
+      flex: 1;
+      padding: 2.2rem 2.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .ticket-brand-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1.1rem;
+    }
+
+    .ticket-logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+      flex-shrink: 0;
+    }
+
+    .ticket-brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ticket-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      color: var(--gold-primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .ticket-title {
+      font-family: var(--font-display);
+      font-size: 1.28rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+
+    .ticket-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+      margin-top: 3px;
+    }
+
+    .ticket-venue-strip {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 0.85rem 1.15rem;
+      gap: 1rem;
+    }
+
+    .venue-cell {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .v-label {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      letter-spacing: 1.5px;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .v-value {
+      font-size: 0.88rem;
+      color: #fff;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .ticket-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .t-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.95rem;
+    }
+
+    .t-item {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.3;
+    }
+
+    .t-k {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .t-v {
+      font-size: 0.95rem;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .t-v.mono {
+      font-family: var(--font-mono);
+      letter-spacing: 1.5px;
+    }
+
+    .t-v.gold { color: var(--gold-primary); }
+
+    .t-v.price {
+      font-size: 1.2rem;
+      color: var(--gold-primary);
+      font-weight: 700;
+    }
+
+    .t-v-text {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+
+    .ticket-dietary-row {
+      background: rgba(229, 179, 90, 0.07);
+      border: 1px dashed rgba(229, 179, 90, 0.3);
+      padding: 0.6rem 0.9rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ticket-dietary-row .t-k { margin-bottom: 0; color: var(--gold-primary); }
+    .ticket-dietary-row .t-v-sm { font-size: 0.84rem; color: #f1f5f9; }
+
+    .ticket-security-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    /* Perforation Divider with Notches */
+    .ticket-perforation {
+      position: relative;
+      width: 0;
+      border-left: 2px dashed rgba(229, 179, 90, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notch {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background: #04080d;
+      border-radius: 50%;
+      left: -14px;
+      z-index: 2;
+    }
+    .notch-top {
+      top: -14px;
+      border-bottom: 1.5px solid rgba(229, 179, 90, 0.45);
+    }
+    .notch-bottom {
+      bottom: -14px;
+      border-top: 1.5px solid rgba(229, 179, 90, 0.45);
+    }
+
+    /* Ticket Stub (Right) */
+    .ticket-stub {
+      width: 220px;
+      background: rgba(14, 27, 43, 0.92);
+      padding: 2.2rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .stub-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stub-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: contain;
+    }
+
+    .stub-brand {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #fff;
+      letter-spacing: 1.5px;
+    }
+
+    .stub-pass-badge {
+      background: linear-gradient(135deg, var(--gold-primary) 0%, #b88636 100%);
+      color: #060b11;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.92rem;
+      letter-spacing: 1px;
+      padding: 6px 14px;
+      border-radius: 50px;
+      width: 100%;
+      box-shadow: 0 4px 14px var(--gold-glow);
+    }
+
+    .stub-details {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .stub-detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 3px;
+    }
+
+    .stub-detail-item span {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+    }
+
+    .stub-detail-item strong {
+      color: #fff;
+      font-size: 0.78rem;
+    }
+
+    .stub-detail-item strong.gold {
+      color: var(--gold-primary);
+    }
+
+    .stub-barcode-block {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .ticket-barcode-svg {
+      width: 100%;
+      height: 38px;
+      color: var(--gold-primary);
+    }
+
+    .stub-serial {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .stub-stamp {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(229, 179, 90, 0.7);
+      border: 1px dashed rgba(229, 179, 90, 0.35);
+      padding: 3px 8px;
+      border-radius: 4px;
+      width: 100%;
+    }
+
+    /* Payment Box Below Ticket */
+    .ticket-payment-box {
+      background: rgba(14, 27, 43, 0.95);
+      border: 1px solid rgba(229, 179, 90, 0.35);
+      border-radius: 14px;
+      padding: 1.15rem 1.5rem;
+      margin-top: 1.25rem;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      line-height: 1.55;
+    }
+
+    .ticket-payment-box h4 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: var(--gold-primary);
+      margin-bottom: 4px;
+    }
+
+    .ticket-payment-box code {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(229, 179, 90, 0.4);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      color: var(--gold-primary);
+      font-weight: 600;
+    }
+
+    /* Modal Action Buttons */
+    .ticket-modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .btn-ticket-print {
+      flex: 1;
+      background: linear-gradient(135deg, var(--gold-primary) 0%, #b88636 100%);
+      color: #060b11;
+      border: none;
+      padding: 0.95rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 18px var(--gold-glow);
+      transition: all 0.2s ease;
+    }
+    .btn-ticket-print:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(229, 179, 90, 0.45);
+    }
+
+    .btn-ticket-close {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid var(--border-subtle);
+      padding: 0.95rem 1.75rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-ticket-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 4rem 0 3rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+    footer a { color: var(--gold-primary); text-decoration: none; }
+
+    @media (max-width: 960px) {
+      .nav-divider { display: none; }
+      .brand-town { display: none; }
+    }
+
+    @media (max-width: 900px) {
+      .date-split-grid, .form-grid, .dual-hook-grid { grid-template-columns: 1fr; }
+      .field-wrap.full { grid-column: span 1; }
+      .hero { padding-top: 8rem; }
+      .checkout-board { padding: 2rem 1.5rem; }
+    }
+
+    @media (max-width: 820px) {
+      .nav-links { display: none; }
+      .nav-back-link { display: none; }
+      .btn-ticket-nav-mobile {
+        display: inline-flex;
+        background: linear-gradient(135deg, var(--gold-primary) 0%, #b88636 100%);
+        color: #060b11;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.82rem;
+        text-decoration: none;
+        box-shadow: 0 2px 10px var(--gold-glow);
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .concert-ticket { flex-direction: column; }
+      .ticket-perforation {
+        width: 100%;
+        height: 0;
+        border-left: none;
+        border-top: 2px dashed rgba(229, 179, 90, 0.4);
+      }
+      .notch { display: none; }
+      .ticket-stub { width: 100%; padding: 1.5rem; }
+      .ticket-venue-strip, .ticket-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ==========================================================================
+       DEDICATED PRINT STYLESHEET (CLEAN SINGLE-PAGE TICKET ONLY)
+       ========================================================================== */
+    @media print {
+      @page {
+        size: letter portrait;
+        margin: 12mm 12mm;
+      }
+
+      /* Clean reset for ink-friendly paper */
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        min-height: auto !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      /* Hide ALL main website content, background glows, fixed navbars, and interactive controls */
+      body::before,
+      header,
+      .hero,
+      #why,
+      #reservations,
+      footer,
+      .ticket-modal-actions,
+      .modal-close-x {
+        display: none !important;
+      }
+
+      /* Render modal transparently in normal page flow */
+      .modal-backdrop {
+        display: block !important;
+        position: static !important;
+        inset: auto !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+
+      .ticket-modal-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* High-contrast ink-friendly concert ticket print layout */
+      .concert-ticket {
+        display: flex !important;
+        flex-direction: row !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 2px solid #0e2238 !important;
+        border-radius: 10px !important;
+        box-shadow: none !important;
+        margin: 0 0 14px 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .ticket-main {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        padding: 16px 20px !important;
+        gap: 10px !important;
+      }
+
+      .ticket-brand-header {
+        border-bottom: 2px solid #0e2238 !important;
+        padding-bottom: 8px !important;
+      }
+
+      .ticket-logo {
+        filter: none !important;
+      }
+
+      .ticket-eyebrow {
+        color: #b88636 !important;
+      }
+
+      .ticket-title {
+        color: #0a192f !important;
+        font-size: 1.15rem !important;
+      }
+
+      .ticket-sub {
+        color: #475569 !important;
+      }
+
+      .ticket-venue-strip {
+        background: #f8fafc !important;
+        border: 1.5px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        padding: 8px 12px !important;
+      }
+
+      .v-label, .t-k {
+        color: #64748b !important;
+      }
+
+      .v-value, .t-v {
+        color: #0a192f !important;
+      }
+
+      .t-v.gold, .t-v.price {
+        color: #b88636 !important;
+      }
+
+      .t-v-text {
+        color: #1e293b !important;
+      }
+
+      .ticket-security-footer {
+        border-top: 1px solid #e2e8f0 !important;
+        color: #64748b !important;
+        padding-top: 8px !important;
+      }
+
+      .ticket-perforation {
+        border-left: 2px dashed #94a3b8 !important;
+      }
+
+      .notch {
+        background: #ffffff !important;
+        border-color: #0e2238 !important;
+      }
+
+      .ticket-stub {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+        border-left: 2px dashed #94a3b8 !important;
+        padding: 16px 12px !important;
+        width: 190px !important;
+      }
+
+      .stub-brand {
+        color: #0a192f !important;
+      }
+
+      .stub-pass-badge {
+        background: #0a192f !important;
+        color: #ffffff !important;
+        box-shadow: none !important;
+      }
+
+      .stub-detail-item span {
+        color: #64748b !important;
+      }
+
+      .stub-detail-item strong {
+        color: #0a192f !important;
+      }
+
+      .stub-detail-item strong.gold {
+        color: #b88636 !important;
+      }
+
+      .ticket-barcode-svg {
+        color: #000000 !important;
+        fill: #000000 !important;
+      }
+
+      .stub-serial {
+        color: #475569 !important;
+      }
+
+      .stub-stamp {
+        border-color: #94a3b8 !important;
+        color: #475569 !important;
+      }
+
+      .ticket-payment-box {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+        border: 1.5px solid #0e2238 !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        margin-top: 10px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .ticket-payment-box h4 {
+        color: #0a192f !important;
+        margin-bottom: 4px !important;
+      }
+
+      .ticket-payment-box p {
+        color: #334155 !important;
+      }
+
+      .ticket-payment-box code {
+        background: #e2e8f0 !important;
+        color: #0a192f !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header>
+    <div class="container">
+      <div class="nav-container">
+        <div class="brand-group">
+          <a href="/" class="nav-back-link" title="Return to Troop 170 Official Site">
+            &larr; Back to Troop170.org
+          </a>
+          <div class="nav-divider"></div>
+          <a href="#" class="brand" aria-label="Troop 170 Banquet Home">
+            <img src="images/troop-170-logo.png" alt="Troop 170 Logo" class="brand-logo" width="42" height="42">
+            <div class="brand-info">
+              <div class="brand-name">
+                TROOP 170 <span class="brand-badge">FARMINGTON, CT</span>
+              </div>
+              <div class="brand-town">Farmington &bull; Unionville &bull; Serving Youth Since 1928</div>
+            </div>
+          </a>
+        </div>
+        <nav class="nav-links">
+          <a href="#about">The Revival</a>
+          <a href="#why">Why Attend</a>
+          <a href="#reservations">Passes &amp; RSVP</a>
+          <a href="#reservations" class="btn-ticket-nav">Reserve Tickets</a>
+        </nav>
+        <a href="#reservations" class="btn-ticket-nav-mobile">Reserve Tickets</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="about">
+    <div class="hero-bg-container" aria-hidden="true">
+      <img src="images/banquet-hall-hero.jpg" alt="Troop 170 Camp Workcoeman Dining Hall Gathering" class="hero-bg-img" fetchpriority="high" decoding="async" />
+      <div class="hero-gradient-overlay"></div>
+    </div>
+    <div class="container">
+      <div class="hero-meta">
+        <span class="pulse-dot"></span>
+        <span>The Legend Returns • Winter 2026 Revival</span>
+      </div>
+      <h1 class="hero-title">A Cherished Tradition <em>Reborn in the Woods.</em></h1>
+      <p class="hero-subtitle">
+        After an extended hiatus, Troop 170 is reviving its Annual Banquet and Campout Weekend. A relaxed gathering where cabin camping meets outdoor skills, ending Saturday evening with a warm turkey dinner, traditional scout skits, and fellowship.
+      </p>
+
+      <!-- Separate Dates Architecture -->
+      <div class="date-split-grid">
+        <div class="date-card">
+          <div class="date-card-type">
+            <span>●</span> The Full Campout Weekend
+          </div>
+          <div class="date-card-time">December 4–6, 2026</div>
+          <div class="date-card-location">Friday 6:00 PM – Sunday 10:00 AM • Camp Workcoeman Cabins & Patrol Sites</div>
+          <div class="date-card-deadline">
+            <span class="deadline-pill">⏳ RSVP Due: Friday, Nov 13, 2026</span>
+          </div>
+        </div>
+        <div class="date-card">
+          <div class="date-card-type">
+            <span>●</span> Saturday Evening Banquet & Skits
+          </div>
+          <div class="date-card-time">Saturday, Dec 5, 2026</div>
+          <div class="date-card-location">4:00 PM – 8:00 PM • Main Dining Hall • Traditional Turkey Dinner & Skits</div>
+          <div class="date-card-deadline">
+            <span class="deadline-pill">⏳ RSVP Due: Friday, Nov 13, 2026</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- "Why We Gather" / The Mission Dual Hook Section -->
+  <section id="why">
+    <div class="container">
+      <div class="section-headline">
+        <span class="section-eyebrow">The Mission</span>
+        <h2 class="section-title">Celebrate Scouting by Scouting</h2>
+      </div>
+
+      <div class="why-mission-banner">
+        <h3>&ldquo;Celebrate Scouting by Scouting&rdquo;</h3>
+        <p>We believe the truest celebration of Troop 170 isn&rsquo;t spent sitting in a generic function hall—it lives around campfires, in heated rustic cabins, over Dutch ovens in the crisp December air, and across shared dinner tables with the people who make this unit a family.</p>
+      </div>
+
+      <div class="dual-hook-grid">
+        <!-- Card A: Scouts, AOLs & Webelos -->
+        <div class="hook-card scout-card">
+          <div class="hook-card-tag">🌲 Youth Adventures &bull; Bunks &bull; Outdoor Skills</div>
+          <h3>For Scouts, AOLs &amp; Webelos</h3>
+          <p class="hook-card-lead">
+            An action-packed December weekend designed to test your trail skills, ignite your leadership, and forge lasting brotherhood between Troops and Packs.
+          </p>
+          <ul class="hook-features">
+            <li>
+              <span class="hook-icon-check">✓</span>
+              <div><strong>Heated Cabin Lodging:</strong> Sleep warm and comfortable in Camp Workcoeman&rsquo;s historic heated cabins with bunkmates, evening camaraderie, and cracker barrel treats (optional winter tent camping is also available for scouts who want the outdoor challenge!). <em>Note: A dedicated, heated cabin is reserved specifically for Female Scouters (Pack or Troop).</em></div>
+            </li>
+            <li>
+              <span class="hook-icon-check">✓</span>
+              <div><strong>Pioneering &amp; Wilderness Skills:</strong> Hands-on fire building, winter navigation, knots, and outdoor skill demonstrations. Scouts enjoy daytime outdoor activities while having full access to the heated main dining hall and cabins throughout the weekend.</div>
+            </li>
+            <li>
+              <span class="hook-icon-check">✓</span>
+              <div><strong>Dutch Oven Baking Demo &amp; Tasting:</strong> Learn outdoor cast-iron cooking techniques as leaders and senior scouts demonstrate baking traditional Dutch oven apple pies over hot coals, with warm slices to sample!</div>
+            </li>
+            <li>
+              <span class="hook-icon-check">✓</span>
+              <div><strong>Fireside Mentorship:</strong> Webelos &amp; AOL Scouts experience Troop 170&rsquo;s scout-led culture firsthand alongside seasoned Senior Patrol Leaders.</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Card B: Alumni, Families & Friends -->
+        <div class="hook-card family-card">
+          <div class="hook-card-tag">🦃 Community Heritage &bull; Tradition &bull; Dinner</div>
+          <h3>For Alumni, Families &amp; Friends</h3>
+          <p class="hook-card-lead">
+            A heartwarming homecoming honoring six decades of Troop 170 history, community service, Eagle achievements, and unforgettable memories.
+          </p>
+          <ul class="hook-features">
+            <li>
+              <span class="hook-icon-check">✓</span>
+              <div><strong>Traditional Roast Turkey Dinner:</strong> Traditional roasted turkey dinner, savory stuffing, warm mashed potatoes and gravy, veggies, desserts and pies.</div>
+            </li>
+            <li>
+              <span class="hook-icon-check">✓</span>
+              <div><strong>Traditional Scout Skits &amp; Songs:</strong> Laugh along with legendary patrol skits, hilarious campfire performances, and musical traditions.</div>
+            </li>
+            <li>
+              <span class="hook-icon-check">✓</span>
+              <div><strong>Scout Presentations &amp; Troop Highlights:</strong> Enjoy inspiring youth-led presentations, patrol highlights, and stories from a memorable year of Scouting.</div>
+            </li>
+            <li>
+              <span class="hook-icon-check">✓</span>
+              <div><strong>Generational Fellowship:</strong> Reconnect with fellow parents, Scouters, past Scoutmasters, and alumni who built this troop.</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Passes & Reservations -->
+  <section class="tickets-section" id="reservations">
+    <div class="container">
+      <div class="section-headline">
+        <span class="section-eyebrow">Reservations & Passes &bull; RSVPs Due Nov 13</span>
+        <h2 class="section-title">Select Your Passes</h2>
+      </div>
+
+      <!-- Safeguarding Youth & Lodging Compliance Callout -->
+      <div class="safeguarding-box">
+        <div class="safeguarding-header">
+          <div class="sg-shield">🛡️</div>
+          <div>
+            <h3 class="sg-title">Safeguarding Youth &amp; Lodging Compliance</h3>
+            <p class="sg-subtitle">Scouting America Guidelines &bull; Troop 170 Strict Compliance Standards</p>
+          </div>
+        </div>
+        <div class="safeguarding-grid">
+          <div class="sg-item">
+            <div class="sg-item-tag">⚜️ Troop Overnight Camping</div>
+            <p>Per Scouting America policy, <strong>all adults staying overnight with Troop Scouts must be fully registered Adult Leaders</strong> with active Safeguarding Youth and background verification. Non-registered Troop parents are warmly invited to join daytime activities and the Saturday Evening Banquet!</p>
+          </div>
+          <div class="sg-item">
+            <div class="sg-item-tag">🏕️ Pack Families (AOL &amp; Webelos)</div>
+            <p>Parents and legal guardians of attending AOL / Webelos Scouts <strong>are permitted and encouraged to camp overnight</strong> in designated family/pack cabins alongside their youth. One parent attends free with each registered AOL cabin camper.</p>
+          </div>
+          <div class="sg-item">
+            <div class="sg-item-tag">🌲 Female Scouter Accommodations</div>
+            <p>To ensure comfortable, compliant facilities for all volunteers, <strong>a dedicated heated cabin is reserved exclusively for Female Scouters</strong> (both Troop and Pack registered leaders and mothers).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ticket Shelf Cards -->
+      <div class="ticket-shelf">
+        <div class="t-card featured">
+          <span class="t-badge">Weekend</span>
+          <div class="t-role">Troop Scout Camping</div>
+          <div class="t-price">$30 <span>/ scout</span></div>
+          <div class="t-desc">Full weekend camping (Fri–Sun), all patrol meals, and Saturday banquet dinner.</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" onclick="updateQty('troopScout', -1)">−</button>
+            <span class="stepper-val" id="qty-troopScout">0</span>
+            <button type="button" class="stepper-btn" onclick="updateQty('troopScout', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="t-card">
+          <span class="t-badge">Waterside Cabin</span>
+          <div class="t-role">AOL / Webelos Cabin</div>
+          <div class="t-price">$15 <span>/ scout</span></div>
+          <div class="t-desc">Full weekend cabin stay, outdoor advancement, and banquet dinner. <strong>1 Parent Attends Free!</strong></div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" onclick="updateQty('aolCabin', -1)">−</button>
+            <span class="stepper-val" id="qty-aolCabin">0</span>
+            <button type="button" class="stepper-btn" onclick="updateQty('aolCabin', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="t-card">
+          <div class="t-role">Webelos Saturday Day</div>
+          <div class="t-price">$0 <span>/ scout</span></div>
+          <div class="t-desc">Saturday daytime outdoor skills, pie prep, skit rehearsal, and banquet participation.</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" onclick="updateQty('webelosDay', -1)">−</button>
+            <span class="stepper-val" id="qty-webelosDay">0</span>
+            <button type="button" class="stepper-btn" onclick="updateQty('webelosDay', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="t-card">
+          <div class="t-role">Saturday Banquet Guest</div>
+          <div class="t-price">$10 <span>/ guest</span></div>
+          <div class="t-desc">Saturday 4–8 PM traditional turkey dinner, dessert buffet, alumni fellowship, and skits.</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" onclick="updateQty('banquetGuest', -1)">−</button>
+            <span class="stepper-val" id="qty-banquetGuest">0</span>
+            <button type="button" class="stepper-btn" onclick="updateQty('banquetGuest', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="t-card">
+          <span class="t-badge leader">BSA Registered</span>
+          <div class="t-role">Registered Leader Camping</div>
+          <div class="t-price">$0 <span>/ leader</span></div>
+          <div class="t-desc">For registered Adult Leaders with active Safeguarding Youth (Troop or Pack). Cabin lodging, meals, and banquet dinner included.</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" onclick="updateQty('leaderCamp', -1)">−</button>
+            <span class="stepper-val" id="qty-leaderCamp">0</span>
+            <button type="button" class="stepper-btn" onclick="updateQty('leaderCamp', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="t-card">
+          <span class="t-badge pack">Pack Families Only</span>
+          <div class="t-role">Pack Parent Camping</div>
+          <div class="t-price">$0 <span>/ parent</span></div>
+          <div class="t-desc">For parents/guardians accompanying an AOL/Webelos scout in the pack cabin. (Troop parents overnighting must be registered leaders).</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" onclick="updateQty('parentCamp', -1)">−</button>
+            <span class="stepper-val" id="qty-parentCamp">0</span>
+            <button type="button" class="stepper-btn" onclick="updateQty('parentCamp', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="t-card">
+          <div class="t-role">Volunteer Support Staff</div>
+          <div class="t-price">$0 <span>/ volunteer</span></div>
+          <div class="t-desc">Saturday kitchen crew, food preparation, or cleanup team support. Dinner included.</div>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" onclick="updateQty('staff', -1)">−</button>
+            <span class="stepper-val" id="qty-staff">0</span>
+            <button type="button" class="stepper-btn" onclick="updateQty('staff', 1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Registration Form Board -->
+      <div class="checkout-board">
+        <form id="rsvp-form" onsubmit="handleRegistration(event)">
+          <div class="form-grid">
+            <div class="field-wrap">
+              <label class="field-label" for="contact-name">Primary Contact Name *</label>
+              <input type="text" id="contact-name" class="field-input" required placeholder="First & Last Name">
+            </div>
+            <div class="field-wrap">
+              <label class="field-label" for="contact-email">Email Address *</label>
+              <input type="email" id="contact-email" class="field-input" required placeholder="name@example.com">
+            </div>
+            <div class="field-wrap">
+              <label class="field-label" for="contact-phone">Mobile Phone *</label>
+              <input type="tel" id="contact-phone" class="field-input" required placeholder="(860) 000-0000">
+            </div>
+            <div class="field-wrap">
+              <label class="field-label" for="volunteer-role">If Volunteer, Preferred Role</label>
+              <select id="volunteer-role" class="field-select">
+                <option value="None">Not Volunteering / General Guest</option>
+                <option value="Kitchen / Cook">Kitchen Prep & Cooking Staff</option>
+                <option value="Cleanup">Post-Banquet Dining Hall Cleanup</option>
+              </select>
+            </div>
+            <div class="field-wrap full">
+              <label class="field-label" for="attendee-names">Full Names of All Attendees in Your Party *</label>
+              <textarea id="attendee-names" class="field-textarea" rows="2" required placeholder="List full names of all Scouts, parents, siblings, and alumni attending..."></textarea>
+            </div>
+            <div class="field-wrap full">
+              <label class="field-label" for="dietary">Dietary Restrictions or Food Allergies</label>
+              <input type="text" id="dietary" class="field-input" placeholder="e.g. Nut allergy (1), Gluten-free (1), Vegetarian (1)">
+            </div>
+          </div>
+
+          <!-- Payment Options -->
+          <div class="payment-block">
+            <span class="field-label">Select Payment Method *</span>
+            <div class="payment-options">
+              <label class="custom-radio">
+                <input type="radio" name="paymentMethod" value="Venmo" checked>
+                Venmo (@Troop170-Farmington)
+              </label>
+              <label class="custom-radio">
+                <input type="radio" name="paymentMethod" value="Cash / Check">
+                Cash or Check at Check-In
+              </label>
+              <label class="custom-radio">
+                <input type="radio" name="paymentMethod" value="Scout Dollars">
+                Scout Dollars (Troop Account)
+              </label>
+            </div>
+          </div>
+
+          <!-- Order Summary Live Bar -->
+          <div class="order-bar">
+            <div class="summary-passes-count">
+              Passes Selected: <strong id="summary-passes">0 Passes</strong>
+            </div>
+            <div class="summary-total-val" id="summary-total">$0.00</div>
+          </div>
+
+          <button type="submit" class="btn-submit-order" id="submit-btn">Complete Reservation & Generate Ticket</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Concert Ticket Modal -->
+  <div class="modal-backdrop" id="voucherModal" role="dialog" aria-modal="true" aria-labelledby="t-event-title">
+    <div class="ticket-modal-container">
+      <button type="button" class="modal-close-x" onclick="closeVoucher()" aria-label="Close ticket">&times;</button>
+      
+      <!-- Authentic Concert / Event Ticket -->
+      <div class="concert-ticket">
+        <!-- Main Body (Left) -->
+        <div class="ticket-main">
+          <div class="ticket-brand-header">
+            <img src="images/troop-170-logo.png" alt="Troop 170 Logo" class="ticket-logo" width="54" height="54">
+            <div class="ticket-brand-text">
+              <span class="ticket-eyebrow">★ OFFICIAL ADMISSION PASS ★</span>
+              <h3 class="ticket-title" id="t-event-title">TROOP 170 • 2026 REVIVAL BANQUET &amp; CAMPOUT</h3>
+              <p class="ticket-sub">Scouts BSA • Farmington &amp; Unionville, CT • Serving Youth Since 1928</p>
+            </div>
+          </div>
+
+          <div class="ticket-venue-strip">
+            <div class="venue-cell">
+              <span class="v-label">DATE &amp; TIME</span>
+              <strong class="v-value">DEC 4–6, 2026 • SATURDAY BANQUET 4:00 PM – 8:00 PM</strong>
+            </div>
+            <div class="venue-cell">
+              <span class="v-label">LOCATION</span>
+              <strong class="v-value">CAMP WORKCOEMAN • NEW HARTFORD, CT</strong>
+            </div>
+          </div>
+
+          <div class="ticket-grid">
+            <div class="t-col">
+              <div class="t-item">
+                <span class="t-k">PRIMARY GUEST</span>
+                <strong class="t-v" id="t-name">--</strong>
+              </div>
+              <div class="t-item">
+                <span class="t-k">ORDER / PASS CODE</span>
+                <strong class="t-v mono gold" id="t-receipt">T170-REVIVAL-XXXXXX</strong>
+              </div>
+              <div class="t-item">
+                <span class="t-k">PARTY ATTENDEES</span>
+                <div class="t-v-text" id="t-attendees">--</div>
+              </div>
+            </div>
+
+            <div class="t-col">
+              <div class="t-item">
+                <span class="t-k">PASS BREAKDOWN</span>
+                <div class="t-v-text" id="t-breakdown">--</div>
+              </div>
+              <div class="t-item">
+                <span class="t-k">PAYMENT METHOD</span>
+                <strong class="t-v" id="t-payment">--</strong>
+              </div>
+              <div class="t-item">
+                <span class="t-k">TOTAL BALANCE DUE</span>
+                <strong class="t-v price" id="t-total">$0.00</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="ticket-dietary-row" id="t-dietary-wrap" style="display:none;">
+            <span class="t-k">DIETARY NOTES:</span>
+            <span class="t-v-sm" id="t-dietary">--</span>
+          </div>
+
+          <div class="ticket-security-footer">
+            <span>● NON-TRANSFERABLE</span>
+            <span>● PRESENT AT CAMP WORKCOEMAN MAIN DINING HALL CHECK-IN</span>
+            <span>● ADMIT PARTY IN FULL</span>
+          </div>
+        </div>
+
+        <!-- Perforation Divider with Circular Notches -->
+        <div class="ticket-perforation">
+          <div class="notch notch-top"></div>
+          <div class="perf-line"></div>
+          <div class="notch notch-bottom"></div>
+        </div>
+
+        <!-- Ticket Stub (Right) -->
+        <div class="ticket-stub">
+          <div class="stub-header">
+            <img src="images/troop-170-logo.png" alt="Troop 170 Crest" class="stub-logo" width="38" height="38">
+            <div class="stub-brand">TROOP 170</div>
+          </div>
+
+          <div class="stub-pass-badge" id="t-stub-count">ADMIT 1</div>
+          
+          <div class="stub-details">
+            <div class="stub-detail-item">
+              <span>VENUE</span>
+              <strong>WORKCOEMAN</strong>
+            </div>
+            <div class="stub-detail-item">
+              <span>DATE</span>
+              <strong>DEC 5, 2026</strong>
+            </div>
+            <div class="stub-detail-item">
+              <span>PASS ID</span>
+              <strong class="stub-id gold" id="t-stub-id">T170-XXXXXX</strong>
+            </div>
+          </div>
+
+          <!-- Vector Barcode -->
+          <div class="stub-barcode-block">
+            <svg class="ticket-barcode-svg" viewBox="0 0 200 44" preserveAspectRatio="none">
+              <rect x="0" y="0" width="3" height="44" fill="currentColor"/>
+              <rect x="5" y="0" width="2" height="44" fill="currentColor"/>
+              <rect x="10" y="0" width="4" height="44" fill="currentColor"/>
+              <rect x="17" y="0" width="2" height="44" fill="currentColor"/>
+              <rect x="22" y="0" width="5" height="44" fill="currentColor"/>
+              <rect x="30" y="0" width="2" height="44" fill="currentColor"/>
+              <rect x="35" y="0" width="4" height="44" fill="currentColor"/>
+              <rect x="42" y="0" width="5" height="44" fill="currentColor"/>
+              <rect x="50" y="0" width="2" height="44" fill="currentColor"/>
+              <rect x="55" y="0" width="4" height="44" fill="currentColor"/>
+              <rect x="62" y="0" width="3" height="44" fill="currentColor"/>
+              <rect x="68" y="0" width="6" height="44" fill="currentColor"/>
+              <rect x="77" y="0" width="2" height="44" fill="currentColor"/>
+              <rect x="82" y="0" width="4" height="44" fill="currentColor"/>
+              <rect x="89" y="0" width="3" height="44" fill="currentColor"/>
+              <rect x="95" y="0" width="5" height="44" fill="currentColor"/>
+              <rect x="103" y="0" width="2" height="44" fill="currentColor"/>
+              <rect x="108" y="0" width="6" height="44" fill="currentColor"/>
+              <rect x="117" y="0" width="3" height="44" fill="currentColor"/>
+              <rect x="123" y="0" width="4" height="44" fill="currentColor"/>
+              <rect x="130" y="0" width="2" height="44" fill="currentColor"/>
+              <rect x="135" y="0" width="5" height="44" fill="currentColor"/>
+              <rect x="143" y="0" width="3" height="44" fill="currentColor"/>
+              <rect x="149" y="0" width="6" height="44" fill="currentColor"/>
+              <rect x="158" y="0" width="2" height="44" fill="currentColor"/>
+              <rect x="163" y="0" width="4" height="44" fill="currentColor"/>
+              <rect x="170" y="0" width="5" height="44" fill="currentColor"/>
+              <rect x="178" y="0" width="3" height="44" fill="currentColor"/>
+              <rect x="184" y="0" width="2" height="44" fill="currentColor"/>
+              <rect x="189" y="0" width="6" height="44" fill="currentColor"/>
+              <rect x="198" y="0" width="2" height="44" fill="currentColor"/>
+            </svg>
+            <span class="stub-serial" id="t-stub-serial">*T170-REVIVAL*</span>
+          </div>
+
+          <div class="stub-stamp">CHECK-IN DESK COPY</div>
+        </div>
+      </div>
+
+      <!-- Payment / Check-in Guidance Card -->
+      <div class="ticket-payment-box" id="t-payment-note"></div>
+
+      <!-- Modal Actions (Hidden in Print) -->
+      <div class="ticket-modal-actions">
+        <button type="button" class="btn-ticket-print" onclick="window.print()">
+          <span style="font-size:1.15rem;">🖨️</span> Print / Save Ticket (PDF)
+        </button>
+        <button type="button" class="btn-ticket-close" onclick="closeVoucher()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>Scouts BSA Troop 170 • Farmington & Unionville, Connecticut</p>
+      <p style="margin-top:6px">Chartered by First Church of Christ, Unionville CT</p>
+      <p style="margin-top:12px"><a href="/">Return to Troop170.org</a></p>
+    </div>
+  </footer>
+
+  <script>
+    const prices = {
+      troopScout: 30,
+      aolCabin: 15,
+      webelosDay: 0,
+      banquetGuest: 10,
+      leaderCamp: 0,
+      parentCamp: 0,
+      staff: 0
+    };
+
+    const counts = {
+      troopScout: 0,
+      aolCabin: 0,
+      webelosDay: 0,
+      banquetGuest: 0,
+      leaderCamp: 0,
+      parentCamp: 0,
+      staff: 0
+    };
+
+    function updateQty(tier, delta) {
+      counts[tier] = Math.max(0, counts[tier] + delta);
+      document.getElementById(`qty-${tier}`).innerText = counts[tier];
+      renderSummary();
+    }
+
+    function renderSummary() {
+      const totalCount = Object.values(counts).reduce((a, b) => a + b, 0);
+      const totalDue = (counts.troopScout * prices.troopScout) +
+                       (counts.aolCabin * prices.aolCabin) +
+                       (counts.banquetGuest * prices.banquetGuest);
+
+      document.getElementById('summary-total').innerText = `$${totalDue.toFixed(2)}`;
+      document.getElementById('summary-passes').innerText = `${totalCount} Pass${totalCount === 1 ? '' : 'es'}`;
+    }
+
+    // Google Apps Script Webhook Endpoint
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhp7BKO1v8B9m3zHxOwSb3afIWxSNpGDUzHMAdjqiBqucodZLm9R8-jrQo7J8BaYLh/exec";
+
+    async function handleRegistration(e) {
+      e.preventDefault();
+      const totalCount = Object.values(counts).reduce((a, b) => a + b, 0);
+      if (totalCount === 0) {
+        alert("Please select at least one pass before completing your reservation.");
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Securing Reservation...";
+
+      const totalDue = (counts.troopScout * prices.troopScout) +
+                       (counts.aolCabin * prices.aolCabin) +
+                       (counts.banquetGuest * prices.banquetGuest);
+
+      const receiptId = "T170-REVIVAL-" + Math.floor(100000 + Math.random() * 900000);
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+      const payload = {
+        receiptId: receiptId,
+        name: document.getElementById('contact-name').value.trim(),
+        email: document.getElementById('contact-email').value.trim(),
+        phone: document.getElementById('contact-phone').value.trim(),
+        volunteerRole: document.getElementById('volunteer-role').value,
+        attendees: document.getElementById('attendee-names').value.trim(),
+        dietary: document.getElementById('dietary').value.trim(),
+        paymentMethod: paymentMethod,
+        tickets: counts,
+        total: totalDue
+      };
+
+      try {
+        if (!SCRIPT_URL.includes("example")) {
+          await fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+        }
+      } catch (err) {
+        console.warn("Webhook logging failed:", err);
+      }
+
+      // Populate Concert Ticket & Stub
+      document.getElementById('t-receipt').innerText = receiptId;
+      document.getElementById('t-stub-id').innerText = receiptId;
+      document.getElementById('t-stub-serial').innerText = `*${receiptId}*`;
+      document.getElementById('t-name').innerText = payload.name;
+      document.getElementById('t-attendees').innerText = payload.attendees;
+      document.getElementById('t-payment').innerText = paymentMethod;
+      document.getElementById('t-total').innerText = `$${totalDue.toFixed(2)}`;
+      document.getElementById('t-stub-count').innerText = `ADMIT ${totalCount}`;
+
+      let breakdown = [];
+      if (counts.troopScout > 0) breakdown.push(`${counts.troopScout} Troop Camper(s)`);
+      if (counts.aolCabin > 0) breakdown.push(`${counts.aolCabin} AOL Cabin (Adult Free)`);
+      if (counts.webelosDay > 0) breakdown.push(`${counts.webelosDay} Webelos Day`);
+      if (counts.banquetGuest > 0) breakdown.push(`${counts.banquetGuest} Banquet Guest(s)`);
+      if (counts.leaderCamp > 0) breakdown.push(`${counts.leaderCamp} Leader(s)`);
+      if (counts.parentCamp > 0) breakdown.push(`${counts.parentCamp} Pack Parent Camper(s)`);
+      if (counts.staff > 0) breakdown.push(`${counts.staff} Staff`);
+      document.getElementById('t-breakdown').innerText = breakdown.join(', ');
+
+      const dietaryWrap = document.getElementById('t-dietary-wrap');
+      if (payload.dietary) {
+        dietaryWrap.style.display = 'flex';
+        document.getElementById('t-dietary').innerText = payload.dietary;
+      } else {
+        dietaryWrap.style.display = 'none';
+      }
+
+      const noteEl = document.getElementById('t-payment-note');
+      if (paymentMethod === "Venmo" && totalDue > 0) {
+        noteEl.innerHTML = `
+          <h4>📱 Next Step: Complete Venmo Payment</h4>
+          <p>Please open the Venmo app and send <strong>$${totalDue.toFixed(2)}</strong> to <strong>@Troop170-Farmington</strong>.</p>
+          <p style="margin-top:6px;">⚠️ <strong>Important:</strong> Enter Order ID <code>${receiptId}</code> in the Venmo payment note to reconcile your registration.</p>
+        `;
+      } else if (paymentMethod === "Scout Dollars" && totalDue > 0) {
+        noteEl.innerHTML = `
+          <h4>⚜️ Scout Dollars Payment</h4>
+          <p>Your balance of <strong>$${totalDue.toFixed(2)}</strong> will be deducted from your Scout Account.</p>
+          <p style="margin-top:6px;">The Troop Treasurer will reconcile this using Order ID <code>${receiptId}</code>. Please ensure your Scout Account has sufficient funds.</p>
+        `;
+      } else if (totalDue > 0) {
+        noteEl.innerHTML = `
+          <h4>💵 Payment Due at Check-In</h4>
+          <p>Your balance of <strong>$${totalDue.toFixed(2)}</strong> is payable upon arrival at the Camp Workcoeman main dining hall check-in desk.</p>
+          <p style="margin-top:6px;">Please bring cash or check payable to <strong>Troop 170</strong> with Order ID <code>${receiptId}</code> in the memo line.</p>
+        `;
+      } else {
+        noteEl.innerHTML = `
+          <h4>✅ Registration Confirmed</h4>
+          <p>No payment is due for this registration. Please bring this ticket with you to the Camp Workcoeman dining hall check-in desk.</p>
+        `;
+      }
+
+      document.getElementById('voucherModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Complete Reservation & Generate Ticket";
+    }
+
+    function closeVoucher() {
+      document.getElementById('voucherModal').classList.remove('open');
+      document.body.style.overflow = '';
+      document.getElementById('rsvp-form').reset();
+      Object.keys(counts).forEach(k => {
+        counts[k] = 0;
+        document.getElementById(`qty-${k}`).innerText = "0";
+      });
+      renderSummary();
+    }
+
+    // Close modal on click outside ticket
+    window.addEventListener('click', function(e) {
+      const modal = document.getElementById('voucherModal');
+      if (e.target === modal) {
+        closeVoucher();
+      }
+    });
+
+    // Close modal on Escape key
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('voucherModal');
+        if (modal && modal.classList.contains('open')) {
+          closeVoucher();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
