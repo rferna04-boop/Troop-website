@@ -1665,6 +1665,23 @@ export default function App() {
                       </a>
                    </div>
 
+                   {/* CARD 9: TROOP 170 RECIPES */}
+                   <div className="bg-gradient-to-br from-white to-emerald-50 border border-emerald-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-emerald-600 mb-6 shadow-sm"><Utensils size={24}/></div>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Troop 170 Recipes</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Patrol meal ideas and campout recipes shared by Troop 170 scouts and families.</p>
+                      </div>
+                      <a 
+                        href="https://sites.google.com/view/troop170recipes/recipes" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center space-x-2 text-emerald-600 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform"
+                      >
+                        <span>Browse Recipes</span><ExternalLink size={14}/>
+                      </a>
+                   </div>
+
                    {/* CARD 8: SCOUT LIFE MAGAZINE */}
                    <div className="group relative bg-[#161B22] rounded-3xl p-6 sm:p-8 border border-white/5 hover:border-[#BE1E2D]/50 transition-all duration-500 overflow-hidden lg:col-span-2">
                      <div className="absolute -right-8 -top-8 text-white/5 group-hover:text-[#BE1E2D]/10 transition-colors duration-500 pointer-events-none">
