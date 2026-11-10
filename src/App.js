@@ -7,10 +7,11 @@ import {
   LogOut, BookOpen, X, Printer, Snowflake, Mountain, 
   Facebook, Sun, Quote, Image as ImageIcon,
   Utensils, ShoppingBag, PlusCircle, MinusCircle, AlertCircle, RefreshCw,
-  Send, Menu
+  Send, Menu, Package
 } from 'lucide-react';
 
 import ScoutDispatch from './pages/ScoutDispatch';
+import WreathDistribution from './pages/WreathDistribution';
 
 // Route component for standalone paths
 function Route({ path, element }) {
@@ -1682,8 +1683,20 @@ export default function App() {
                       </a>
                    </div>
 
+                   {/* CARD 10: WREATH DISTRIBUTION */}
+                   <div className="bg-gradient-to-br from-white to-red-50 border border-red-100 p-6 sm:p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group rounded-none">
+                      <div>
+                         <div className="w-12 h-12 bg-white flex items-center justify-center text-[#143d23] mb-6 shadow-sm"><Package size={24}/></div>
+                         <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Wreath Distribution</h3>
+                         <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8">Select your Scout for pickup counts, decorating supplies kit, and printable customer delivery slips.</p>
+                      </div>
+                      <button onClick={() => navigateTo('wreathDistribution')} className="flex items-center space-x-2 text-[#143d23] font-black uppercase tracking-widest text-[10px] group-hover:translate-x-1 transition-transform text-left">
+                        <span>Open Pick List</span><ArrowUpRight size={14}/>
+                      </button>
+                   </div>
+
                    {/* CARD 8: SCOUT LIFE MAGAZINE */}
-                   <div className="group relative bg-[#161B22] rounded-3xl p-6 sm:p-8 border border-white/5 hover:border-[#BE1E2D]/50 transition-all duration-500 overflow-hidden lg:col-span-2">
+                   <div className="group relative bg-[#161B22] rounded-3xl p-6 sm:p-8 border border-white/5 hover:border-[#BE1E2D]/50 transition-all duration-500 overflow-hidden lg:col-span-1">
                      <div className="absolute -right-8 -top-8 text-white/5 group-hover:text-[#BE1E2D]/10 transition-colors duration-500 pointer-events-none">
                        <BookOpen size={160} />
                      </div>
@@ -1713,6 +1726,24 @@ export default function App() {
               </div>
             )}
           </div>
+        )}
+
+        {/* --- DYNAMIC ROOM: WREATH DISTRIBUTION --- */}
+        {currentPage === 'wreathDistribution' && (
+          isLoggedIn ? (
+            <WreathDistribution onReturnToPortal={() => navigateTo('portal')} />
+          ) : (
+            <div className="bg-gray-50 min-h-screen flex items-center justify-center py-16 px-4">
+              <div className="max-w-md w-full bg-white p-8 shadow-xl border-t-4 border-[#143d23] text-center">
+                <Lock size={28} className="mx-auto text-[#143d23] mb-4" />
+                <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Member Portal Required</h3>
+                <p className="text-gray-500 text-xs sm:text-sm mb-6">Please unlock the Member Portal to access Scout wreath pick lists and delivery orders.</p>
+                <button onClick={() => navigateTo('portal')} className="w-full py-3.5 bg-[#143d23] text-white font-black uppercase tracking-widest text-xs hover:bg-black transition-colors">
+                  Go to Portal Login
+                </button>
+              </div>
+            </div>
+          )
         )}
 
         {/* --- DYNAMIC ROOM: SCOUT DOLLARS --- */}
