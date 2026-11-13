@@ -1897,7 +1897,7 @@
             <div class="payment-options">
               <label class="custom-radio">
                 <input type="radio" name="paymentMethod" value="Venmo" checked>
-                Venmo (@Troop170-Farmington)
+                Venmo (@Troop170Unionville)
               </label>
               <label class="custom-radio">
                 <input type="radio" name="paymentMethod" value="Cash / Check">
@@ -2209,7 +2209,7 @@
       if (paymentMethod === "Venmo" && totalDue > 0) {
         noteEl.innerHTML = `
           <h4>📱 Next Step: Complete Venmo Payment</h4>
-          <p>Please open the Venmo app and send <strong>$${totalDue.toFixed(2)}</strong> to <strong>@Troop170-Farmington</strong>.</p>
+          <p>Please open the Venmo app and send <strong>$${totalDue.toFixed(2)}</strong> to <strong>@Troop170Unionville</strong>.</p>
           <p style="margin-top:6px;">⚠️ <strong>Important:</strong> Enter Order ID <code>${receiptId}</code> in the Venmo payment note to reconcile your registration.</p>
         `;
       } else if (paymentMethod === "Scout Dollars" && totalDue > 0) {
